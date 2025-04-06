@@ -18,9 +18,10 @@
 .containerMaps{
     flex: 3;
 }
-#rankedEmpresa, #graphic, #maps{
+#rankedEmpresa, #graphic{
     background-color: rgb(64, 114, 158);
     height: 400px;
+  
     padding: 4px;
     margin: 2px;
 }
@@ -32,3 +33,4 @@
     padding: 3px;
     width: fit-content;
 }
+
