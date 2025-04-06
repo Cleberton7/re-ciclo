@@ -12,13 +12,16 @@
   }
   
   .modal-content {
-    background: white;
-    padding: 20px;
+    padding: 0;
     border-radius: 10px;
-    width: 400px;
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex; /* permite dividir o conteúdo em dois lados */
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
   }
+  
   
   .close-btn {
     position: absolute;
@@ -27,7 +30,7 @@
     background: red;
     color: white;
     border: none;
-    font-size: 16px;
+    font-size: 12px;
     padding: 5px;
     cursor: pointer;
   }

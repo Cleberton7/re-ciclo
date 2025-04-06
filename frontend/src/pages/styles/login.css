@@ -1,7 +1,134 @@
-h1{
+.login-modal-content {
+    display: flex;
+    width: 600px;
+    max-width: 90vw;
+    height: 300px;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .login-left {
+    flex: 1;
+    background: linear-gradient(135deg, #004d26, #009951);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-placeholder {
+
+    color: rgb(255, 255, 255);
+    font-size: 20px;
     font-weight: bold;
-    color: blue;
-}
-.containerLogin{
-    
-}
+  }
+  
+  .login-right {
+    background-color: #009951;
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  input, button {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  button {
+    background-color: #009951;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+
+  .forgot-password {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+  }
+  
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .forgot-password a {
+
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  
+  .forgot-password a:hover {
+    color: #ffffff;
+  }
+  
+  /* Modal básico */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-recover {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-recover h3 {
+    margin-bottom: 15px;
+    color: #007a3a;
+    text-align: center;
+  }
+  
+  .modal-recover input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .modal-buttons button {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    background-color: #009951;
+    color: white;
+  }
+  
+  .modal-buttons button:hover {
+    background-color: #007a3a;
+  }
+  
