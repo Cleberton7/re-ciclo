@@ -1,0 +1,11 @@
+# Node modules
+backend/node_modules/
+frontend/node_modules/
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db

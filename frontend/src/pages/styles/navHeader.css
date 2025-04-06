@@ -1,0 +1,139 @@
+.header {
+
+  background-color: #009951;
+  position: absolute;
+  top: 0;
+  left: 50%;  /* Centraliza horizontalmente */
+  transform: translateX(-50%);  /* Ajusta o deslocamento */
+  width: 90%;  /* Define uma largura máxima */
+  max-width: 1200px; /* Garante que não fique muito largo */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  margin-top: 100px;
+  border-radius: 10px; /* Borda arredondada para estética */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+}
+
+
+#logo {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: blue;
+  color: white;
+  padding: 10px;
+  min-width: 100px;
+}
+
+#nav {
+  flex: 3;
+  display: flex;
+  justify-content: space-evenly; /* Mantém os itens com espaçamento igual */
+  align-items: center;
+  padding: 5px;
+}
+
+#loginRegister {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+
+/* Estilização dos menus */
+.menu {
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background 0.3s;
+  text-align: center;
+  white-space: nowrap; /* Impede quebra de linha */
+  overflow: hidden; /* Esconde qualquer parte que ultrapasse */
+  text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
+  min-width: 50px; /* Define um tamanho mínimo para cada item */
+  margin: 4px;
+}
+
+.menu a {
+  color: white;
+  font-weight: bold;
+}
+
+/* Efeito ao passar o mouse */
+.menu:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo para o menu ativo */
+.menu.active {
+  background-color: white;
+}
+
+.menu.active a {
+  color: black;
+}
+
+/* Botões de login e registro */
+#entrar, #registrar {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+}
+
+#entrar {
+  background-color: white;
+  color: black;
+}
+
+#registrar {
+  background-color: black;
+  color: white;
+  margin-left: 5px;
+}
+
+.menu-toggle {
+  display: none;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  #nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: #009951;
+    margin-top: 10px;
+  }
+
+  #nav.open {
+    display: flex;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  #loginRegister {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .menu {
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px;
+  }
+}

@@ -1,0 +1,30 @@
+.section{
+    background-color: blue;
+    flex: 1;
+    flex-direction: column;
+    color: rgb(0, 0, 0);
+    display: flex;
+    max-width: 1200px;
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+   
+}
+
+#textSection{
+    background-color: antiquewhite;
+    border-radius: 5px;
+    height: 30px;
+    margin: 10px 0 0 10px;
+    padding: 3px;
+    width: fit-content;
+}
+#containerSection{
+    display: flex;
+}
+
+#not{
+    background-color: aliceblue;
+    flex: 1;
+    height: 400px;
+    padding: 3px;
+    margin: 10px;
+}

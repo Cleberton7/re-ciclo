@@ -1,0 +1,34 @@
+.content {
+    background-color: blue;
+    display: flex;
+    flex: 1;
+    color: rgb(0, 0, 0);
+    max-width: 1200px;
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+  }
+  
+
+.containerRanked,.containerGraphic,.containerMaps{
+    margin: 4px;
+    flex: 1;
+    padding: 3px;
+
+    
+}
+.containerMaps{
+    flex: 3;
+}
+#rankedEmpresa, #graphic, #maps{
+    background-color: rgb(64, 114, 158);
+    height: 400px;
+    padding: 4px;
+    margin: 2px;
+}
+#textRanked, #textGraph, #textLoc{
+    background-color: antiquewhite;
+    border-radius: 5px;
+    height: 30px;
+    margin-bottom: 10px;
+    padding: 3px;
+    width: fit-content;
+}

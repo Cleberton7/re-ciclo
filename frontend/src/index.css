@@ -1,0 +1,74 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #006D39;
+}
+
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #006D39; /* ESSENCIAL */
+}
+
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #006D39;
+  width: 100vw;  /* Garante que ocupe 100% da largura da tela */
+  overflow-x: hidden; /* Evita rolagem horizontal */
+  display: flex; /* Se precisar alinhar algo no centro */
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+a {
+  text-decoration: none; /* Remove o sublinhado de todos os links */
+  color: inherit; /* Mantém a cor padrão do texto */
+}
+
+a:hover {
+  text-decoration: none; /* Garante que não volte ao passar o mouse */
+}
+
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+}

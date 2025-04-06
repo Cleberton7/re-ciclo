@@ -1,0 +1,17 @@
+.footer{
+    background-color: #990000;
+    flex: 1;
+    display: flex;
+    width: 90%;
+    color: rgb(0, 0, 0);
+    max-width: 1200px;
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+    display: flex;
+    margin-bottom: 40px;
+}
+.f{
+    height: 400px;
+    background-color: silver;
+    margin: 10px;
+    flex: 1;
+}
