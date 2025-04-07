@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./styles/login.css";
+import Logo from "../assets/logo.png"
+import LogoCapa from "../assets/logoCapa.png";
 
 const Login = () => {
   const location = useLocation();
@@ -23,7 +25,10 @@ const Login = () => {
   return (
     <div className="login-modal-content">
       <div className="login-left">
-        <div className="logo-placeholder">LOGO</div>
+        <div className="logo-placeholder">
+          <img src={Logo} alt="Logo da empresa" className="logo-img" />
+          {/*<img src={LogoCapa} alt="Logo da empresa" className="logo-img" />*/}
+        </div>
       </div>
 
       <div className="login-right">

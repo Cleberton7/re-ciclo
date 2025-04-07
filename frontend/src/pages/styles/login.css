@@ -11,7 +11,7 @@
   
   .login-left {
     flex: 1;
-    background: linear-gradient(135deg, #004d26, #009951);
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,7 +25,7 @@
   }
   
   .login-right {
-    background-color: #009951;
+    background: linear-gradient(135deg ,#009951, #004d26);
     flex: 1;
     padding: 20px;
     display: flex;

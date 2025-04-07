@@ -23,11 +23,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: blue;
   color: white;
   padding: 10px;
   min-width: 100px;
 }
+.logo-img {
+  width: 300px;
+  height: auto; /* mantém a proporção */
+  
+}
+
 
 #nav {
   flex: 3;

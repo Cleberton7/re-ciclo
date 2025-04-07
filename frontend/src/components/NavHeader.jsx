@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";
 import { FiMenu, FiX } from "react-icons/fi";
+import LogoCapa from "../assets/logoCapa.png";
 
 const NavHeader = () => {
   const location = useLocation();
@@ -30,7 +31,7 @@ const NavHeader = () => {
     <>
       <div className="header">
         <div id="logo">
-          <p>Logo</p>
+          <img src={LogoCapa} alt="Logo da empresa" className="logo-img" />
         </div>
 
         <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>

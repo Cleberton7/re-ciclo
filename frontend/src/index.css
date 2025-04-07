@@ -39,7 +39,8 @@ html, body, #root {
 }
 
 body {
-  background-color: #006D39;
+  background-color: #009951;
+  
   width: 100vw;  /* Garante que ocupe 100% da largura da tela */
   overflow-x: hidden; /* Evita rolagem horizontal */
   display: flex; /* Se precisar alinhar algo no centro */
