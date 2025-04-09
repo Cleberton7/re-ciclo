@@ -1,134 +1,152 @@
 .login-modal-content {
-    display: flex;
-    width: 600px;
-    max-width: 90vw;
-    height: 300px;
-    background-color: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  }
-  
-  .login-left {
-    flex: 1;
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .logo-placeholder {
+  display: flex;
+  width: 1000px;
+  max-width: 90vw;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #009951, #004d26);
+}
 
-    color: rgb(255, 255, 255);
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  .login-right {
-    background: linear-gradient(135deg ,#009951, #004d26);
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  input, button {
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  button {
-    background-color: #009951;
-    color: white;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-  }
+.login-left,
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .forgot-password {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #555;
-    cursor: pointer;
-  }
-  
-  
-  h2 {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  .forgot-password a {
 
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  
-  .forgot-password a:hover {
-    color: #ffffff;
-  }
-  
-  /* Modal básico */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-recover {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 350px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .modal-recover h3 {
-    margin-bottom: 15px;
-    color: #007a3a;
-    text-align: center;
-  }
-  
-  .modal-recover input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .modal-buttons button {
-    padding: 8px 12px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    background-color: #009951;
-    color: white;
-  }
-  
-  .modal-buttons button:hover {
-    background-color: #007a3a;
-  }
-  
+.logo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.logo-img {
+  width: 80%;
+  max-width: 300px;
+}
+
+.login-right {
+
+  flex-direction: column;
+  padding: 30px;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+#text-login h2 {
+  margin: 0;
+  text-align: center;
+}
+
+#form-login {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+form {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+input,
+button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+.forgot-password a {
+  text-decoration: none;
+  color: #ffffff;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.forgot-password a:hover {
+  color: #009951;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-recover {
+  position: relative; /* ADICIONE ESSA LINHA */
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 350px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-recover h3 {
+  margin-bottom: 15px;
+  color: #007a3a;
+  text-align: center;
+}
+
+.modal-recover input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-buttons button {
+  padding: 8px 12px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  background-color: #009951;
+  color: white;
+}
+
+.modal-buttons button:hover {
+  background-color: #007a3a;
+}
+.modal-recover .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-recover .close-button:hover {
+  color: red;
+}

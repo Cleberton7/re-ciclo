@@ -32,32 +32,35 @@ const Login = () => {
       </div>
 
       <div className="login-right">
-        <h2>Login</h2>
-
-        <form onSubmit={handleLogin}>
-
-          <input type="text" placeholder="Usuário" />
-          <input type="password" placeholder="Senha" />
-          <button type="submit">Entrar</button>
-        </form>
-
+        <div id="text-login"> <h2>Login</h2> </div>
+       
+        <div id="form-login">
+          <form onSubmit={handleLogin}>
+            <input type="text" placeholder="Usuário" />
+            <input type="password" placeholder="Senha" />
+            <button type="submit">Entrar</button>
+          </form>
+        </div>
+       
         <div className="forgot-password">
           <a onClick={() => setShowRecoverModal(true)}>Esqueci minha senha</a>
         </div>
+
       </div>
 
       {showRecoverModal && (
-        <div className="modal-overlay">
-          <div className="modal-recover">
+        <div className="modal-overlay" onClick={() => setShowRecoverModal(false)}>
+          <div className="modal-recover" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={() => setShowRecoverModal(false)}>×</button>
             <h3>Recuperar Senha</h3>
             <input type="email" placeholder="Digite seu e-mail" />
             <div className="modal-buttons">
               <button>Enviar</button>
-              <button onClick={() => setShowRecoverModal(false)}>Fechar</button>
             </div>
           </div>
         </div>
-      )}
+        )}
+
     </div>
   );
 };

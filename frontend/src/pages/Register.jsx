@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./styles/register.css";
-import "./styles/containerPrincipal.css"
 
 const Register = () => {
   const [userType, setUserType] = useState("empresa");
