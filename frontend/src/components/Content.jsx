@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { GoogleMap } from "@react-google-maps/api";
 import "../pages/styles/content.css";
+import "../pages/styles/containerPrincipal.css"
 
 const containerStyle = {
   width: '100%',
@@ -28,7 +29,7 @@ const Content = () => {
   }, []);
 
   return (
-    <div className='content'>
+    <div className='content' id="containerPrincipal">
       <div className='containerRanked'>
         <div id='textRanked'>Ranking das empresas</div>
         <div id='rankedEmpresa'>Ranked empresas</div>

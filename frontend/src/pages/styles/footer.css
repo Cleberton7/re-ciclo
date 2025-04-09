@@ -1,12 +1,14 @@
+.containerFooter{
+    background-color: #006D39;
+}
+
 .footer{
-    background-color: #990000;
     flex: 1;
+    background-color: black;
     display: flex;
     width: 90%;
-    color: rgb(0, 0, 0);
-    max-width: 1200px;
-    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
-    display: flex;
+    color: rgb(255, 0, 0);
+    margin: 40px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
     margin-bottom: 40px;
 }
 .f{

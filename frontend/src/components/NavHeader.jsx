@@ -4,6 +4,7 @@ import Modal from "../components/modal";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";
+import "../pages/styles/containerPrincipal.css"
 import { FiMenu, FiX } from "react-icons/fi";
 import LogoCapa from "../assets/logoCapa.png";
 
@@ -29,7 +30,7 @@ const NavHeader = () => {
 
   return (
     <>
-      <div className="header">
+      <div className="header" id="containerPrincipal">
         <div id="logo">
           <img src={LogoCapa} alt="Logo da empresa" className="logo-img" />
         </div>

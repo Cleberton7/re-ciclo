@@ -1,4 +1,5 @@
 import React from 'react';
+import "./styles/containerPrincipal.css"
 
 const Eventos = () => {
   return (

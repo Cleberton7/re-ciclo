@@ -23,8 +23,7 @@
 }
 
 .layouHome {
-
-  margin-top: 200px;
+  flex: 1;
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -32,8 +31,7 @@
   align-items: center;
 }
 
-
-#content, #section, #footer {
+#content, #section {
   width: 90%; /* Garante que ocupem toda a largura do layouHome */
   margin: 10px 0;
 }

@@ -3,7 +3,6 @@
     display: flex;
     flex: 1;
     color: rgb(0, 0, 0);
-    max-width: 1200px;
     margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
   }
   
@@ -13,7 +12,6 @@
     flex: 1;
     padding: 3px;
 
-    
 }
 .containerMaps{
     flex: 3;

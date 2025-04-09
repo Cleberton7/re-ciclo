@@ -10,28 +10,28 @@ html, body, #root {
 }
 
 .app-container {
+  width: 100%; 
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #006D39; /* ESSENCIAL */
+  background-color: #c8c8c8; /* ESSENCIAL */
 }
-
 
 .main-content {
   flex: 1;
-  padding: 20px;
+  width: 100%;           /* O conteúdo pode ocupar até 100% da largura */
+  margin: 20px auto 20px auto; /* Centralizado, com espaço em cima para o header */
+  padding: 20px;         /* Espaço interno */
+  min-height: 60vh;      /* Garante que tenha uma altura mínima */
+  box-sizing: border-box;
 }
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -39,8 +39,7 @@ html, body, #root {
 }
 
 body {
-  background-color: #009951;
-  
+  background-color: #c8c8c8;
   width: 100vw;  /* Garante que ocupe 100% da largura da tela */
   overflow-x: hidden; /* Evita rolagem horizontal */
   display: flex; /* Se precisar alinhar algo no centro */

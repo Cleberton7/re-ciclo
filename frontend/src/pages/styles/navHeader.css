@@ -1,22 +1,16 @@
 .header {
-
-  background-color: #009951;
-  position: absolute;
+  position: relative;
   top: 0;
   left: 50%;  /* Centraliza horizontalmente */
   transform: translateX(-50%);  /* Ajusta o deslocamento */
-  width: 90%;  /* Define uma largura máxima */
-  max-width: 1200px; /* Garante que não fique muito largo */
-  z-index: 1000;
+  width: 100%;  /* Define uma largura máxima */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  gap: 40px;
+  padding: 10px 10px;
   margin-top: 100px;
-  border-radius: 10px; /* Borda arredondada para estética */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
 }
-
 
 #logo {
   flex: 2;
@@ -25,14 +19,12 @@
   justify-content: center;
   color: white;
   padding: 10px;
-  min-width: 100px;
 }
 .logo-img {
-  width: 300px;
+  width: 400px;
   height: auto; /* mantém a proporção */
   
 }
-
 
 #nav {
   flex: 3;
@@ -64,18 +56,18 @@
 }
 
 .menu a {
-  color: white;
+  color: rgb(0, 0, 0);
   font-weight: bold;
 }
 
 /* Efeito ao passar o mouse */
 .menu:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color:  #009951;;
 }
 
 /* Estilo para o menu ativo */
 .menu.active {
-  background-color: white;
+  background-color: #006d39; 
 }
 
 .menu.active a {
@@ -84,21 +76,22 @@
 
 /* Botões de login e registro */
 #entrar, #registrar {
-  padding: 5px 10px;
+  width: 100px;
+  padding: 10px 15px;
   border-radius: 5px;
+  color: white;
   font-weight: bold;
   text-align: center;
   cursor: pointer;
 }
 
 #entrar {
-  background-color: white;
-  color: black;
+  background-color: #006d39;
+
 }
 
 #registrar {
   background-color: black;
-  color: white;
   margin-left: 5px;
 }
 
@@ -116,7 +109,6 @@
     display: none;
     flex-direction: column;
     width: 100%;
-    background-color: #009951;
     margin-top: 10px;
   }
 
