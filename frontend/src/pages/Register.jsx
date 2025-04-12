@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./styles/register.css";
+import { registerUser } from "../../../backend/src/services/authService";
 
 const Register = () => {
   const [userType, setUserType] = useState("empresa");
@@ -12,8 +13,10 @@ const Register = () => {
     nomeFantasia: "",
     cnpj: "",
     tipoEmpresa: "",
+    tipoUsuario: "empresa", // ou "pessoa"
   });
 
+  // Função para lidar com mudanças nos campos do formulário
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -21,10 +24,30 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // Função para lidar com a mudança do tipo de usuário
+  const handleUserTypeChange = (e) => {
+    setUserType(e.target.value);
+    setFormData((prev) => ({ ...prev, tipoUsuario: e.target.value }));
+  };
+
+  // Função de submit do formulário
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Dados enviados:", formData);
-    // aqui você envia pro backend ou faz o que quiser
+  
+    // Verificação antes de fazer o envio
+    if (!formData.email || !formData.senha || !formData.nome || !formData.cpf) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const dataToSend = { ...formData, tipoUsuario: userType };
+      const response = await registerUser(dataToSend);
+      alert("Usuário registrado com sucesso!");
+      console.log(response);
+    } catch (error) {
+      alert("Erro ao registrar: " + error.response?.data?.mensagem || error.message);
+    }
   };
 
   return (
@@ -36,7 +59,7 @@ const Register = () => {
         <select
           name="userType"
           value={userType}
-          onChange={(e) => setUserType(e.target.value)}
+          onChange={handleUserTypeChange}
         >
           <option value="pessoa">Pessoa Física</option>
           <option value="empresa">Empresa / Coletor</option>

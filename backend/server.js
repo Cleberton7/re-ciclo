@@ -1,7 +1,11 @@
+require('dotenv').config();  // Carregar variáveis de ambiente
+
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
 const express = require("express");
 const cors = require("cors");
-const authRoutes = require("./routes/authRoutes");
-const connectDB = require("./config/db");  // Importando a função de conexão com o DB
+const authRoutes = require("./src/routes/authRoutes");
+const connectDB = require("./src/config/db");  // Importando a função de conexão com o DB
 
 const app = express();
 const PORT = 5000;
@@ -10,7 +14,9 @@ const PORT = 5000;
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Permite apenas esse domínio
+}));
 app.use(express.json());
 
 // Rotas
