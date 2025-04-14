@@ -55,19 +55,27 @@ const SECRET = "sua_chave_secreta"; // Ideal usar variável de ambiente
 router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ mensagem: "Usuário não encontrado" });
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ mensagem: "Usuário não encontrado" });
 
-  const senhaValida = await bcrypt.compare(senha, user.senha);
-  if (!senhaValida) return res.status(401).json({ mensagem: "Senha incorreta" });
+    const senhaValida = await bcrypt.compare(senha, user.senha);
+    if (!senhaValida) return res.status(401).json({ mensagem: "Senha incorreta" });
 
-  const token = jwt.sign(
-    { id: user._id, tipoUsuario: user.tipoUsuario, email: user.email },
-    SECRET,
-    { expiresIn: "1h" }
-  );
+    const token = jwt.sign(
+      { id: user._id, tipoUsuario: user.tipoUsuario, email: user.email },
+      SECRET,
+      { expiresIn: "1h" }
+    );
 
-  res.json({ mensagem: "Login bem-sucedido!", token });
+    res.json({
+      mensagem: "Login bem-sucedido!",
+      token,
+      nome: user.nome, // <-- envia o nome para o frontend
+    });
+  } catch (err) {
+    res.status(500).json({ mensagem: "Erro no servidor", erro: err.message });
+  }
 });
 
 

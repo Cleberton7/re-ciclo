@@ -14,14 +14,11 @@ html, body, #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #c8c8c8; /* ESSENCIAL */
 }
 
 .main-content {
   flex: 1;
   width: 100%;           /* O conteúdo pode ocupar até 100% da largura */
-  margin: 20px auto 20px auto; /* Centralizado, com espaço em cima para o header */
-  padding: 20px;         /* Espaço interno */
   min-height: 60vh;      /* Garante que tenha uma altura mínima */
   box-sizing: border-box;
 }
@@ -65,5 +62,8 @@ a:hover {
   :root {
     color: #213547;
     background-color: #ffffff;
+  }
+  .app-container {
+    background-size: cover; /* Força cobertura total em telas pequenas */
   }
 }

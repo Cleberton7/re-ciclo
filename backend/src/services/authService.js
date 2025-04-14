@@ -18,7 +18,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (userData) => {
   try {
-    const response = await api.post('/auth/login', userData); // Corrigir para '/auth/login'
+    const response = await api.post('/auth/login', userData);
     return response.data;
   } catch (error) {
     console.error('Erro ao fazer login:', error);

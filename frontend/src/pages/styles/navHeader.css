@@ -1,19 +1,28 @@
+
+.header-background {
+ 
+  width: 100%;
+  background-image: url('../../assets/fundoSite.png');
+  background-repeat: no-repeat;
+  background-size: auto 100%; /* Altura 100%, largura proporcional */
+  display: flex;
+  justify-content: center;
+  padding-top: 100px; /* SUA MARGIN TOP AQUI (melhor que margin) */
+
+  
+}
 .header {
-  position: relative;
-  top: 0;
-  left: 50%;  /* Centraliza horizontalmente */
-  transform: translateX(-50%);  /* Ajusta o deslocamento */
-  width: 100%;  /* Define uma largura máxima */
+  background-color: aqua;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 40px;
-  padding: 10px 10px;
-  margin-top: 100px;
+  position: relative;
+  z-index: 2;
 }
 
 #logo {
-  flex: 2;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

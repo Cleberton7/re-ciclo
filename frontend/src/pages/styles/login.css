@@ -150,3 +150,34 @@ button {
 .modal-recover .close-button:hover {
   color: red;
 }
+.perfil-log{
+
+
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+
+}
+
+#perfil{
+  width: auto;
+  height: 55px;
+  border-radius: 50px;
+  color: #004d26;
+  font-weight: bold;
+  font-size: 12px;
+  background-color: #009952;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+}
+#loggout{
+  margin: 6px;
+  text-decoration: underline;
+  color: #333;
+  cursor: pointer;
+}

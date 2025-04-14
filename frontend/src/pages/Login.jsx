@@ -2,19 +2,31 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
-import LogoCapa from "../assets/logoCapa.png";
+import { loginUser } from "../../../backend/src/services/authService";
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [showRecoverModal, setShowRecoverModal] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Lógica de login (após sucesso)
-    onLoginSuccess(); // Chama o callback para notificar que o login foi bem-sucedido
-    navigate("/painel"); // Redireciona para a página principal (ajuste a rota se necessário)
-  };
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await loginUser({ email, senha });
+  
+      // Salva token e nome no localStorage
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("nome", response.nome);
+  
+      onLoginSuccess(response.nome); // Atualiza o estado do app
+      navigate("/painel");
+    } catch (err) {
+      alert("Erro ao fazer login: " + (err.response?.data?.mensagem || err.message));
+    }
+  };
+  
   return (
     <div className="login-modal-content">
       <div className="login-left">
@@ -30,8 +42,18 @@ const Login = ({ onLoginSuccess }) => {
 
         <div id="form-login">
           <form onSubmit={handleLogin}>
-            <input type="text" placeholder="Usuário" />
-            <input type="password" placeholder="Senha" />
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
             <button type="submit">Entrar</button>
           </form>
         </div>
@@ -44,9 +66,7 @@ const Login = ({ onLoginSuccess }) => {
       {showRecoverModal && (
         <div className="modal-overlay" onClick={() => setShowRecoverModal(false)}>
           <div className="modal-recover" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setShowRecoverModal(false)}>
-              ×
-            </button>
+            <button className="close-button" onClick={() => setShowRecoverModal(false)}>×</button>
             <h3>Recuperar Senha</h3>
             <input type="email" placeholder="Digite seu e-mail" />
             <div className="modal-buttons">
