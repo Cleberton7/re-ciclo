@@ -11,45 +11,70 @@ const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [isModalOpen, setIsModalOpen
-
-  ] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado para controlar o login
-  const [userName, setUserName] = useState(""); // <-- Novo estado
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");  // Nome do usuário (nome fantasia ou nome real)
+  //const [userRole, setUserRole] = useState(""); // Tipo de usuário (empresa ou pessoa física)
 
   const openModal = (type) => {
     setModalType(type);
     setIsModalOpen(true);
-    setMenuOpen(false); // Fecha menu ao abrir modal
+    setMenuOpen(false);
   };
 
   useEffect(() => {
-    // Recupera nome e token do localStorage
     const token = localStorage.getItem("token");
     const nome = localStorage.getItem("nome");
+    //const role = localStorage.getItem("role");
   
     if (token && nome) {
       setIsLoggedIn(true);
       setUserName(nome);
-    }
-  
-    if (location.pathname === "/login") {
-      openModal("login");
-    } else if (location.pathname === "/register") {
-      openModal("register");
+      //setUserRole(role);
     }
   }, [location.pathname]);
   
 
-  // Função para alternar o estado de login
-  const handleLoginSuccess = (nome) => {
+  const handleLoginSuccess = (nome, role) => {
+    console.log("Login bem-sucedido, nome e role:", { nome, role }); // Console após o login bem-sucedido
+
     setIsLoggedIn(true);
-    setUserName(nome); // <-- Salva o nome
+    setUserName(nome);
+    //setUserRole(role);
     setIsModalOpen(false);
+
+    // Armazene o nome e o tipo de usuário no localStorage
+    localStorage.setItem("nome", nome);
+    localStorage.setItem("role", role);
+
+    // Console para verificar os dados salvos no localStorage
+    console.log("Dados salvos no localStorage:", { nome, role });
   };
 
+  const handlePerfilClick = () => {
+    const role = localStorage.getItem("role"); // Aqui você recupera o tipo de usuário
+
+    // Redireciona para o painel adequado com base no tipo de usuário
+    if (role === "empresa") {
+      navigate("/painelEmpresa");
+    } else if (role === "reciclador") {
+      navigate("/painelReciclador");
+    } else {
+      navigate("/painelPessoa"); // Ou outro painel de acordo com o papel do usuário
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserName("");
+    //setUserRole("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("nome");
+    localStorage.removeItem("role");
+    navigate("/");
+  };
 
   return (
     <>
@@ -74,23 +99,10 @@ const NavHeader = () => {
 
           <div id="loginRegister">
             {isLoggedIn ? (
-              <div className="perfil-log" onClick={() => navigate("/perfil")}>
-                <div id="perfil">Olá, {userName}</div> {/* <-- Nome do usuário aqui */}
-                <div id="loggout" onClick={() => {
-                  setIsLoggedIn(false);
-                  setUserName("");
-
-                  // Limpa localStorage
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("nome");
-
-                  navigate("/");
-                }}>
-                  Sair
-                </div>
-
+              <div className="perfil-log">
+                <div id="perfil" onClick={handlePerfilClick}>Olá, {userName}</div> {/* Nome ou nome fantasia */}
+                <div id="loggout" onClick={handleLogout}>Sair</div>
               </div>
-              
             ) : (
               <>
                 <div id="entrar" onClick={() => openModal("login")}>Entrar</div>

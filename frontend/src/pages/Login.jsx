@@ -1,32 +1,34 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
 import { loginUser } from "../../../backend/src/services/authService";
 
 const Login = ({ onLoginSuccess }) => {
-  const navigate = useNavigate();
   const [showRecoverModal, setShowRecoverModal] = useState(false);
-
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [error, setError] = useState(""); // Estado para exibir erros
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Limpar erro ao tentar login novamente
+  
     try {
       const response = await loginUser({ email, senha });
-  
-      // Salva token e nome no localStorage
+      
+      console.log("Resposta do login:", response); // Verifique a resposta aqui
+      
       localStorage.setItem("token", response.token);
-      localStorage.setItem("nome", response.nome);
+      localStorage.setItem("nome", response.nome); // Deve armazenar o nome ou nome fantasia
+      localStorage.setItem("role", response.tipoUsuario); // Tipo de usuário (empresa ou pessoa)
   
-      onLoginSuccess(response.nome); // Atualiza o estado do app
-      navigate("/painel");
+      onLoginSuccess(response.nome, response.tipoUsuario);
     } catch (err) {
-      alert("Erro ao fazer login: " + (err.response?.data?.mensagem || err.message));
+      setError("Erro ao fazer login: " + (err.response?.data?.mensagem || err.message));
     }
   };
   
+
   return (
     <div className="login-modal-content">
       <div className="login-left">
@@ -54,6 +56,7 @@ const Login = ({ onLoginSuccess }) => {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
             />
+            {error && <div className="error-message">{error}</div>}
             <button type="submit">Entrar</button>
           </form>
         </div>
@@ -61,6 +64,7 @@ const Login = ({ onLoginSuccess }) => {
         <div className="forgot-password">
           <a onClick={() => setShowRecoverModal(true)}>Esqueci minha senha</a>
         </div>
+
       </div>
 
       {showRecoverModal && (

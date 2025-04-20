@@ -16,7 +16,6 @@ const Register = () => {
     tipoUsuario: "empresa", // ou "pessoa"
   });
 
-  // Função para lidar com mudanças nos campos do formulário
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -24,22 +23,30 @@ const Register = () => {
     }));
   };
 
-  // Função para lidar com a mudança do tipo de usuário
   const handleUserTypeChange = (e) => {
     setUserType(e.target.value);
     setFormData((prev) => ({ ...prev, tipoUsuario: e.target.value }));
   };
 
-  // Função de submit do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Verificação antes de fazer o envio
-    if (!formData.email || !formData.senha || !formData.nome || !formData.cpf) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
+    // Validação para "pessoa"
+    if (userType === "pessoa") {
+      if (!formData.nome || !formData.email || !formData.senha || !formData.cpf || !formData.endereco) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+      }
     }
-
+  
+    // Validação para "empresa"
+    if (userType === "empresa") {
+      if (!formData.nomeFantasia || !formData.cnpj || !formData.tipoEmpresa || !formData.email || !formData.senha || !formData.endereco) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+      }
+    }
+  
     try {
       const dataToSend = { ...formData, tipoUsuario: userType };
       const response = await registerUser(dataToSend);
@@ -49,6 +56,7 @@ const Register = () => {
       alert("Erro ao registrar: " + error.response?.data?.mensagem || error.message);
     }
   };
+  
 
   return (
     <div className="containerRegister">
@@ -66,7 +74,7 @@ const Register = () => {
         </select>
 
         {userType === "pessoa" ? (
-          <>
+          <div>
             <input
               type="text"
               name="nome"
@@ -102,9 +110,9 @@ const Register = () => {
               value={formData.endereco}
               onChange={handleChange}
             />
-          </>
+          </div>
         ) : (
-          <>
+          <div>
             <input
               type="text"
               name="nomeFantasia"
@@ -149,7 +157,7 @@ const Register = () => {
               value={formData.senha}
               onChange={handleChange}
             />
-          </>
+          </div>
         )}
 
         <button type="submit">Registrar</button>

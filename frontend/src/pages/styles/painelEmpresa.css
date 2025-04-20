@@ -1,0 +1,50 @@
+.painel-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    font-family: sans-serif;
+  }
+  
+  form.form-empresa input {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+  }
+  
+  button {
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+  }
+  
+  .tabela-residuos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .tabela-residuos th,
+  .tabela-residuos td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal {
+    background: white;
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  

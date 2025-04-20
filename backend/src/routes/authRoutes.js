@@ -62,6 +62,9 @@ router.post("/login", async (req, res) => {
     const senhaValida = await bcrypt.compare(senha, user.senha);
     if (!senhaValida) return res.status(401).json({ mensagem: "Senha incorreta" });
 
+    // Decide qual nome retornar com base no tipo de usuário
+    const nome = user.tipoUsuario === "empresa" ? user.nomeFantasia : user.nome;
+
     const token = jwt.sign(
       { id: user._id, tipoUsuario: user.tipoUsuario, email: user.email },
       SECRET,
@@ -71,13 +74,14 @@ router.post("/login", async (req, res) => {
     res.json({
       mensagem: "Login bem-sucedido!",
       token,
-      nome: user.nome, // <-- envia o nome para o frontend
+      nome: user.tipoUsuario === "empresa" ? user.nomeFantasia : user.nome,
+      tipoUsuario: user.tipoUsuario
     });
+    
   } catch (err) {
     res.status(500).json({ mensagem: "Erro no servidor", erro: err.message });
   }
 });
-
 
 
 module.exports = router;

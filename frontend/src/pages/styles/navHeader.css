@@ -4,15 +4,14 @@
   width: 100%;
   background-image: url('../../assets/fundoSite.png');
   background-repeat: no-repeat;
-  background-size: auto 100%; /* Altura 100%, largura proporcional */
+  background-size: auto 100%; 
   display: flex;
   justify-content: center;
-  padding-top: 100px; /* SUA MARGIN TOP AQUI (melhor que margin) */
+  padding-top: 100px; 
 
   
 }
 .header {
-  background-color: aqua;
   width: 100%;
   display: flex;
   align-items: center;
