@@ -52,6 +52,7 @@ const PainelEmpresa = () => {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <button className="fechar-modal" onClick={() => setShowModal(false)}>×</button>
             <h3>Adicionar Resíduo</h3>
             <select
               value={novoResiduo.tipo}
@@ -79,6 +80,7 @@ const PainelEmpresa = () => {
             />
             <button onClick={adicionarResiduo}>Solicitar Coleta</button>
           </div>
+
         </div>
       )}
     </div>

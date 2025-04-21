@@ -12,22 +12,31 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Limpar erro ao tentar login novamente
-  
+
     try {
       const response = await loginUser({ email, senha });
-      
-      console.log("Resposta do login:", response); // Verifique a resposta aqui
-      
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("nome", response.nome); // Deve armazenar o nome ou nome fantasia
-      localStorage.setItem("role", response.tipoUsuario); // Tipo de usuário (empresa ou pessoa)
-  
-      onLoginSuccess(response.nome, response.tipoUsuario);
+
+      // Verifique a resposta e faça o log para ver os dados recebidos
+      console.log("Resposta do login:", response); // Adicione este log para verificar a resposta
+
+      if (response) {
+        // Armazenando o nome ou nomeFantasia dependendo do tipo de usuário
+        console.log("Nome recebido do backend:", response.nome); // Verifique o nome
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("nome", response.nome); // Agora nome deve ter valor correto
+        localStorage.setItem("role", response.tipoUsuario); // Tipo de usuário (empresa ou pessoa)
+
+        onLoginSuccess(response.nome, response.tipoUsuario);
+      } else {
+        console.error("Erro ao receber a resposta do login");
+        setError("Erro ao fazer login. Tente novamente.");
+      }
     } catch (err) {
+      // Caso ocorra algum erro, exiba a mensagem do erro
+      console.error("Erro ao fazer login:", err);
       setError("Erro ao fazer login: " + (err.response?.data?.mensagem || err.message));
     }
   };
-  
 
   return (
     <div className="login-modal-content">
@@ -64,7 +73,6 @@ const Login = ({ onLoginSuccess }) => {
         <div className="forgot-password">
           <a onClick={() => setShowRecoverModal(true)}>Esqueci minha senha</a>
         </div>
-
       </div>
 
       {showRecoverModal && (

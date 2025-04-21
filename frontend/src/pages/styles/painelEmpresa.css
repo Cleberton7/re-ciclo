@@ -1,50 +1,101 @@
 .painel-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    font-family: sans-serif;
-  }
+  background-color:  #009951;
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  font-family: sans-serif;
+}
   
-  form.form-empresa input {
-    display: block;
-    margin-bottom: 10px;
-    padding: 8px;
-    width: 100%;
-  }
+form.form-empresa input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px;
+  width: 100%;
+}
   
-  button {
-    padding: 10px 20px;
-    margin: 10px 0;
-    cursor: pointer;
-  }
+button {
+  padding: 10px 20px;
+  margin: 10px 0;
+  cursor: pointer;
+}
   
-  .tabela-residuos {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
+.tabela-residuos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
   
-  .tabela-residuos th,
-  .tabela-residuos td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-  }
+.tabela-residuos th,
+.tabela-residuos td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
   
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal {
+
+  background-color: #009951;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  height: 50%;
+  position: relative;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fechar-modal {
+  position: absolute;
+  left: 45%;
+  top: 5px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #ff0000;
+}
+
+.fechar-modal:hover {
+  color: #000;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
   }
-  
-  .modal {
-    background: white;
-    max-width: 500px;
-    margin: 100px auto;
-    padding: 20px;
-    border-radius: 8px;
+  to {
+    background-color: rgba(0, 0, 0, 0.6);
   }
-  
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}

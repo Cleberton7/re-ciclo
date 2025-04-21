@@ -1,29 +1,108 @@
-.section{
-    background-color: blue;
+.section {
+    background-color: #009951;
     flex: 1;
     flex-direction: column;
     color: rgb(0, 0, 0);
     display: flex;
-    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
-   
-}
-
-#textSection{
+    margin: 100px auto 0 auto; /* Top com espaço para o header */
+  }
+  
+  #textSection {
     background-color: antiquewhite;
     border-radius: 5px;
     height: 30px;
     margin: 10px 0 0 10px;
     padding: 3px;
     width: fit-content;
-}
-#containerSection{
+    font-weight: bold;
+  }
+  
+  #containerSection {
     display: flex;
-}
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
 
-#not{
+  
+  .carousel-item {
     background-color: aliceblue;
     flex: 1;
     height: 400px;
-    padding: 3px;
+    padding: 20px;
     margin: 10px;
-}
+    border-radius: 5px;
+    transition: transform 0.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #009951;
+    color: white;
+    border: none;
+    padding: 8px 15px; /* Reduzindo o padding */
+    cursor: pointer;
+    font-size: 18px; /* Diminuindo a fonte */
+    border-radius: 50%;
+    z-index: 10;
+    width: 40px; /* Definindo largura fixa */
+    height: 40px; /* Definindo altura fixa */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .carousel-btn:hover {
+    background-color: #00cc6a;
+  }
+  
+  .prev {
+    left: 10px;
+  }
+  
+  .next {
+    right: 10px;
+  }
+  .carousel-multiple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .carousel-items-container {
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+  }
+  
+  .carousel-item {
+    background-color: aliceblue;
+    width: 300px;
+    height: 400px;
+    padding: 20px;
+    border-radius: 5px;
+    transition: all 0.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .carousel-item {
+      height: 300px;
+    }
+  }
+  

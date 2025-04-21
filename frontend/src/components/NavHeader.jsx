@@ -16,7 +16,6 @@ const NavHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");  // Nome do usuário (nome fantasia ou nome real)
-  //const [userRole, setUserRole] = useState(""); // Tipo de usuário (empresa ou pessoa física)
 
   const openModal = (type) => {
     setModalType(type);
@@ -24,42 +23,32 @@ const NavHeader = () => {
     setMenuOpen(false);
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const nome = localStorage.getItem("nome");
-    //const role = localStorage.getItem("role");
-  
-    if (token && nome) {
-      setIsLoggedIn(true);
-      setUserName(nome);
-      //setUserRole(role);
-    }
-  }, [location.pathname]);
-  
-
   const handleLoginSuccess = (nome, role) => {
-    console.log("Login bem-sucedido, nome e role:", { nome, role }); // Console após o login bem-sucedido
-
+    console.log("Login bem-sucedido, nome e role:", { nome, role });
+  
     setIsLoggedIn(true);
-    setUserName(nome);
-    //setUserRole(role);
+    setUserName(nome); // Armazena o nome retornado pelo backend
     setIsModalOpen(false);
-
+  
     // Armazene o nome e o tipo de usuário no localStorage
     localStorage.setItem("nome", nome);
     localStorage.setItem("role", role);
-
-    // Console para verificar os dados salvos no localStorage
+  
     console.log("Dados salvos no localStorage:", { nome, role });
   };
-
+  
+  useEffect(() => {
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    console.log('Login bem-sucedido, nome e role:', usuario);
+  }, []);
+  
   const handlePerfilClick = () => {
     const role = localStorage.getItem("role"); // Aqui você recupera o tipo de usuário
 
     // Redireciona para o painel adequado com base no tipo de usuário
     if (role === "empresa") {
       navigate("/painelEmpresa");
-    } else if (role === "reciclador") {
+    } else if (role === "coletor") {
       navigate("/painelReciclador");
     } else {
       navigate("/painelPessoa"); // Ou outro painel de acordo com o papel do usuário
@@ -69,7 +58,6 @@ const NavHeader = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName("");
-    //setUserRole("");
     localStorage.removeItem("token");
     localStorage.removeItem("nome");
     localStorage.removeItem("role");

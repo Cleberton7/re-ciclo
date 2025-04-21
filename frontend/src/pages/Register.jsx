@@ -48,7 +48,10 @@ const Register = () => {
     }
   
     try {
-      const dataToSend = { ...formData, tipoUsuario: userType };
+      const dataToSend = {
+        ...formData,
+        tipoUsuario: userType === "empresa" ? formData.tipoEmpresa : "pessoa"
+      };
       const response = await registerUser(dataToSend);
       alert("Usuário registrado com sucesso!");
       console.log(response);

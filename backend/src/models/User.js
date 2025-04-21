@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   nomeFantasia: String,
   cnpj: String,
   tipoEmpresa: String,
-  tipoUsuario: { type: String, enum: ["pessoa", "empresa"] }
+  tipoUsuario: { type: String, enum: ["pessoa", "empresa", "coletor"] }
+
 });
 
 const User = mongoose.model("User", userSchema);
