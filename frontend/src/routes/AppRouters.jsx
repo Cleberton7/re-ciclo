@@ -42,7 +42,7 @@ const AppRoutes = () => {
         />
         <Route
           path="/painelReciclador"
-          element={<ProtectedRoute element={<PainelReciclador />} role="reciclador" />}
+          element={<ProtectedRoute element={<PainelReciclador />} role="coletor" />}
         />
         <Route
           path="/painelPessoa"

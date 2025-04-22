@@ -1,8 +1,9 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User"); // Importando o modelo User
-
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const SECRET = process.env.JWT_SECRET || "sua_chave_secreta";
 
 // Rota para cadastro de usuário
 router.post("/register", async (req, res) => {
@@ -19,18 +20,24 @@ router.post("/register", async (req, res) => {
   } = req.body;
 
   try {
+    // Verifica se usuário já existe
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ mensagem: "E-mail já cadastrado!" });
     }
 
-    // Gerar hash da senha
-    const hashedPassword = await bcrypt.hash(senha, 10); // 10 é o número de "salt rounds"
+    // Validações específicas para coletores
+    if (tipoUsuario === "coletor") {
+      if (!nomeFantasia) {
+        return res.status(400).json({ mensagem: "Nome fantasia é obrigatório para coletores" });
+      }
+    }
 
+    // Cria o novo usuário
     const newUser = new User({
-      nome,
+      nome: tipoUsuario === "coletor" ? nomeFantasia : nome,
       email,
-      senha: hashedPassword, // salva a senha criptografada
+      senha: await bcrypt.hash(senha, 10),
       cpf,
       endereco,
       nomeFantasia,
@@ -40,48 +47,90 @@ router.post("/register", async (req, res) => {
     });
 
     const savedUser = await newUser.save();
-    res.status(201).json({ mensagem: "Usuário registrado com sucesso", savedUser });
+    
+    res.status(201).json({ 
+      mensagem: "Usuário registrado com sucesso",
+      usuario: {
+        id: savedUser._id,
+        nome: savedUser.nome,
+        email: savedUser.email,
+        tipoUsuario: savedUser.tipoUsuario
+      }
+    });
 
   } catch (error) {
     console.error("Erro ao registrar:", error);
-    res.status(500).json({ mensagem: "Erro no servidor", error });
+    res.status(500).json({ mensagem: "Erro no servidor", error: error.message });
   }
 });
 
-
-const jwt = require("jsonwebtoken");
-const SECRET = "sua_chave_secreta"; // Ideal usar variável de ambiente
-
+// Rota para login
 router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
 
   try {
+    // Busca usuário no banco de dados
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ mensagem: "Usuário não encontrado" });
+    if (!user) {
+      return res.status(401).json({ mensagem: "Usuário não encontrado" });
+    }
 
+    // Verifica a senha
     const senhaValida = await bcrypt.compare(senha, user.senha);
-    if (!senhaValida) return res.status(401).json({ mensagem: "Senha incorreta" });
+    if (!senhaValida) {
+      return res.status(401).json({ mensagem: "Senha incorreta" });
+    }
 
-    // Decide qual nome retornar com base no tipo de usuário
-    const nome = user.tipoUsuario === "empresa" ? user.nomeFantasia : user.nome;
+    // Determina o nome a ser exibido
+    let nomeExibido;
+    switch(user.tipoUsuario) {
+      case 'pessoa':
+        nomeExibido = user.nome || 'Usuário';
+        break;
+      case 'coletor':
+        nomeExibido = user.nomeFantasia || user.nome || 'Coletor';
+        break;
+      case 'empresa':
+        nomeExibido = user.nomeFantasia || user.nome || 'Empresa';
+        break;
+      default:
+        nomeExibido = 'Usuário';
+    }
 
+    // Gera o token JWT
     const token = jwt.sign(
-      { id: user._id, tipoUsuario: user.tipoUsuario, email: user.email },
+      { 
+        id: user._id, 
+        tipoUsuario: user.tipoUsuario, 
+        email: user.email 
+      },
       SECRET,
       { expiresIn: "1h" }
     );
 
+    // Log para debug
+    console.log('Login realizado:', {
+      userId: user._id,
+      tipoUsuario: user.tipoUsuario,
+      nomeExibido
+    });
+
+    // Retorna a resposta
     res.json({
       mensagem: "Login bem-sucedido!",
       token,
-      nome: user.tipoUsuario === "empresa" ? user.nomeFantasia : user.nome,
-      tipoUsuario: user.tipoUsuario
+      nome: nomeExibido,
+      tipoUsuario: user.tipoUsuario,
+      email: user.email
     });
     
   } catch (err) {
-    res.status(500).json({ mensagem: "Erro no servidor", erro: err.message });
+    console.error("Erro no login:", err);
+    res.status(500).json({ 
+      mensagem: "Erro no servidor", 
+      erro: err.message 
+    });
   }
 });
-
 
 module.exports = router;

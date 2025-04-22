@@ -44,7 +44,7 @@ const NavHeader = () => {
   
   const handlePerfilClick = () => {
     const role = localStorage.getItem("role"); // Aqui você recupera o tipo de usuário
-
+  
     // Redireciona para o painel adequado com base no tipo de usuário
     if (role === "empresa") {
       navigate("/painelEmpresa");

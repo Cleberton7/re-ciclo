@@ -5,46 +5,62 @@ const Usuario = require('../models/Usuario'); // Ajuste conforme seu modelo
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Função para realizar o login
-async function login(req, res) {
+const login = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
-    // Buscar usuário pelo e-mail
-    const usuario = await Usuario.findOne({ email });
+    const usuario = await Usuario.findOne({ email }).select('+senha'); // Garante que a senha seja retornada
 
     if (!usuario) {
-      return res.status(400).json({ mensagem: 'Usuário não encontrado' });
+      return res.status(401).json({ error: "Usuário não encontrado." });
     }
 
-    // Verificar a senha
-    const senhaValida = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaValida) {
-      return res.status(400).json({ mensagem: 'Senha inválida' });
+    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+    if (!senhaCorreta) {
+      return res.status(401).json({ error: "Senha incorreta." });
     }
 
-    // Determinar qual campo utilizar para o nome
-    const nome = usuario.tipoUsuario === 'empresa' && usuario.nomeFantasia ? usuario.nomeFantasia : usuario.nome;
+    // Lógica robusta para determinar o nome de exibição
+    let nomeExibido;
+    switch(usuario.tipoUsuario) {
+      case 'pessoa':
+        nomeExibido = usuario.nome || 'Usuário';
+        break;
+      case 'coletor':
+        nomeExibido = usuario.nomeFantasia || usuario.nome || 'Coletor';
+        break;
+      case 'empresa':
+        nomeExibido = usuario.nomeFantasia || usuario.nome || 'Empresa';
+        break;
+      default:
+        nomeExibido = 'Usuário';
+    }
 
-    // Verifique se o nome está sendo recuperado corretamente
-    console.log("Nome recuperado do banco de dados:", nome); // Adicione esse log
+    console.log('Dados do usuário:', {
+      id: usuario._id,
+      nome: usuario.nome,
+      nomeFantasia: usuario.nomeFantasia,
+      tipoUsuario: usuario.tipoUsuario,
+      nomeExibido // Adicione este log para debug
+    });
 
-    // Gerar o token JWT
-    const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: usuario._id, tipoUsuario: usuario.tipoUsuario },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    // Retornar a resposta com nome e token
-    res.json({
-      mensagem: 'Login bem-sucedido!',
+    return res.json({
+      mensagem: "Login bem-sucedido!",
       token,
-      nome: nome || 'Nome não encontrado', // Garantir que o nome não é vazio
+      nome: nomeExibido, // Garantindo que sempre terá um valor
       tipoUsuario: usuario.tipoUsuario
     });
   } catch (err) {
-    console.error('Erro no login:', err);
-    res.status(500).json({ mensagem: 'Erro interno do servidor' });
+    console.error("Erro no login:", err);
+    res.status(500).json({ error: "Erro interno no servidor." });
   }
-}
-
+};
 
 // Função de registro
 const register = async (req, res) => {
