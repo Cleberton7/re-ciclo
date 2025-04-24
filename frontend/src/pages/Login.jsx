@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
 import { loginUser } from "../../../backend/src/services/authService";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = ({ onLoginSuccess }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);
@@ -9,30 +10,25 @@ const Login = ({ onLoginSuccess }) => {
   const [senha, setSenha] = useState("");
   const [error, setError] = useState(""); // Estado para exibir erros
 
+  const { login } = useAuth(); // Pegando a função login do contexto
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-  
+
     try {
       const response = await loginUser({ email, senha });
-      
       console.log("Resposta completa do backend:", response); // Log completo
-      
+
       if (!response.nome) {
         console.warn("Atenção: nome não veio do backend");
         response.nome = 'Usuário'; // Fallback seguro
       }
-  
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("nome", response.nome);
-      localStorage.setItem("role", response.tipoUsuario);
-  
-      console.log("Dados salvos no localStorage:", {
-        nome: response.nome,
-        role: response.tipoUsuario
-      });
-  
-      onLoginSuccess(response.nome, response.tipoUsuario);
+
+      login(response.nome, response.tipoUsuario, response.token);
+
+      onLoginSuccess(response.nome, response.tipoUsuario); // Callback para sucesso
+
     } catch (err) {
       setError("Erro ao fazer login: " + (err.response?.data?.error || err.message));
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../components/modal";
 import Login from "../pages/Login";
@@ -6,16 +6,16 @@ import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";
 import { FiMenu, FiX } from "react-icons/fi";
 import LogoCapa from "../assets/logoCapa.png";
+import { useAuth } from "../contexts/AuthContext";
 
 const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isLoggedIn, userName, role, logout } = useAuth(); // Usando o AuthContext
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");  // Nome do usuário (nome fantasia ou nome real)
 
   const openModal = (type) => {
     setModalType(type);
@@ -25,42 +25,21 @@ const NavHeader = () => {
 
   const handleLoginSuccess = (nome, role) => {
     console.log("Login bem-sucedido, nome e role:", { nome, role });
-  
-    setIsLoggedIn(true);
-    setUserName(nome); // Armazena o nome retornado pelo backend
     setIsModalOpen(false);
-  
-    // Armazene o nome e o tipo de usuário no localStorage
-    localStorage.setItem("nome", nome);
-    localStorage.setItem("role", role);
-  
-    console.log("Dados salvos no localStorage:", { nome, role });
   };
-  
-  useEffect(() => {
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    console.log('Login bem-sucedido, nome e role:', usuario);
-  }, []);
-  
+
   const handlePerfilClick = () => {
-    const role = localStorage.getItem("role"); // Aqui você recupera o tipo de usuário
-  
-    // Redireciona para o painel adequado com base no tipo de usuário
     if (role === "empresa") {
       navigate("/painelEmpresa");
     } else if (role === "coletor") {
       navigate("/painelReciclador");
     } else {
-      navigate("/painelPessoa"); // Ou outro painel de acordo com o papel do usuário
+      navigate("/painelPessoa");
     }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName("");
-    localStorage.removeItem("token");
-    localStorage.removeItem("nome");
-    localStorage.removeItem("role");
+    logout(); // Chama a função logout do AuthContext
     navigate("/");
   };
 
@@ -88,7 +67,7 @@ const NavHeader = () => {
           <div id="loginRegister">
             {isLoggedIn ? (
               <div className="perfil-log">
-                <div id="perfil" onClick={handlePerfilClick}>Olá, {userName}</div> {/* Nome ou nome fantasia */}
+                <div id="perfil" onClick={handlePerfilClick}>Olá, {userName}</div>
                 <div id="loggout" onClick={handleLogout}>Sair</div>
               </div>
             ) : (

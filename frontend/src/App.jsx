@@ -1,5 +1,6 @@
 import { LoadScript } from "@react-google-maps/api";
-import AppRoutes from "./routes/AppRouters.jsx"; // Ou onde estão suas rotas
+import AppRoutes from "./routes/AppRouters.jsx";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {
   return (
@@ -7,10 +8,10 @@ const App = () => {
       googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}
       libraries={['marker']}
     >
-      <AppRoutes />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </LoadScript>
-
-
   );
 };
 
