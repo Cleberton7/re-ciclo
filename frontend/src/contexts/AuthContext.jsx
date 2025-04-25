@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+// src/contexts/AuthContext.jsx
+import React, { createContext, useState, useEffect } from "react";
 
-// Criação do contexto de autenticação
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -47,6 +47,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export { AuthContext }; // exporta o contexto para uso externo

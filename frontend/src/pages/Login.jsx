@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
 import { loginUser } from "../../../backend/src/services/authService";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/authFunctions";
+
 
 const Login = ({ onLoginSuccess }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);

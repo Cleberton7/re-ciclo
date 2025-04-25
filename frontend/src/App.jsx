@@ -1,5 +1,6 @@
 import { LoadScript } from "@react-google-maps/api";
 import AppRoutes from "./routes/AppRouters.jsx";
+
 import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {

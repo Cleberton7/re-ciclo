@@ -22,7 +22,7 @@ const Footer = () => {
 
         <div className="footer-section">
           <h4>Redes Sociais</h4>
-          <a href="https://instagram.com" target="_blank">Instagram</a>
+          <a href="https://www.instagram.com/e__ciclo?igsh=b2dtODF5eGt2NTBn" target="_blank">Instagram</a>
           <a href="https://facebook.com" target="_blank">Facebook</a>
         </div>
       </div>

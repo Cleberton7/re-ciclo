@@ -6,7 +6,8 @@ import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";
 import { FiMenu, FiX } from "react-icons/fi";
 import LogoCapa from "../assets/logoCapa.png";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/authFunctions";
+
 
 const NavHeader = () => {
   const location = useLocation();
