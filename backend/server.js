@@ -1,34 +1,37 @@
-require('dotenv').config();  // Carregar variáveis de ambiente
-
-console.log("MONGO_URI:", process.env.MONGO_URI);
-
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./src/routes/authRoutes");
-const userRoutes = require("./src/routes/userRoutes");  // Rota de usuário
-const connectDB = require("./src/config/db");  // Importando a função de conexão com o DB
+const userRoutes = require("./src/routes/userRoutes");
+const connectDB = require("./src/config/db");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Conectar ao banco de dados
-connectDB();
+// Conexão com o banco de dados
+connectDB().then(() => {
+  console.log("✅ Conectado ao MongoDB");
+}).catch(err => {
+  console.error("❌ Falha na conexão com MongoDB:", err);
+});
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Permite apenas esse domínio
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
 app.use(express.json());
 
 // Rotas
 app.use("/auth", authRoutes);
-app.use("/api/usuario", userRoutes);  // Adicionando a rota de usuário
+app.use("/usuario", userRoutes); // Rota modificada (removido /api)
+
+// Rota de teste
 app.get("/teste", (req, res) => {
   res.json({ mensagem: "Rota de teste funcionando!" });
 });
 
-// Iniciar o servidor
+// Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
-

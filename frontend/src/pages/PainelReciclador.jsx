@@ -1,9 +1,12 @@
 import React from 'react';
+import PainelGenerico from "./PainelGenerico";
 import './styles/painelReciclador.css';
+
 
 const PainelReciclador = () => {
   return (
     <div className="dashboard-container">
+      <PainelGenerico tipoUsuario="coletor" />
       <section className="resumo-operacional">
         <h2>RESUMO OPERACIONAL</h2>
         <p>- Total de coletas hoje: <strong>3</strong></p>
@@ -53,5 +56,6 @@ const PainelReciclador = () => {
     </div>
   );
 };
+
 
 export default PainelReciclador;

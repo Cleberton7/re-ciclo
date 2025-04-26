@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import PainelGenerico from "./PainelGenerico";
 import "./styles/painelEmpresa.css";
+
 
 const PainelEmpresa = () => {
   const [residuos, setResiduos] = useState([]);
@@ -18,15 +20,9 @@ const PainelEmpresa = () => {
   };
 
   return (
-    <div className="painel-container">
-      <h1>Dados da Empresa</h1>
-      <form className="form-empresa">
-        <input type="text" placeholder="Nome da Empresa" />
-        <input type="text" placeholder="CNPJ" />
-        <input type="text" placeholder="Endereço" />
-        <input type="text" placeholder="Telefone" />
-      </form>
-
+    <div className="container-container">
+      <PainelGenerico tipoUsuario="empresa" />
+      
       <h2>Resíduos Disponíveis para Coleta</h2>
       <button onClick={() => setShowModal(true)}>Adicionar Resíduo</button>
 
@@ -49,7 +45,9 @@ const PainelEmpresa = () => {
         </tbody>
       </table>
 
-      {showModal && (
+      <section className="residuos-section">
+        <h3>Gerenciamento de Resíduos</h3>
+        {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <button className="fechar-modal" onClick={() => setShowModal(false)}>×</button>
@@ -83,8 +81,10 @@ const PainelEmpresa = () => {
 
         </div>
       )}
+      </section>
     </div>
   );
 };
+
 
 export default PainelEmpresa;
