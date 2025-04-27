@@ -33,6 +33,19 @@ router.post("/register", async (req, res) => {
       }
     }
 
+    // Log para verificar os dados recebidos
+    console.log("Dados recebidos no registro:", {
+      nome,
+      email,
+      senha,
+      cpf,
+      endereco,
+      nomeFantasia,
+      cnpj,
+      tipoEmpresa,
+      tipoUsuario
+    });
+
     // Cria o novo usuário
     const newUser = new User({
       nome: tipoUsuario === "coletor" ? nomeFantasia : nome,
@@ -46,8 +59,10 @@ router.post("/register", async (req, res) => {
       tipoUsuario
     });
 
+    // Salva o usuário no banco de dados
     const savedUser = await newUser.save();
-    
+
+    // Resposta de sucesso
     res.status(201).json({ 
       mensagem: "Usuário registrado com sucesso",
       usuario: {
@@ -59,8 +74,12 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erro ao registrar:", error);
-    res.status(500).json({ mensagem: "Erro no servidor", error: error.message });
+    // Log do erro completo para melhor depuração
+    console.error("Erro ao registrar usuário:", error);
+    res.status(500).json({ 
+      mensagem: "Erro no servidor",
+      error: error.message 
+    });
   }
 });
 
@@ -115,7 +134,7 @@ router.post("/login", async (req, res) => {
       nomeExibido
     });
 
-    // Retorna a resposta
+    // Retorna a resposta com sucesso
     res.json({
       mensagem: "Login bem-sucedido!",
       token,
@@ -123,8 +142,9 @@ router.post("/login", async (req, res) => {
       tipoUsuario: user.tipoUsuario,
       email: user.email
     });
-    
+
   } catch (err) {
+    // Log do erro completo para melhor depuração
     console.error("Erro no login:", err);
     res.status(500).json({ 
       mensagem: "Erro no servidor", 

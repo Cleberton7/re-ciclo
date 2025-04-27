@@ -1,0 +1,51 @@
+.containerEmpresas {
+    padding: 20px;
+    margin-top: 80px;
+}
+
+.secao {
+    margin-top: 40px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.cardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.cardEmpresa {
+    color: black;
+    background-color: #f0f0f0;
+    width: 300px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.cardEmpresa:hover {
+    transform: scale(1.05);
+}
+
+.cardEmpresa h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.cardEmpresa p {
+    font-size: 16px;
+    color: #666;
+}
