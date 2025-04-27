@@ -31,6 +31,9 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    // Preenche o campo nome com nomeFantasia se o tipo for "empresa"
+    const nomeParaEnvio = userType === "empresa" ? formData.nomeFantasia : formData.nome;
+  
     // Validação para "pessoa"
     if (userType === "pessoa") {
       if (!formData.nome || !formData.email || !formData.senha || !formData.cpf || !formData.endereco) {
@@ -47,11 +50,14 @@ const Register = () => {
       }
     }
   
+    // Prepara os dados para envio
+    const dataToSend = {
+      ...formData,
+      nome: nomeParaEnvio,  // Passa o nome correto baseado no tipo de usuário
+      tipoUsuario: userType === "empresa" ? formData.tipoEmpresa : "pessoa"
+    };
+  
     try {
-      const dataToSend = {
-        ...formData,
-        tipoUsuario: userType === "empresa" ? formData.tipoEmpresa : "pessoa"
-      };
       const response = await registerUser(dataToSend);
       alert("Usuário registrado com sucesso!");
       console.log(response);
@@ -59,6 +65,7 @@ const Register = () => {
       alert("Erro ao registrar: " + error.response?.data?.mensagem || error.message);
     }
   };
+  
   
 
   return (
