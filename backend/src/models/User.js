@@ -1,17 +1,143 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-const userSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  senha: { type: String, required: true },
-  cpf: { type: String, required: false },  // O CPF pode ser opcional para empresas
-  endereco: { type: String, required: false },
-  nomeFantasia: { type: String, required: false },
-  cnpj: { type: String, required: false },
-  tipoEmpresa: { type: String, enum: ["pessoa", "empresa", "coletor"], required: true },
-  tipoUsuario: { type: String, enum: ["pessoa", "empresa", "coletor"], required: true }
-}, { timestamps: true });
+// Função para validar CPF
+function validarCPF(cpf) {
+  if (typeof cpf !== "string") return false;
+  cpf = cpf.replace(/[^\d]+/g,'');
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cpf)) return false; // CPF com todos dígitos iguais é inválido
 
-const User = mongoose.model("User", userSchema);
+  let soma = 0;
+  let resto;
 
-module.exports = User;
+  for (let i = 1; i <= 9; i++) {
+    soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+  soma = 0;
+  for (let i = 1; i <= 10; i++) {
+    soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.substring(10, 11))) return false;
+
+  return true;
+}
+
+// Função para validar CNPJ
+function validarCNPJ(cnpj) {
+  if (typeof cnpj !== "string") return false;
+  cnpj = cnpj.replace(/[^\d]+/g,'');
+
+  if (cnpj.length !== 14) return false;
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+
+  let tamanho = cnpj.length - 2;
+  let numeros = cnpj.substring(0,tamanho);
+  let digitos = cnpj.substring(tamanho);
+  let soma = 0;
+  let pos = tamanho - 7;
+  
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros.charAt(tamanho - i) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  if (resultado != digitos.charAt(0)) return false;
+
+  tamanho = tamanho + 1;
+  numeros = cnpj.substring(0,tamanho);
+  soma = 0;
+  pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros.charAt(tamanho - i) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  if (resultado != digitos.charAt(1)) return false;
+
+  return true;
+}
+
+const UserSchema = new mongoose.Schema({
+  nome: { 
+    type: String, 
+    required: true,
+    trim: true
+  },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'],
+    lowercase: true
+  },
+  senha: { 
+    type: String, 
+    required: true,
+    minlength: 8,
+    select: false
+  },
+  endereco: { 
+    type: String,
+    required: function() {
+      return this.tipoUsuario === 'coletor';
+    }
+  },
+  tipoUsuario: { 
+    type: String, 
+    required: true,
+    enum: ['pessoa', 'empresa', 'coletor'],
+    default: 'pessoa'
+  },
+  documento: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        if (this.tipoUsuario === 'pessoa') return validarCPF(v);
+        if (this.tipoUsuario === 'empresa') return validarCNPJ(v);
+        return true; // Para coletores (sem validação específica)
+      },
+      message: props => `${props.value} não é um documento válido para ${this.tipoUsuario}`
+    }
+  },
+  telefone: { type: String },
+  razaoSocial: { 
+    type: String,
+    required: function() { return this.tipoUsuario === 'empresa'; }
+  },
+  veiculo: { type: String },
+  capacidadeColeta: { type: Number },
+  dataCadastro: { 
+    type: Date, 
+    default: Date.now 
+  }
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+UserSchema.index({ email: 1 });
+UserSchema.index({ tipoUsuario: 1 });
+
+UserSchema.pre('save', async function(next) {
+  if (!this.isModified('senha')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.senha = await bcrypt.hash(this.senha, salt);
+  next();
+});
+
+UserSchema.methods.comparePassword = async function(senha) {
+  return await bcrypt.compare(senha, this.senha);
+};
+
+export default mongoose.model('User', UserSchema);

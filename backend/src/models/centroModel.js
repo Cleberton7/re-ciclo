@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+// src/models/Empresa.js
+import mongoose from "mongoose";
 
 const empresaSchema = new mongoose.Schema({
   nome: { type: String, required: true },
@@ -6,9 +7,9 @@ const empresaSchema = new mongoose.Schema({
   endereco: { type: String },
   telefone: { type: String },
   site: { type: String },
-  imagemUrl: { type: String } // Se quiser guardar uma imagem
+  imagemUrl: { type: String },
 }, { timestamps: true });
 
-const Empresa = mongoose.model("coletor", empresaSchema);
+const Coletor = mongoose.model("coletor", empresaSchema);
 
-module.exports = Empresa;
+export default Coletor;

@@ -1,156 +1,172 @@
-const User = require("../models/User");
+import User from "../models/User.js";
 
-exports.getUserData = async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).select("-senha");
-    
-    if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
-
-    // Filtro por tipo se especificado na query
-    if (req.query.tipo && user.tipoUsuario !== req.query.tipo) {
-      return res.status(403).json({ message: "Acesso não permitido para este tipo de usuário" });
-    }
-
-    let responseData = {
-      id: user._id,
-      email: user.email,
-      tipoUsuario: user.tipoUsuario
-    };
-
-    // Dados específicos por tipo
-    switch (user.tipoUsuario) {
-      case "empresa":
-        responseData = {
-          ...responseData,
-          nome: user.nomeFantasia || user.nome,
-          documento: user.cnpj,
-          endereco: user.endereco,
-          tipoEmpresa: user.tipoEmpresa
-        };
-        break;
+/**
+ * Controller para operações relacionadas a usuários
+ */
+export const userController = {
+  /**
+   * Obtém dados básicos do usuário
+   */
+  async getUserData(req, res) {
+    try {
+      console.log('Usuário autenticado:', req.user);
       
-      case "coletor":
-        responseData = {
-          ...responseData,
-          nome: user.nome,
-          documento: user.cpf,
-          veiculo: user.veiculo,
-          capacidadeColeta: user.capacidadeColeta
-        };
-        break;
-      
-      default: // Pessoa física
-        responseData = {
-          ...responseData,
-          nome: user.nome,
-          documento: user.cpf,
-          endereco: user.endereco
-        };
-    }
+      const user = await User.findById(req.user.id)
+        .select('-senha -__v -createdAt -updatedAt');
 
-    res.json(responseData);
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      message: "Erro ao buscar dados",
-      error: error.message 
-    });
-  }
-};
-
-exports.updateUserData = async (req, res) => {
-  try {
-    const { nome, email, endereco, cpf, veiculo, capacidadeColeta, nomeFantasia, cnpj, tipoEmpresa } = req.body;
-    const updateFields = {};
-
-    // Campos comuns a todos os usuários
-    if (nome) updateFields.nome = nome;
-    if (email) updateFields.email = email;
-    if (endereco) updateFields.endereco = endereco;
-
-    // Verifica o tipo de usuário
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ 
-      success: false,
-      message: "Usuário não encontrado" 
-    });
-
-    // Atualiza campos específicos por tipo
-    switch(user.tipoUsuario) {
-      case "empresa":
-        if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
-        if (cnpj) updateFields.cnpj = cnpj;
-        if (tipoEmpresa) updateFields.tipoEmpresa = tipoEmpresa;
-        break;
-      
-      case "coletor":
-        if (veiculo) updateFields.veiculo = veiculo;
-        if (capacidadeColeta) updateFields.capacidadeColeta = capacidadeColeta;
-        if (cpf) updateFields.cpf = cpf;
-        break;
-      
-      default: // Pessoa física
-        if (cpf) updateFields.cpf = cpf;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userId,
-      { $set: updateFields },
-      { 
-        new: true,
-        runValidators: true 
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Usuário não encontrado"
+        });
       }
-    ).select("-senha");
 
-    res.json({
-      success: true,
-      message: "Dados atualizados com sucesso!",
-      user: updatedUser
-    });
+      if (req.query.tipo && user.tipoUsuario !== req.query.tipo) {
+        return res.status(403).json({
+          success: false,
+          message: `Acesso restrito para usuários do tipo ${req.query.tipo}`
+        });
+      }
 
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      message: "Erro ao atualizar dados do usuário",
-      error: error.message,
-      details: error.errors // Mostra erros de validação se existirem
-    });
-  }
-};
+      return res.json({
+        success: true,
+        data: user
+      });
 
-// Nova função específica para dados pessoais
-exports.getPersonalData = async (req, res) => {
-  try {
-    const user = await User.findOne({
-      _id: req.userId,
-      tipoUsuario: "pessoa"
-    }).select("-senha");
-
-    if (!user) {
-      return res.status(404).json({ 
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+      return res.status(500).json({
         success: false,
-        message: "Dados pessoais não encontrados" 
+        message: "Erro ao processar requisição"
       });
     }
+  },
 
-    const responseData = {
-      id: user._id,
-      nome: user.nome,
-      email: user.email,
-      cpf: user.cpf,
-      endereco: user.endereco,
-      tipoUsuario: user.tipoUsuario
-    };
+  /**
+   * Atualiza dados do usuário
+   */
+  async updateUserData(req, res) {
+    try {
+      const { 
+        nome, 
+        email, 
+        endereco, 
+        cpf, 
+        veiculo, 
+        capacidadeColeta, 
+        nomeFantasia, 
+        cnpj, 
+        tipoEmpresa 
+      } = req.body;
 
-    res.json({
-      success: true,
-      data: responseData
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      message: "Erro ao buscar dados pessoais",
-      error: error.message 
-    });
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: "Usuário não encontrado" 
+        });
+      }
+
+      const updateFields = {
+        ...(nome && { nome }),
+        ...(email && { email }),
+        ...(endereco && { endereco })
+      };
+
+      switch(user.tipoUsuario) {
+        case "empresa":
+          Object.assign(updateFields, {
+            ...(nomeFantasia && { nomeFantasia }),
+            ...(cnpj && { cnpj }),
+            ...(tipoEmpresa && { tipoEmpresa })
+          });
+          break;
+        
+        case "coletor":
+          Object.assign(updateFields, {
+            ...(veiculo && { veiculo }),
+            ...(capacidadeColeta && { capacidadeColeta }),
+            ...(cpf && { cpf })
+          });
+          break;
+        
+        default:
+          if (cpf) updateFields.cpf = cpf;
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user.id,
+        updateFields,
+        { 
+          new: true,
+          runValidators: true 
+        }
+      ).select("-senha");
+
+      return res.json({
+        success: true,
+        message: "Dados atualizados com sucesso",
+        data: updatedUser
+      });
+
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({
+          success: false,
+          message: "Erro de validação",
+          errors: Object.values(error.errors).map(err => err.message)
+        });
+      }
+
+      return res.status(500).json({ 
+        success: false,
+        message: "Erro ao atualizar dados",
+        error: error.message 
+      });
+    }
+  },
+
+  /**
+   * Obtém dados específicos de pessoas físicas
+   */
+  async getPersonalData(req, res) {
+    try {
+      console.log('ID do usuário:', req.user.id); // Debug
+      
+      const user = await User.findOne({
+        _id: req.user.id,
+        tipoUsuario: "pessoa"
+      }).select("-senha -__v");
+  
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: "Dados pessoais não encontrados" 
+        });
+      }
+  
+      return res.json({
+        success: true,
+        data: {
+          id: user._id,
+          nome: user.nome,
+          email: user.email,
+          cpf: user.cpf,
+          endereco: user.endereco,
+          tipoUsuario: user.tipoUsuario
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao buscar dados pessoais:", error);
+      return res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar dados pessoais",
+        error: error.message 
+      });
+    }
   }
 };
+
+export default userController;

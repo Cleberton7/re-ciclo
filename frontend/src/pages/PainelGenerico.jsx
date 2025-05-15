@@ -10,38 +10,77 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoading(false);
+      navigate("/login");
+      return;
+    }
+
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
+      // Mapeamento de endpoints atualizado
+      const endpoint = {
+        empresa: 'empresas-parceiras/dados', // Agora bate com o backend
+        pessoa: 'usuario/dados',
+        coletor: 'coletor/dados'
+      }[tipoUsuario];
+
+
+      if (!endpoint) {
+        setError(`Tipo de usuário não suportado: ${tipoUsuario}`);
+        setLoading(false);
         return;
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/usuario/dados", {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await axios.get(`http://localhost:5000/api/${endpoint}`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         
-        if (response.data.tipoUsuario !== tipoUsuario) {
-          throw new Error("Acesso não autorizado para este perfil");
+        // Validação mais robusta dos dados recebidos
+        if (!response.data) {
+          throw new Error("Nenhum dado recebido do servidor");
         }
+
+        const dadosRecebidos = response.data.data || response.data;
         
-        setDados(response.data);
+        if (!dadosRecebidos?.nome) {
+          throw new Error("Estrutura de dados inválida: campo 'nome' não encontrado");
+        }
+
+        // Normalização dos dados
+        const dadosFormatados = {
+          ...dadosRecebidos,
+          documento: tipoUsuario === "empresa" 
+            ? dadosRecebidos.cnpj || 'Não informado'
+            : dadosRecebidos.cpf || 'Não informado',
+          email: dadosRecebidos.email || 'Não informado'
+        };
+
+        setDados(dadosFormatados);
+        
       } catch (err) {
-        console.error("Erro detalhado:", err);
-        if (err?.response) {
+        console.error("Erro na requisição:", err);
+        
+        // Tratamento de erro mais detalhado
+        let errorMessage = "Erro ao carregar dados";
+        
+        if (err.response) {
           if (err.response.status === 401) {
             localStorage.removeItem("token");
             navigate("/login");
-          } else {
-            setError(`Erro ${err.response.status}: ${err.response.data?.message || 'Erro no servidor'}`);
+            return;
           }
+          errorMessage = err.response.data?.message || 
+                        `Erro ${err.response.status}: ${err.response.statusText}`;
+        } else if (err.request) {
+          errorMessage = "Sem resposta do servidor - verifique sua conexão";
         } else {
-          setError("Erro de conexão com o servidor");
+          errorMessage = err.message || "Erro desconhecido";
         }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -50,8 +89,14 @@ const PainelGenerico = ({ tipoUsuario }) => {
     fetchData();
   }, [navigate, tipoUsuario]);
 
-  if (loading) return <div className="loading">Carregando...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) return <div className="loading">Carregando dados...</div>;
+  
+  if (error) return (
+    <div className="error">
+      <p>{error}</p>
+      <button onClick={() => window.location.reload()}>Tentar novamente</button>
+    </div>
+  );
 
   return (
     <div className="painel-container">
@@ -68,7 +113,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
               <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
               <strong>{dados.documento}</strong>
             </div>
-            {tipoUsuario === "empresa" && (
+            {tipoUsuario === "empresa" && dados.tipoEmpresa && (
               <div className="info-row">
                 <span>Tipo Empresa:</span>
                 <strong>{dados.tipoEmpresa}</strong>
@@ -83,7 +128,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
           </div>
         </>
       ) : (
-        <div className="error">Nenhum dado encontrado</div>
+        <div className="error">Nenhum dado encontrado para este usuário</div>
       )}
     </div>
   );

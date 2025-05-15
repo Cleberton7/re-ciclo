@@ -1,61 +1,58 @@
-import React from 'react';
-import PainelGenerico from "./PainelGenerico";
-import './styles/painelReciclador.css';
-
+// Atualize o PainelReciclador.js com:
+import { useState, useEffect } from 'react';
+import { getSolicitacoesColeta } from '../services/coletaService';
+import PainelGenerico from '../pages/PainelGenerico';
 
 const PainelReciclador = () => {
+  const [solicitacoes, setSolicitacoes] = useState([]);
+  const [filtros, setFiltros] = useState({
+    tipoResiduo: '',
+    distancia: '',
+    urgencia: ''
+  });
+
+  useEffect(() => {
+    const carregarSolicitacoes = async () => {
+      try {
+        const data = await getSolicitacoesColeta(filtros);
+        setSolicitacoes(data);
+      } catch (error) {
+        console.error("Erro ao carregar solicitações:", error);
+      }
+    };
+    carregarSolicitacoes();
+  }, [filtros]);
+
   return (
     <div className="dashboard-container">
       <PainelGenerico tipoUsuario="coletor" />
+      
       <section className="resumo-operacional">
         <h2>RESUMO OPERACIONAL</h2>
-        <p>- Total de coletas hoje: <strong>3</strong></p>
-        <p>- Resíduos prioritários: <strong>Eletrônicos (80%)</strong></p>
+        <p>- Total de coletas hoje: <strong>{solicitacoes.length}</strong></p>
       </section>
 
       <section className="solicitacoes">
         <h2>SOLICITAÇÕES DISPONÍVEIS</h2>
         <div className="filtros">
-          <span>Filtros:</span>
-          <select>
-            <option>Tipo de resíduo</option>
-            <option>Eletrônicos</option>
-            <option>Metais</option>
-          </select>
-          <select>
-            <option>Distância</option>
-            <option>Até 5km</option>
-            <option>Até 10km</option>
-          </select>
-          <select>
-            <option>Urgência</option>
-            <option>Alta</option>
-            <option>Média</option>
-            <option>Baixa</option>
+          <select onChange={(e) => setFiltros({...filtros, tipoResiduo: e.target.value})}>
+            <option value="">Todos os tipos</option>
+            <option value="eletronicos">Eletrônicos</option>
+            <option value="metais">Metais</option>
           </select>
         </div>
 
         <div className="cards">
-          <div className="card">
-            <h3>Empresa X</h3>
-            <p>50kg de placas eletrônicas (2km)</p>
-            <button>Aceitar Coleta</button>
-          </div>
-          {/* Adicione mais cards aqui se quiser */}
-        </div>
-      </section>
-
-      <section className="rotas-agendadas">
-        <h2>ROTAS AGENDADAS</h2>
-        <div className="mapa-placeholder">[Mapa integrado aqui]</div>
-        <div className="timeline">
-          <p>🕘 Empresa A - 9h</p>
-          <p>🕚 Empresa B - 11h</p>
+          {solicitacoes.map((solicitacao) => (
+            <div key={solicitacao.id} className="card">
+              <h3>{solicitacao.empresa}</h3>
+              <p>{solicitacao.material} ({solicitacao.distancia})</p>
+              <button>Aceitar Coleta</button>
+            </div>
+          ))}
         </div>
       </section>
     </div>
   );
 };
-
-
 export default PainelReciclador;

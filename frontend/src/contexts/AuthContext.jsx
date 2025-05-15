@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
@@ -47,4 +46,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export { AuthContext }; // exporta o contexto para uso externo
+export { AuthContext };

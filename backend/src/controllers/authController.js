@@ -1,125 +1,91 @@
-const Usuario = require('../models/User'); // Ajuste conforme seu modelo de usuário
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
-// Função de login
-const login = async (req, res) => {
-  const { email, senha } = req.body;
+console.log('JWT_SECRET carregado:', process.env.JWT_SECRET?.substring(0, 10) + '...');
 
+export const register = async (req, res) => {
   try {
-    // Verifica se o usuário existe
-    const usuario = await Usuario.findOne({ email }).select('+senha'); // Garante que a senha seja retornada
+    const { nome, email, senha, tipoUsuario, ...rest } = req.body;
 
-    if (!usuario) {
-      return res.status(401).json({ error: "Usuário não encontrado." });
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ mensagem: 'E-mail já cadastrado!' });
     }
 
-    // Verifica se a senha está correta
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) {
-      return res.status(401).json({ error: "Senha incorreta." });
-    }
-
-    // Lógica robusta para determinar o nome de exibição
-    let nomeExibido;
-    switch(usuario.tipoUsuario) {
-      case 'pessoa':
-        nomeExibido = usuario.nome || 'Usuário';
-        break;
-      case 'coletor':
-        nomeExibido = usuario.nomeFantasia || usuario.nome || 'Coletor';
-        break;
-      case 'empresa':
-        nomeExibido = usuario.nomeFantasia || usuario.nome || 'Empresa';
-        break;
-      default:
-        nomeExibido = 'Usuário';
-    }
-
-    // Log para depuração
-    console.log('Dados do usuário:', {
-      id: usuario._id,
-      nome: usuario.nome,
-      nomeFantasia: usuario.nomeFantasia,
-      tipoUsuario: usuario.tipoUsuario,
-      nomeExibido // Adicionando nome exibido para depuração
+    const newUser = new User({
+      nome,
+      email,
+      senha,
+      tipoUsuario,
+      ...rest,
     });
 
-    // Gera o token JWT
+    await newUser.save();
+    
     const token = jwt.sign(
-      { id: usuario._id, tipoUsuario: usuario.tipoUsuario },
+      { id: newUser._id, tipoUsuario: newUser.tipoUsuario },
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { 
+        algorithm: 'HS256',
+        expiresIn: "1h" 
+      }
     );
 
-    return res.json({
-      mensagem: "Login bem-sucedido!",
+    console.log('Token gerado no registro:', token.substring(0, 20) + '...');
+
+    res.status(201).json({
+      mensagem: "Usuário registrado com sucesso",
       token,
-      nome: nomeExibido, // Garantindo que sempre terá um valor
-      tipoUsuario: usuario.tipoUsuario
+      usuario: { 
+        nome: newUser.nome, 
+        email: newUser.email, 
+        tipoUsuario: newUser.tipoUsuario 
+      },
     });
+
   } catch (err) {
-    console.error("Erro no login:", err);
-    res.status(500).json({ error: "Erro interno no servidor." });
+    console.error('Erro no registro:', err);
+    res.status(500).json({ 
+      mensagem: 'Erro no servidor', 
+      erro: err.message 
+    });
   }
 };
-const register = async (req, res) => {
-  const {
-    nome,
-    email,
-    senha,
-    cpf,
-    endereco,
-    nomeFantasia,
-    cnpj,
-    tipoEmpresa,
-    tipoUsuario
-  } = req.body;
+
+export const login = async (req, res) => {
+  const { email, senha } = req.body;
+  console.log('Iniciando login para:', email);
 
   try {
-    // Log dos dados recebidos para verificar
-    console.log("Dados recebidos no registro:", req.body);
-
-    // Verifica se o usuário já existe
-    const usuarioExistente = await User.findOne({ email });
-    if (usuarioExistente) {
-      return res.status(400).json({ error: "E-mail já está em uso." });
+    const user = await User.findOne({ email });
+    if (!user || !user.comparePassword(senha)) {
+      return res.status(401).json({ mensagem: 'Credenciais incorretas' });
     }
+    
+    // No authController.js corrigir:
+    const token = jwt.sign(
+      { id: user._id, tipoUsuario: user.tipoUsuario }, // ERRADO: usuario._id
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    console.log('Secret usado para gerar token:', process.env.JWT_SECRET?.substring(0, 10) + '...');
+    console.log('Token gerado no login:', token.substring(0, 20) + '...');
 
-    // Atribui nomeFantasia ao nome caso o nome esteja vazio
-    let nomeFinal = nome || (tipoUsuario === "empresa" || tipoUsuario === "coletor" ? nomeFantasia : null);
-
-    // Se nomeFinal for vazio, retorna um erro
-    if (!nomeFinal) {
-      return res.status(400).json({ error: "Nome é obrigatório." });
-    }
-
-    // Criptografando a senha
-    const senhaCriptografada = await bcrypt.hash(senha, 10);
-
-    // Criando o novo usuário
-    const novoUsuario = new User({
-      nome: nomeFinal,
-      email,
-      senha: senhaCriptografada,
-      cpf,
-      endereco,
-      nomeFantasia,
-      cnpj,
-      tipoEmpresa,
-      tipoUsuario
+    res.json({
+      mensagem: 'Login bem-sucedido',
+      token,
+      usuario: { 
+        nome: user.nome, 
+        email: user.email, 
+        tipoUsuario: user.tipoUsuario 
+      },
     });
 
-    // Salvando no banco de dados
-    await novoUsuario.save();
-
-    return res.status(201).json({ mensagem: "Usuário registrado com sucesso!" });
-
   } catch (err) {
-    console.error("Erro no registro:", err);
-    return res.status(500).json({ error: "Erro ao registrar usuário.", details: err.message });
+    console.error('Erro no login:', err);
+    res.status(500).json({ 
+      mensagem: 'Erro no servidor', 
+      erro: err.message 
+    });
   }
 };
-
-
-module.exports = { login, register };

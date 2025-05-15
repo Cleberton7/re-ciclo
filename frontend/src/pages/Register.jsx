@@ -1,177 +1,186 @@
-import React, { useState } from "react";
-import "./styles/register.css";
-import { registerUser } from "../../../backend/src/services/authService";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../services/authService';
+import { IMaskInput } from 'react-imask';
+import './styles/register.css';
 
 const Register = () => {
-  const [userType, setUserType] = useState("empresa");
+  const navigate = useNavigate();
+  const [userType, setUserType] = useState('pessoa');
   const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
-    senha: "",
-    cpf: "",
-    endereco: "",
-    nomeFantasia: "",
-    cnpj: "",
-    tipoEmpresa: "",
-    tipoUsuario: "empresa", // ou "pessoa"
+    nome: '',
+    email: '',
+    senha: '',
+    cpf: '',
+    endereco: '',
+    nomeFantasia: '',
+    cnpj: '',
+    tipoUsuario: 'pessoa'
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    const { name, value } = e.target;
+    setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value
     }));
   };
 
-  const handleUserTypeChange = (e) => {
-    setUserType(e.target.value);
-    setFormData((prev) => ({ ...prev, tipoUsuario: e.target.value }));
+  const handleAccept = (value, name) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Preenche o campo nome com nomeFantasia se o tipo for "empresa"
-    const nomeParaEnvio = userType === "empresa" ? formData.nomeFantasia : formData.nome;
-  
-    // Validação para "pessoa"
-    if (userType === "pessoa") {
-      if (!formData.nome || !formData.email || !formData.senha || !formData.cpf || !formData.endereco) {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-        return;
-      }
-    }
-  
-    // Validação para "empresa"
-    if (userType === "empresa") {
-      if (!formData.nomeFantasia || !formData.cnpj || !formData.tipoEmpresa || !formData.email || !formData.senha || !formData.endereco) {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-        return;
-      }
-    }
-  
-    // Prepara os dados para envio
-    const dataToSend = {
-      ...formData,
-      nome: nomeParaEnvio,  // Passa o nome correto baseado no tipo de usuário
-      tipoUsuario: userType === "empresa" ? formData.tipoEmpresa : "pessoa"
-    };
+    setError('');
   
     try {
-      const response = await registerUser(dataToSend);
-      alert("Usuário registrado com sucesso!");
-      console.log(response);
-    } catch (error) {
-      alert("Erro ao registrar: " + error.response?.data?.mensagem || error.message);
+      // Prepara os dados sem tipoEmpresa
+      const userData = {
+        nome: userType === 'pessoa' ? formData.nome : formData.nomeFantasia,
+        email: formData.email,
+        senha: formData.senha,
+        tipoUsuario: userType,
+        ...(userType === 'pessoa' && { 
+          cpf: formData.cpf.replace(/\D/g, '') 
+        }),
+        ...((userType === 'empresa' || userType === 'coletor') && { 
+          cnpj: formData.cnpj.replace(/\D/g, ''),
+          nomeFantasia: formData.nomeFantasia || formData.nome
+        }),
+        ...(formData.endereco && { endereco: formData.endereco })
+      };
+  
+      await registerUser(userData);
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err) {
+      setError(err.response?.data?.mensagem || err.message || 'Erro ao cadastrar');
     }
   };
-  
-  
-
   return (
-    <div className="containerRegister">
-      <h2>Registro</h2>
+    <div className="register-container">
+      <div className="register-card">
+        <h2>Criar Conta</h2>
+        <p className="register-subtitle">Selecione seu tipo de cadastro</p>
+        
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">Cadastro realizado com sucesso!</div>}
 
-      <form onSubmit={handleSubmit}>
-        <label>Tipo de Usuário:</label>
-        <select
-          name="userType"
-          value={userType}
-          onChange={handleUserTypeChange}
-        >
-          <option value="pessoa">Pessoa Física</option>
-          <option value="empresa">Empresa / Coletor</option>
-        </select>
-
-        {userType === "pessoa" ? (
-          <div>
-            <input
-              type="text"
-              name="nome"
-              placeholder="Nome completo"
-              value={formData.nome}
-              onChange={handleChange}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <input
-              type="password"
-              name="senha"
-              placeholder="Senha"
-              value={formData.senha}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="cpf"
-              placeholder="CPF"
-              value={formData.cpf}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="endereco"
-              placeholder="Endereço"
-              value={formData.endereco}
-              onChange={handleChange}
-            />
-          </div>
-        ) : (
-          <div>
-            <input
-              type="text"
-              name="nomeFantasia"
-              placeholder="Nome Fantasia"
-              value={formData.nomeFantasia}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="cnpj"
-              placeholder="CNPJ"
-              value={formData.cnpj}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="endereco"
-              placeholder="Endereço"
-              value={formData.endereco}
-              onChange={handleChange}
-            />
-            <select
-              name="tipoEmpresa"
-              value={formData.tipoEmpresa}
-              onChange={handleChange}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Tipo de Conta *</label>
+            <select 
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              className="form-select"
+              required
             >
-              <option value="">Selecione o tipo</option>
+              <option value="pessoa">Pessoa Física</option>
               <option value="empresa">Empresa</option>
               <option value="coletor">Coletor</option>
             </select>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <input
-              type="password"
-              name="senha"
-              placeholder="Senha"
-              value={formData.senha}
-              onChange={handleChange}
-            />
           </div>
-        )}
 
-        <button type="submit">Registrar</button>
-      </form>
+          <div className="form-columns">
+            <div className="form-left">
+              {userType === 'pessoa' ? (
+                <>
+                  <div className="form-group">
+                    <label>Nome Completo *</label>
+                    <input
+                      type="text"
+                      name="nome"
+                      value={formData.nome}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>CPF *</label>
+                    <IMaskInput
+                      mask="000.000.000-00"
+                      name="cpf"
+                      value={formData.cpf}
+                      onAccept={(value) => handleAccept(value, 'cpf')}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label>{userType === 'empresa' ? 'Razão Social *' : 'Nome Fantasia *'}</label>
+                    <input
+                      type="text"
+                      name="nomeFantasia"
+                      value={formData.nomeFantasia}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>CNPJ *</label>
+                    <IMaskInput
+                      mask="00.000.000/0000-00"
+                      name="cnpj"
+                      value={formData.cnpj}
+                      onAccept={(value) => handleAccept(value, 'cnpj')}
+                      className="form-control"
+                      required={userType !== 'pessoa'}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="form-right">
+              <div className="form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Senha *</label>
+                <input
+                  type="password"
+                  name="senha"
+                  value={formData.senha}
+                  onChange={handleChange}
+                  required
+                  minLength="6"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Endereço</label>
+                <input
+                  type="text"
+                  name="endereco"
+                  value={formData.endereco}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className="submit-btn">
+            Criar Conta
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

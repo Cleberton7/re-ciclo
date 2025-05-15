@@ -3,54 +3,62 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./styles/painelPessoa.css";
 
-// Estado inicial completo com valores padrão
-const INITIAL_STATE = {
-  nome: "",
-  email: "",
-  cpf: "",
-  endereco: ""
-};
-
 const PainelPessoa = () => {
-  const [userData, setUserData] = useState(INITIAL_STATE);
+  const [userData, setUserData] = useState({
+    nome: "",
+    email: "",
+    cpf: "",
+    endereco: ""
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
+      
       if (!token) {
         navigate('/login');
         return;
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/usuario/pessoal', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        console.log('Enviando token:', token.substring(0, 20) + '...');
         
-        // Garante que todos os campos tenham valor mesmo se vierem undefined do backend
+        const response = await axios.get('http://localhost:5000/api/usuario/pessoal', {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.data?.success) {
+          throw new Error(response.data.message || 'Resposta inválida do servidor');
+        }
+
         setUserData({
-          ...INITIAL_STATE,
-          ...response.data,
-          nome: response.data.nome || "",
-          email: response.data.email || "",
-          cpf: response.data.cpf || "",
-          endereco: response.data.endereco || ""
+          nome: response.data.data.nome || "",
+          email: response.data.data.email || "",
+          cpf: response.data.data.cpf || "",
+          endereco: response.data.data.endereco || ""
         });
+
       } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-        // Mantém os valores padrão em caso de erro
-        setUserData(INITIAL_STATE);
-        
+        console.error('Erro completo:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message
+        });
+
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           navigate('/login');
+        } else {
+          setMessage(error.response?.data?.message || "Erro ao carregar dados");
         }
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
     
@@ -59,33 +67,39 @@ const PainelPessoa = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setUserData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
     const token = localStorage.getItem("token");
+    
     try {
-      await axios.put("http://localhost:5000/usuario/dados", 
+      if (!userData.nome || !userData.cpf) {
+        throw new Error("Nome e CPF são obrigatórios");
+      }
+
+      const response = await axios.put(
+        "http://localhost:5000/api/usuario/dados",
         { ...userData, tipoUsuario: "pessoa" },
         {
           headers: { 
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token.trim()}`,
             'Content-Type': 'application/json'
           }
         }
       );
-      setIsEditing(false);
+
+      setUserData(response.data);
       setMessage("Dados atualizados com sucesso!");
+      setIsEditing(false);
+      
+      setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      setMessage("Erro ao atualizar os dados.");
-      console.error(error);
+      setMessage(error.response?.data?.message || error.message);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <div className="loading">Carregando...</div>;
   }
 

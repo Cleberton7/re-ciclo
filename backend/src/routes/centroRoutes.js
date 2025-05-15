@@ -1,7 +1,6 @@
-const express = require('express');
+import express from 'express';
+import { getCentrosReciclagem } from '../controllers/centroController.js';
+
 const router = express.Router();
-const { getCentrosReciclagem } = require('../controllers/centroController');
-
 router.get('/', getCentrosReciclagem);
-
-module.exports = router;
+export default router;

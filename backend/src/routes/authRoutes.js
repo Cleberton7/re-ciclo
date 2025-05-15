@@ -1,70 +1,56 @@
-const bcrypt = require("bcrypt");
-const express = require("express");
+import express from "express";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import { JWT_SECRET } from '../config/config.js';
+
 const router = express.Router();
-const User = require("../models/User");
-const jwt = require("jsonwebtoken");
-const SECRET = process.env.JWT_SECRET || "sua_chave_secreta";
 
-// Rota para cadastro de usuário
 router.post("/register", async (req, res) => {
-  const {
-    nome,
-    email,
-    senha,
-    cpf,
-    endereco,
-    nomeFantasia,
-    cnpj,
-    tipoEmpresa,
-    tipoUsuario
-  } = req.body;
-
   try {
-    // Verifica se usuário já existe
+    const { nome, email, senha, cpf, endereco, nomeFantasia, cnpj, tipoUsuario } = req.body;
+
+    if (!nome || !email || !senha || !tipoUsuario) {
+      return res.status(400).json({ mensagem: 'Campos obrigatórios faltando' });
+    }
+    if (tipoUsuario === 'pessoa' && !cpf) {
+      return res.status(400).json({ mensagem: 'CPF é obrigatório para pessoa física' });
+    }
+    if (tipoUsuario === 'empresa' && !cnpj) {
+      return res.status(400).json({ mensagem: 'CNPJ é obrigatório para empresas' });
+    }
+    if (tipoUsuario === 'empresa' && !nomeFantasia) {
+      return res.status(400).json({ mensagem: 'Nome fantasia é obrigatório para empresas' });
+    }
+
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ mensagem: "E-mail já cadastrado!" });
     }
 
-    // Validações específicas para coletores
-    if (tipoUsuario === "coletor") {
-      if (!nomeFantasia) {
-        return res.status(400).json({ mensagem: "Nome fantasia é obrigatório para coletores" });
-      }
-    }
-
-    // Log para verificar os dados recebidos
-    console.log("Dados recebidos no registro:", {
-      nome,
+    const newUser = new User({
+      nome: tipoUsuario === 'pessoa' ? nome : nomeFantasia,
       email,
       senha,
-      cpf,
+      ...(tipoUsuario === 'pessoa' && { documento: cpf }),
+      ...((tipoUsuario === 'empresa' || tipoUsuario === 'coletor') && { 
+        documento: cnpj,
+        razaoSocial: tipoUsuario === 'empresa' ? nomeFantasia : (nomeFantasia || nome)
+      }),
       endereco,
-      nomeFantasia,
-      cnpj,
-      tipoEmpresa,
       tipoUsuario
     });
 
-    // Cria o novo usuário
-    const newUser = new User({
-      nome: tipoUsuario === "coletor" ? nomeFantasia : nome,
-      email,
-      senha: await bcrypt.hash(senha, 10),
-      cpf,
-      endereco,
-      nomeFantasia,
-      cnpj,
-      tipoEmpresa,
-      tipoUsuario
-    });
-
-    // Salva o usuário no banco de dados
     const savedUser = await newUser.save();
 
-    // Resposta de sucesso
-    res.status(201).json({ 
+    const token = jwt.sign(
+      { id: savedUser._id, tipoUsuario: savedUser.tipoUsuario },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(201).json({
       mensagem: "Usuário registrado com sucesso",
+      token,
       usuario: {
         id: savedUser._id,
         nome: savedUser.nome,
@@ -74,83 +60,52 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-    // Log do erro completo para melhor depuração
     console.error("Erro ao registrar usuário:", error);
-    res.status(500).json({ 
-      mensagem: "Erro no servidor",
-      error: error.message 
-    });
+    res.status(500).json({ mensagem: "Erro no servidor", error: error.message });
   }
 });
 
-// Rota para login
 router.post("/login", async (req, res) => {
-  const { email, senha } = req.body;
-
   try {
-    // Busca usuário no banco de dados
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ mensagem: "Usuário não encontrado" });
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+      return res.status(400).json({ mensagem: "E-mail e senha são obrigatórios" });
     }
 
-    // Verifica a senha
-    const senhaValida = await bcrypt.compare(senha, user.senha);
+    const user = await User.findOne({ email }).select('+senha');
+    if (!user) {
+      return res.status(401).json({ mensagem: "E-mail não encontrado" });
+    }
+
+    const senhaValida = await user.comparePassword(senha);
     if (!senhaValida) {
       return res.status(401).json({ mensagem: "Senha incorreta" });
     }
 
-    // Determina o nome a ser exibido
-    let nomeExibido;
-    switch(user.tipoUsuario) {
-      case 'pessoa':
-        nomeExibido = user.nome || 'Usuário';
-        break;
-      case 'coletor':
-        nomeExibido = user.nomeFantasia || user.nome || 'Coletor';
-        break;
-      case 'empresa':
-        nomeExibido = user.nomeFantasia || user.nome || 'Empresa';
-        break;
-      default:
-        nomeExibido = 'Usuário';
-    }
-
-    // Gera o token JWT
     const token = jwt.sign(
-      { 
-        id: user._id, 
-        tipoUsuario: user.tipoUsuario, 
-        email: user.email 
-      },
-      SECRET,
+      { id: user._id, tipoUsuario: user.tipoUsuario },
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Log para debug
-    console.log('Login realizado:', {
-      userId: user._id,
-      tipoUsuario: user.tipoUsuario,
-      nomeExibido
-    });
+    const nomeExibido = user.tipoUsuario === 'pessoa' ? user.nome : user.razaoSocial || user.nome;
 
-    // Retorna a resposta com sucesso
-    res.json({
-      mensagem: "Login bem-sucedido!",
+    return res.status(200).json({
+      mensagem: "Login realizado com sucesso",
       token,
-      nome: nomeExibido,
-      tipoUsuario: user.tipoUsuario,
-      email: user.email
+      usuario: {
+        id: user._id,
+        nome: nomeExibido,
+        email: user.email,
+        tipoUsuario: user.tipoUsuario
+      }
     });
 
   } catch (err) {
-    // Log do erro completo para melhor depuração
-    console.error("Erro no login:", err);
-    res.status(500).json({ 
-      mensagem: "Erro no servidor", 
-      erro: err.message 
-    });
+    console.error('[BACKEND ERRO]', err);
+    res.status(500).json({ mensagem: "Erro no servidor", detalhes: err.message });
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,37 +1,53 @@
 import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
-import { loginUser } from "../../../backend/src/services/authService";
+import { loginUser } from "../services/authService";
 import { useAuth } from "../contexts/authFunctions";
-
 
 const Login = ({ onLoginSuccess }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [error, setError] = useState(""); // Estado para exibir erros
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth(); // Pegando a função login do contexto
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
+    if (!email || !senha) {
+      setError("Por favor, preencha todos os campos");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await loginUser({ email, senha });
-      console.log("Resposta completa do backend:", response); // Log completo
-
-      if (!response.nome) {
-        console.warn("Atenção: nome não veio do backend");
-        response.nome = 'Usuário'; // Fallback seguro
+      
+      if (!response?.token || !response?.usuario) {
+        throw new Error("Resposta do servidor incompleta");
       }
 
-      login(response.nome, response.tipoUsuario, response.token);
 
-      onLoginSuccess(response.nome, response.tipoUsuario); // Callback para sucesso
+      // ✅ Armazena token e dados do usuário
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.usuario));
+      console.log('Token armazenado no localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
+      console.log('Token recebido do backend:', response.token.substring(0, 20) + '...');
+
+
+      // ✅ Atualiza contexto de autenticação
+      login(response.usuario.nome, response.usuario.tipoUsuario, response.token);
+      onLoginSuccess(response.usuario.nome, response.usuario.tipoUsuario);
 
     } catch (err) {
-      setError("Erro ao fazer login: " + (err.response?.data?.error || err.message));
+      console.error("Erro no login:", err);
+      setError(err.message || "Erro ao fazer login");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,15 +71,31 @@ const Login = ({ onLoginSuccess }) => {
               placeholder="E-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <input
               type="password"
               placeholder="Senha"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
+              required
+              minLength="6"
             />
-            {error && <div className="error-message">{error}</div>}
-            <button type="submit">Entrar</button>
+            
+            {error && (
+              <div className="error-message">
+                {error}
+                {error.includes('incorretos') && (
+                  <div className="recover-link">
+                    <a onClick={() => setShowRecoverModal(true)}>Esqueceu sua senha?</a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Carregando...' : 'Entrar'}
+            </button>
           </form>
         </div>
 
@@ -75,9 +107,20 @@ const Login = ({ onLoginSuccess }) => {
       {showRecoverModal && (
         <div className="modal-overlay" onClick={() => setShowRecoverModal(false)}>
           <div className="modal-recover" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setShowRecoverModal(false)}>×</button>
+            <button 
+              className="close-button" 
+              onClick={() => setShowRecoverModal(false)}
+              aria-label="Fechar modal"
+            >
+              ×
+            </button>
             <h3>Recuperar Senha</h3>
-            <input type="email" placeholder="Digite seu e-mail" />
+            <p>Digite seu e-mail para receber o link de recuperação</p>
+            <input 
+              type="email" 
+              placeholder="Digite seu e-mail" 
+              required
+            />
             <div className="modal-buttons">
               <button>Enviar</button>
             </div>
