@@ -35,7 +35,7 @@ const Empresas = () => {
   if (error) return <div>Erro: {error}</div>;
 
   return (
-    <div className='containerEmpresas'>
+    <div className='containerEmpresas' id="containerPrincipal">
       <h1>Bem-vindo à tela de empresas</h1>
 
       <div className="secao">

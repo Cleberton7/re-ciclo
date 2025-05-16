@@ -1,0 +1,10 @@
+h3{
+    font-size: 40px;
+}
+.containerRecicle{
+    background-color: #009951;
+    
+    flex: 1;
+    color: rgb(0, 0, 0);
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+}

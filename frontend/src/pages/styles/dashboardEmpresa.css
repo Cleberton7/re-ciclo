@@ -1,6 +1,8 @@
 .containerEmpresas {
     padding: 20px;
     margin-top: 80px;
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+    flex: 1;
 }
 
 .secao {
