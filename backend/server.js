@@ -30,10 +30,10 @@ async function main() {
 
     // Rotas
     app.use("/api/auth", authRoutes);
-    app.use("/api/usuarios", userRoutes); // Renomeado para plural
-    app.use("/api/empresas", empresaRoutes); // Atualizado para o novo padrão
+    app.use("/api/usuarios", userRoutes); 
+    app.use("/api/empresas", empresaRoutes);
     app.use("/api/centros-reciclagem", centroRoutes);
-    app.use("/api/coletor", coletorRoutes); // Adicione se tiver rotas específicas para coletas
+    app.use("/api/coletor", coletorRoutes); 
     app.use("/api/coletas",coletasRoutes);
 
     // Middleware de erro
