@@ -1,26 +1,38 @@
+// Empresas.jsx
 import React, { useEffect, useState } from 'react';
-import { getEmpresasParceiras } from '../services/empresaParceiraService';
-import { getCentrosReciclagem } from '../services/centroReciclagemService';
+import { getEmpresasPublicas, getColetoresPublicos } from '../services/publicDataServices.js';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
 
 const Empresas = () => {
   const [empresas, setEmpresas] = useState([]);
-  const [centros, setCentros] = useState([]);
+  const [coletores, setColetores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const empresasData = await getEmpresasParceiras();
-        const centrosData = await getCentrosReciclagem();
+        const [empresasData, coletoresData] = await Promise.all([
+          getEmpresasPublicas(),
+          getColetoresPublicos()
+        ]);
+        
         setEmpresas(empresasData);
-        setCentros(centrosData);
-      } catch (error) {
-        console.error("Erro ao buscar dados", error);
+        setColetores(coletoresData);
+      } catch (err) {
+        setError(err.message);
+        console.error("Erro ao buscar dados públicos", err);
+      } finally {
+        setLoading(false);
       }
     };
+    
     fetchData();
   }, []);
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error}</div>;
 
   return (
     <div className='containerEmpresas'>
@@ -41,14 +53,14 @@ const Empresas = () => {
       </div>
 
       <div className="secao">
-        <h2>Centros de Reciclagem e Coletas</h2>
+        <h2>Centros de coletas Disponíveis</h2>
         <div className="cardsContainer">
-          {centros.map(centro => (
-            <div key={centro._id} className="cardEmpresa">
-              <h3>{centro.nomeFantasia || centro.nome}</h3>
-              <p>Email: {centro.email}</p>
-              <p>Endereço: {centro.endereco}</p>
-              <p>CNPJ: {centro.cnpj}</p>
+          {coletores.map(coletor => (
+            <div key={coletor._id} className="cardEmpresa">
+              <h3>{coletor.nome}</h3>
+              <p>Email: {coletor.email}</p>
+              <p>Telefone: {coletor.telefone}</p>
+              <p>Veículo: {coletor.veiculo}</p>
             </div>
           ))}
         </div>

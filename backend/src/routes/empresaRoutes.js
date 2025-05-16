@@ -58,4 +58,24 @@ router.put('/atualizar', verifyToken, checkUserType(['empresa']), async (req, re
   }
 });
 
+router.get('/publicas', async (req, res) => {
+  try {
+    const empresas = await User.find({ tipoUsuario: 'empresa' })
+      .select('nome email endereco cnpj razaoSocial telefone')
+      .lean();
+      
+    res.json({ 
+      success: true, 
+      data: empresas.map(e => ({
+        ...e,
+        nomeFantasia: e.razaoSocial || e.nome
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro ao buscar empresas' 
+    });
+  }
+});
 export default router;

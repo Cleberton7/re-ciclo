@@ -62,4 +62,18 @@ router.put('/atualizar', verifyToken, checkUserType(['coletor']), async (req, re
   }
 });
 
+router.get('/publicos', async (req, res) => {
+  try {
+    const coletores = await User.find({ tipoUsuario: 'coletor' })
+      .select('nome email endereco telefone veiculo capacidadeColeta')
+      .lean();
+      
+    res.json({ success: true, data: coletores });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro ao buscar coletores' 
+    });
+  }
+});
 export default router;
