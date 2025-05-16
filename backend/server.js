@@ -7,7 +7,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import centroRoutes from './src/routes/centroRoutes.js';
-import coletaRoutes from './src/routes/coletaRoutes.js'; 
+import coletorRoutes from './src/routes/coletorRoutes.js'; 
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
 import { PORT, MONGO_URI, NODE_ENV } from './src/config/config.js';
@@ -32,7 +32,7 @@ async function main() {
     app.use("/api/usuarios", userRoutes); // Renomeado para plural
     app.use("/api/empresas", empresaRoutes); // Atualizado para o novo padrão
     app.use("/api/centros-reciclagem", centroRoutes);
-    app.use("/api/coletas", coletaRoutes); // Adicione se tiver rotas específicas para coletas
+    app.use("/api/coletor", coletorRoutes); // Adicione se tiver rotas específicas para coletas
 
     // Middleware de erro
     app.use(errorHandler);

@@ -21,9 +21,9 @@ const PainelGenerico = ({ tipoUsuario }) => {
     const fetchData = async () => {
       // Mapeamento de endpoints atualizado
       const endpoint = {
-        empresa: 'empresas-parceiras/dados', // Agora bate com o backend
-        pessoa: 'usuario/dados',
-        coletor: 'coletor/dados'
+        empresa: 'api/empresas/dados',
+        pessoa: 'api/usuarios/pessoal',
+        coletor: 'api/coletor/dados'
       }[tipoUsuario];
 
 
@@ -34,7 +34,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5000/api/${endpoint}`, {
+        const response = await axios.get(`http://localhost:5000/${endpoint}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

@@ -27,7 +27,7 @@ const PainelPessoa = () => {
       try {
         console.log('Enviando token:', token.substring(0, 20) + '...');
         
-        const response = await axios.get('http://localhost:5000/api/usuario/pessoal', {
+        const response = await axios.get('http://localhost:5000/api/usuarios/pessoal', {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
