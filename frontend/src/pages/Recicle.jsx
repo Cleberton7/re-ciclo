@@ -1,20 +1,26 @@
 import React from 'react';
 import "./styles/containerPrincipal.css"
 import "./styles/recicle.css"
+import imgLixoEletronico from "../image/lixoEletronico.jpeg";
 
 const Recicle = () => {
   return (
     <div className='containerRecicle' id="containerPrincipal">
       <h3>Lixo eletrônico, você sabia das suas problemáticas?
       </h3>
-      
+        
       <h2>
         Como nos afeta?
       </h2>
         <p>
-          O lixo eletrônico, pode ter vários impactos negativos tanto no meio ambiente, quanto na saúde humana.
-          
+          <img 
+            src={imgLixoEletronico} 
+            alt="Imagem sobre lixo eletrônico" 
+            className="imagemComTexto" 
+          />O lixo eletrônico pode ter vários impactos negativos tanto no meio ambiente quanto na saúde humana.
         </p>
+          
+
         <p>
         Muitos dispositivos eletrônicos contém substancias tóxicas como chumbio, mercúrio, cádmio e bromo.
         
