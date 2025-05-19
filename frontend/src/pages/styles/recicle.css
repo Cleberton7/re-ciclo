@@ -3,16 +3,13 @@ h3{
 }
 .containerRecicle{
     background-color: #009951;
-    
-    flex: 1;
     color: rgb(0, 0, 0);
-    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+    
 }
-.imagemComTexto {
-   
+#imagemComTexto {
     width: 300px;
     margin-right: 20px;
     margin-bottom: 10px;
-    border-radius: 8px; /* opcional, só pra estética */
+    border-radius: 8px;
   }
   

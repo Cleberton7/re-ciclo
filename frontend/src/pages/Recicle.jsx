@@ -16,7 +16,7 @@ const Recicle = () => {
           <img 
             src={imgLixoEletronico} 
             alt="Imagem sobre lixo eletrônico" 
-            className="imagemComTexto" 
+            id="imagemComTexto" 
           />O lixo eletrônico pode ter vários impactos negativos tanto no meio ambiente quanto na saúde humana.
         </p>
           

@@ -1,10 +1,9 @@
 .section {
     background-color: #009951;
-    flex: 1;
     flex-direction: column;
     color: rgb(0, 0, 0);
     display: flex;
-    margin: 100px auto 0 auto; /* Top com espaço para o header */
+
   }
   
   #textSection {

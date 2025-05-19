@@ -1,3 +1,5 @@
 #containerPrincipal{
     max-width: 1400px; /* Garante que não fique muito largo */
+    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
+    flex: 1;
 }

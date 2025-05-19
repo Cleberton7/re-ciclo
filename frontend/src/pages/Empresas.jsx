@@ -36,7 +36,6 @@ const Empresas = () => {
 
   return (
     <div className='containerEmpresas' id="containerPrincipal">
-      <h1>Bem-vindo à tela de empresas</h1>
 
       <div className="secao">
         <h2>Empresas Parceiras</h2>
