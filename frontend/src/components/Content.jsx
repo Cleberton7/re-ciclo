@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { GoogleMap } from "@react-google-maps/api";
+import React, { useState, useEffect } from 'react';
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import axios from "axios";
 import "../pages/styles/content.css";
-import "../pages/styles/containerPrincipal.css"
+import "../pages/styles/containerPrincipal.css";
 
 const containerStyle = {
   width: '100%',
@@ -14,46 +15,86 @@ const center = {
 };
 
 const Content = () => {
-  const mapRef = useRef(null);
+  const [marcadores, setMarcadores] = useState([]);
 
   useEffect(() => {
-    if (window.google && mapRef.current) {
-      const { AdvancedMarkerElement } = window.google.maps.marker;
-      
-      new AdvancedMarkerElement({
-        position: center,
-        map: mapRef.current,
-        title: "Centro de Tucuruí",
-      });
-    }
+    const fetchLocalizacoes = async () => {
+      try {
+        const [empresasRes, coletoresRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/empresas/localizacoes'),
+          axios.get('http://localhost:5000/api/coletor/localizacoes')
+        ]);
+
+        const empresas = empresasRes.data || [];
+        const coletores = coletoresRes.data || [];
+
+        const pontos = [
+          ...empresas.map(e => ({ 
+            ...e.localizacao, 
+            tipo: 'empresa', 
+            nome: e.nome 
+          })),
+          ...coletores.map(c => ({ 
+            ...c.localizacao, 
+            tipo: 'coletor', 
+            nome: c.nome 
+          }))
+        ].filter(p => p.lat && p.lng);
+
+        setMarcadores(pontos);
+      } catch (err) {
+        console.error("Erro ao carregar localizações:", err);
+      }
+    };
+
+    fetchLocalizacoes();
   }, []);
 
   return (
-    <div className='content' id="containerPrincipal">
-      <div className='containerRanked'>
-        <div id='textRanked'>Ranking das empresas</div>
-        <div id='rankedEmpresa'>Ranked empresas</div>
-      </div>
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
+      <div className='content' id="containerPrincipal">
+        <div className='containerRanked'>
+          <div id='textRanked'>Ranking das empresas</div>
+          <div id='rankedEmpresa'>Ranked empresas</div>
+        </div>
 
-      <div className='containerGraphic'>
-        <div id='textGraph'>Gráfico de coletas</div>
-        <div id='graphic'>{/* gráfico aqui depois */}</div>
-      </div>
+        <div className='containerGraphic'>
+          <div id='textGraph'>Gráfico de coletas</div>
+          <div id='graphic'>{/* gráfico aqui depois */}</div>
+        </div>
 
-      <div className='containerMaps'>
-        <div id='textLoc'>Localização/empresas</div>
-        <div id='maps'>
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={13}
-            onLoad={(map) => (mapRef.current = map)}
-          >
-            {/* Removido o <Marker /> antigo */}
-          </GoogleMap>
+        <div className='containerMaps'>
+          <div id='textLoc'>Localização/empresas</div>
+          <div id='maps'>
+            <Map
+              style={containerStyle}
+              defaultCenter={center}
+              defaultZoom={12}
+              mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+            >
+              {marcadores.map((marcador, index) => (
+                <AdvancedMarker
+                  key={index}
+                  position={{ lat: marcador.lat, lng: marcador.lng }}
+                  title={`${marcador.tipo}: ${marcador.nome}`}
+                >
+                  <div style={{
+                    backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
+                    color: 'white',
+                    padding: '8px',
+                    borderRadius: '50%',
+                    fontSize: '14px',
+                    transform: 'translate(-50%, -50%)'
+                  }}>
+                    {marcador.tipo === 'empresa' ? 'E' : 'C'}
+                  </div>
+                </AdvancedMarker>
+              ))}
+            </Map>
+          </div>
         </div>
       </div>
-    </div>
+    </APIProvider>
   );
 };
 

@@ -7,11 +7,9 @@ const router = express.Router();
 router.get('/dados', verifyToken, checkUserType(['empresa']), async (req, res) => {
   try {
     const empresa = await User.findById(req.user.id).select('-senha -__v -createdAt -updatedAt');
-
     if (!empresa) {
       return res.status(404).json({ success: false, message: 'Empresa não encontrada' });
     }
-
     res.json({
       success: true,
       data: {
@@ -21,7 +19,6 @@ router.get('/dados', verifyToken, checkUserType(['empresa']), async (req, res) =
       }
     });
   } catch (error) {
-    console.error('Erro ao buscar dados da empresa:', error);
     res.status(500).json({
       success: false,
       message: 'Erro ao buscar dados da empresa',
@@ -36,7 +33,6 @@ router.get('/coletores-disponiveis', verifyToken, checkUserType(['empresa']), as
       tipoUsuario: 'coletor',
       endereco: req.user.endereco
     }).select('nome email telefone veiculo capacidadeColeta');
-
     res.json({ success: true, data: coletores });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro ao buscar coletores' });
@@ -46,7 +42,11 @@ router.get('/coletores-disponiveis', verifyToken, checkUserType(['empresa']), as
 router.put('/atualizar', verifyToken, checkUserType(['empresa']), async (req, res) => {
   try {
     const updates = req.body;
-    const empresa = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true, runValidators: true }).select('-senha -__v');
+    const empresa = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-senha -__v');
 
     res.json({
       success: true,
@@ -58,24 +58,49 @@ router.put('/atualizar', verifyToken, checkUserType(['empresa']), async (req, re
   }
 });
 
+router.put('/atualizar-localizacao', verifyToken, checkUserType(['empresa']), async (req, res) => {
+  try {
+    const { lat, lng } = req.body.localizacao;
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ message: "Latitude e longitude são obrigatórios e devem ser números" });
+    }
+
+    await User.findByIdAndUpdate(req.user.id, { localizacao: { lat, lng } });
+    res.json({ message: "Localização atualizada" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao atualizar localização" });
+  }
+});
+
+router.get('/localizacoes', async (req, res) => {
+  try {
+    const empresas = await User.find({ tipoUsuario: 'empresa', localizacao: { $ne: null } })
+      .select('nome localizacao');
+    res.json(empresas);
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao buscar localizações das empresas" });
+  }
+});
+
 router.get('/publicas', async (req, res) => {
   try {
     const empresas = await User.find({ tipoUsuario: 'empresa' })
       .select('nome email endereco cnpj razaoSocial telefone')
       .lean();
-      
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: empresas.map(e => ({
         ...e,
         nomeFantasia: e.razaoSocial || e.nome
       }))
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao buscar empresas' 
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar empresas'
     });
   }
 });
+
 export default router;

@@ -8,13 +8,8 @@ export const verifyToken = (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET, {
-      algorithms: ['HS256'],
-      ignoreExpiration: false
-    });
-
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -31,16 +26,16 @@ export const requireLogin = (req, res, next) => {
 
 export const checkUserType = (tiposPermitidos) => (req, res, next) => {
   if (!req.user || !req.user.tipoUsuario) {
-    return res.status(403).json({ 
+    return res.status(403).json({
       success: false,
-      message: 'Tipo de usuário não identificado' 
+      message: 'Tipo de usuário não identificado'
     });
   }
 
   if (!tiposPermitidos.includes(req.user.tipoUsuario)) {
-    return res.status(403).json({ 
+    return res.status(403).json({
       success: false,
-      message: `Acesso permitido apenas para: ${tiposPermitidos.join(', ')}` 
+      message: `Acesso permitido apenas para: ${tiposPermitidos.join(', ')}`
     });
   }
 

@@ -120,7 +120,12 @@ const UserSchema = new mongoose.Schema({
   dataCadastro: { 
     type: Date, 
     default: Date.now 
+  },
+  localizacao: {
+    lat: { type: Number, min: -90, max: 90 },
+    lng: { type: Number, min: -180, max: 180 }
   }
+  
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true }

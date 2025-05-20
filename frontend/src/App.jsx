@@ -1,18 +1,17 @@
-import { LoadScript } from "@react-google-maps/api";
-import AppRoutes from "./routes/AppRouters.jsx";
-
+import { APIProvider } from '@vis.gl/react-google-maps';
+import AppRoutes from "./routes/AppRouters";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {
   return (
-    <LoadScript
-      googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}
-      libraries={['marker']}
+    <APIProvider 
+      apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}
+      onLoad={() => console.log('API do Google Maps carregada com sucesso')}
     >
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-    </LoadScript>
+    </APIProvider>
   );
 };
 

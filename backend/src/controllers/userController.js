@@ -166,7 +166,46 @@ export const userController = {
         error: error.message 
       });
     }
+  },
+  async updateLocation(req, res) {
+    try {
+      const { lat, lng } = req.body;
+  
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        return res.status(400).json({
+          success: false,
+          message: "Latitude e longitude inválidas"
+        });
+      }
+  
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { localizacao: { lat, lng } },
+        { new: true }
+      ).select('-senha');
+  
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Usuário não encontrado"
+        });
+      }
+  
+      return res.json({
+        success: true,
+        message: "Localização atualizada com sucesso",
+        data: user
+      });
+  
+    } catch (error) {
+      console.error("Erro ao atualizar localização:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Erro ao atualizar localização"
+      });
+    }
   }
+  
 };
 
 export default userController;

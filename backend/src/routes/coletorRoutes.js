@@ -34,7 +34,6 @@ router.get('/dados', verifyToken, checkUserType(['coletor']), async (req, res) =
 // GET centros disponíveis para coleta (exemplo de rota específica para coletor)
 router.get('/centros-disponiveis', verifyToken, checkUserType(['coletor']), async (req, res) => {
   try {
-    // Supondo que centros tenham tipoUsuario 'centro' e estejam na mesma cidade/área do coletor
     const centros = await User.find({
       tipoUsuario: 'centro',
       endereco: req.user.endereco
@@ -50,7 +49,11 @@ router.get('/centros-disponiveis', verifyToken, checkUserType(['coletor']), asyn
 router.put('/atualizar', verifyToken, checkUserType(['coletor']), async (req, res) => {
   try {
     const updates = req.body;
-    const coletor = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true, runValidators: true }).select('-senha -__v');
+    const coletor = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-senha -__v');
 
     res.json({
       success: true,
@@ -62,6 +65,25 @@ router.put('/atualizar', verifyToken, checkUserType(['coletor']), async (req, re
   }
 });
 
+// PUT atualizar localização do coletor
+router.put('/atualizar-localizacao', verifyToken, checkUserType(['coletor']), async (req, res) => {
+  try {
+    const { lat, lng } = req.body.localizacao;
+
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ message: "Latitude e longitude são obrigatórios e devem ser números" });
+    }
+
+    await User.findByIdAndUpdate(req.user.id, { localizacao: { lat, lng } });
+
+    res.json({ message: "Localização atualizada com sucesso" });
+  } catch (error) {
+    console.error('Erro ao atualizar localização:', error);
+    res.status(500).json({ message: "Erro ao atualizar localização" });
+  }
+});
+
+// GET lista pública de coletores
 router.get('/publicos', async (req, res) => {
   try {
     const coletores = await User.find({ tipoUsuario: 'coletor' })
@@ -76,4 +98,18 @@ router.get('/publicos', async (req, res) => {
     });
   }
 });
+
+// GET localizações de coletores para exibição no mapa
+router.get('/localizacoes', async (req, res) => {
+  try {
+    const coletores = await User.find({ tipoUsuario: 'coletor', localizacao: { $ne: null } })
+      .select('nome localizacao');
+
+    res.json(coletores);
+  } catch (error) {
+    console.error('Erro ao buscar localizações dos coletores:', error);
+    res.status(500).json({ message: "Erro ao buscar localizações dos coletores" });
+  }
+});
+
 export default router;

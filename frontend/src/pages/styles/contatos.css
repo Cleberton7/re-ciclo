@@ -7,7 +7,12 @@
     text-align: left;
     margin-left: 40px; /* opcional para afastar da borda */
   }
-  
+  h4{
+    font-size: 30px;
+  }
+  .formularioTexto h1{
+    font-size: 18px;
+  }
   .containerContatos {
     display: flex;
     align-items: center;
@@ -132,8 +137,10 @@
   
   /* Limita a largura de cada lado */
   #Imagem, #outrosContatos {
-    flex: 1;
     min-width: 250px;
+  }
+  #Imagem{
+    flex: 1;
   }
   
   #outrosContatos {
@@ -149,10 +156,21 @@
     gap: 10px;
     margin-bottom: 20px;
   }
+  .iconeContato {
+    width: 60px;
+    height: 50px;
+    border: 2px solid white; /* Borda branca */
+    border-radius: 4px;
+    display: flex;           /* Flexbox para centralizar */
+    align-items: center;     /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    background-color: transparent; /* Opcional: fundo transparente */
+  }
   
   .iconeContato img {
-    width: 24px;
-    height: 24px;
+    width:32px;
+    height: 32px;
+
   }
   
   .textoContato {

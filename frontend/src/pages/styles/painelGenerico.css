@@ -1,34 +1,59 @@
 .painel-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .loading, .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 18px;
-  }
-  
-  .error {
-    color: #ff0000;
-  }
-  
-  .dados-section {
-    background-color:  #009951;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .info-row:last-child {
-    border-bottom: none;
-  }
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
+.error {
+  color: #ff0000;
+}
+
+.painel-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.dados-section {
+  flex: 1;
+  min-width: 300px;
+  background-color: #009951;
+  padding: 20px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.map-section {
+  flex: 1;
+  min-width: 300px;
+}
+button {
+  padding: 10px 15px;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3367D6;
+}
