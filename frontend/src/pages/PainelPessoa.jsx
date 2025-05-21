@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./styles/painelPessoa.css";
+import "./styles/containerPrincipal.css"
 
 const PainelPessoa = () => {
   const [userData, setUserData] = useState({
@@ -104,7 +105,7 @@ const PainelPessoa = () => {
   }
 
   return (
-    <div className="painel-container">
+    <div className="painel-container" id="containerPrincipal"x>
       <h2>Meu Perfil</h2>
       {message && <p className="message">{message}</p>}
       

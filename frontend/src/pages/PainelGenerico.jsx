@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import './styles/painelGenerico.css';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import "./styles/containerPrincipal.css"
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -200,13 +201,11 @@ const PainelGenerico = ({ tipoUsuario }) => {
       maximumAge: 30000
     };
 
-    // First try with high accuracy
     navigator.geolocation.getCurrentPosition(
       handlePositionSuccess,
       (error) => {
         console.warn('Falha GPS (alta precisão):', error.message);
-        
-        // Fallback to standard method
+  
         navigator.geolocation.getCurrentPosition(
           handlePositionSuccess,
           (fallbackError) => {
@@ -219,7 +218,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
       highAccuracyOptions
     );
 
-    // Start continuous tracking for better accuracy
     startWatchingPosition();
   };
 
@@ -242,10 +240,9 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
-      <div className="painel-container">
-        {dados ? (
-          <>
-            <h2>Bem-vindo, {dados.nome}</h2>
+      <div id="containerPrincipal">
+        {(tipoUsuario === "empresa" || tipoUsuario === "coletor") ? (
+          <div className="painel-content">
             <div className="dados-section">
               <h3>Seus Dados</h3>
               <div className="info-row">
@@ -268,68 +265,77 @@ const PainelGenerico = ({ tipoUsuario }) => {
                   <strong>{dados.veiculo || 'Não informado'}</strong>
                 </div>
               )}
-
-              {(tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
-                <>
-                  <h3>Localização</h3>
-                  <div className="info-row">
-                    <button onClick={handleGetCurrentLocation}>
-                      Usar localização atual
-                    </button>
-                  </div>
-                  <div style={{ height: '400px', width: '100%', marginTop: '10px' }}>
-                    <Map
-                      defaultCenter={mapCenter}
-                      defaultZoom={15}
-                      mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-                      style={{ height: '100%', width: '100%' }}
-                      onClick={handleMapClick}
-                    >
-                      {lat && lng && (
-                        <AdvancedMarker
-                          position={{ lat: Number(lat), lng: Number(lng) }}
-                          title={dados.nome}
-                        >
-                          <div style={{
-                            backgroundColor: tipoUsuario === "empresa" ? '#4285F4' : '#0F9D58',
-                            color: 'white',
-                            padding: '8px',
-                            borderRadius: '50%',
-                            transform: 'translate(-50%, -50%)'
-                          }}>
-                            {tipoUsuario === "empresa" ? 'E' : 'C'}
-                          </div>
-                        </AdvancedMarker>
-                      )}
-                    </Map>
-                  </div>
-                  <div className="info-row">
-                    <span>Latitude:</span>
-                    <input
-                      type="number"
-                      value={lat}
-                      onChange={(e) => setLat(e.target.value)}
-                      step="0.000001"
-                    />
-                  </div>
-                  <div className="info-row">
-                    <span>Longitude:</span>
-                    <input
-                      type="number"
-                      value={lng}
-                      onChange={(e) => setLng(e.target.value)}
-                      step="0.000001"
-                    />
-                  </div>
-                  <button onClick={handleSaveLocation} disabled={saving}>
-                    {saving ? "Salvando..." : "Salvar Localização"}
-                  </button>
-                </>
-              )}
             </div>
-          </>
+
+            <div className="localizacao-section">
+              <h3>Localização</h3>
+              <div className="info-row">
+                <button onClick={handleGetCurrentLocation}>
+                  Usar localização atual
+                </button>
+              </div>
+              <div style={{ height: '300px', width: '100%', margin: '10px 0' }}>
+                <Map
+                  defaultCenter={mapCenter}
+                  defaultZoom={15}
+                  mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+                  style={{ height: '100%', width: '100%' }}
+                  onClick={handleMapClick}
+                >
+                  {lat && lng && (
+                    <AdvancedMarker
+                      position={{ lat: Number(lat), lng: Number(lng) }}
+                      title={dados.nome}
+                    >
+                      <div style={{
+                        backgroundColor: tipoUsuario === "empresa" ? '#4285F4' : '#0F9D58',
+                        color: 'white',
+                        padding: '8px',
+                        borderRadius: '50%',
+                        transform: 'translate(-50%, -50%)'
+                      }}>
+                        {tipoUsuario === "empresa" ? 'E' : 'C'}
+                      </div>
+                    </AdvancedMarker>
+                  )}
+                </Map>
+              </div>
+              <div className="info-row">
+                <span>Latitude:</span>
+                <input
+                  type="number"
+                  value={lat}
+                  onChange={(e) => setLat(e.target.value)}
+                  step="0.000001"
+                />
+              </div>
+              <div className="info-row">
+                <span>Longitude:</span>
+                <input
+                  type="number"
+                  value={lng}
+                  onChange={(e) => setLng(e.target.value)}
+                  step="0.000001"
+                />
+              </div>
+              <button onClick={handleSaveLocation} disabled={saving}>
+                {saving ? "Salvando..." : "Salvar Localização"}
+              </button>
+            </div>
+          </div>
         ) : (
-          <div className="error">Nenhum dado encontrado para este usuário</div>
+          // caso não seja empresa ou coletor
+          <div className="dados-section">
+            <h3>Seus Dados</h3>
+            <div className="info-row">
+              <span>Email:</span>
+              <strong>{dados.email}</strong>
+            </div>
+            <div className="info-row">
+              <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
+              <strong>{dados.documento}</strong>
+            </div>
+          </div>
         )}
       </div>
     </APIProvider>

@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
+
 }
 
 .loading, .error {
@@ -28,6 +29,7 @@
   padding: 20px;
   border-radius: 8px;
   color: #fff;
+
 }
 
 .info-row {
@@ -45,6 +47,28 @@
   flex: 1;
   min-width: 300px;
 }
+.painel-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.dados-section, .localizacao-section {
+  flex: 1;
+  min-width: 300px;
+  background-color: #009951;
+  padding: 20px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.localizacao-section input {
+  width: 100%;
+  padding: 5px;
+  margin-left: 10px;
+}
+
 button {
   padding: 10px 15px;
   background-color: #4285F4;

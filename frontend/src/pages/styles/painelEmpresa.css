@@ -1,11 +1,8 @@
-.painel-container {
-  background-color:  #009951;
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  font-family: sans-serif;
+.container-container{
+    background-color: #009951;
+    border-radius: 10%;
 }
-  
+
 form.form-empresa input {
   display: block;
   margin-bottom: 10px;
