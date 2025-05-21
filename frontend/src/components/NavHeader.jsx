@@ -8,25 +8,34 @@ import { FiMenu, FiX } from "react-icons/fi";
 import LogoCapa from "../assets/logoCapa.png";
 import { useAuth } from "../contexts/authFunctions";
 
-
 const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, userName, role, logout } = useAuth(); // Usando o AuthContext
+  const { isLoggedIn, userName, role, logout } = useAuth();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const openModal = (type) => {
-    setModalType(type);
-    setIsModalOpen(true);
+    setActiveModal(type);
     setMenuOpen(false);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
   };
 
   const handleLoginSuccess = (nome, role) => {
     console.log("Login bem-sucedido, nome e role:", { nome, role });
-    setIsModalOpen(false);
+    closeModal();
+  };
+
+  const switchToLogin = () => {
+    setActiveModal('login');
+  };
+
+  const switchToRegister = () => {
+    setActiveModal('register');
   };
 
   const handlePerfilClick = () => {
@@ -40,7 +49,7 @@ const NavHeader = () => {
   };
 
   const handleLogout = () => {
-    logout(); // Chama a função logout do AuthContext
+    logout();
     navigate("/");
   };
 
@@ -59,9 +68,14 @@ const NavHeader = () => {
           <div id="nav" className={menuOpen ? "open" : ""}>
             {[{ path: "/", label: "Home" }, { path: "/empresas", label: "Empresas Parceiras" }, { path: "/recicle", label: "Recicle" }, { path: "/coletas", label: "Coletas" }, { path: "/eventos", label: "Eventos" }, { path: "/contatos", label: "Contatos" }]
               .map(({ path, label }) => (
-                <div key={path} className={`menu ${location.pathname === path ? "active" : ""}`} onClick={() => setMenuOpen(false)}>
-                  <Link to={path}>{label}</Link>
-                </div>
+                <Link 
+                  key={path} 
+                  to={path} 
+                  className={`menu ${location.pathname === path ? "active" : ""}`} 
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {label}
+                </Link>
               ))}
           </div>
 
@@ -81,8 +95,15 @@ const NavHeader = () => {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        {modalType === "login" ? <Login onLoginSuccess={handleLoginSuccess} /> : <Register />}
+      <Modal isOpen={activeModal !== null} onClose={closeModal}>
+        {activeModal === 'login' ? (
+          <Login 
+            onLoginSuccess={handleLoginSuccess} 
+            onRegisterClick={switchToRegister} 
+          />
+        ) : (
+          <Register onLoginClick={switchToLogin} />
+        )}
       </Modal>
     </>
   );

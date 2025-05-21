@@ -50,37 +50,30 @@
 }
 
 
-/* Estilização dos menus */
 .menu {
   padding: 10px 15px;
   border-radius: 5px;
   transition: background 0.3s;
   text-align: center;
-  white-space: nowrap; /* Impede quebra de linha */
-  overflow: hidden; /* Esconde qualquer parte que ultrapasse */
-  text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
-  min-width: 50px; /* Define um tamanho mínimo para cada item */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 50px;
   margin: 4px;
-}
-
-.menu a {
+  cursor: pointer;
+  text-decoration: none; /* Remove sublinhado */
   color: rgb(0, 0, 0);
   font-weight: bold;
 }
 
-/* Efeito ao passar o mouse */
 .menu:hover {
-  background-color:  #009951;
+  background-color: #009951;
 }
 
-/* Estilo para o menu ativo */
 .menu.active {
-  background-color: #006d39; 
+  background-color: #006d39;
 }
 
-.menu.active a {
-  color: black;
-}
 
 /* Botões de login e registro */
 #entrar, #registrar {
@@ -107,6 +100,40 @@
   display: none;
   cursor: pointer;
 }
+/* Estilo do perfil logado */
+.perfil-log {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#perfil {
+  background-color: #004d26;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+#perfil:hover {
+  background-color: #009952;
+}
+
+#loggout {
+  background-color: #d9534f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: bold;
+}
+
+#loggout:hover {
+  background-color: #c9302c;
+}
 
 @media (max-width: 768px) {
   .menu-toggle {
@@ -130,11 +157,6 @@
     padding: 10px;
   }
 
-  #loginRegister {
-    width: 100%;
-    justify-content: center;
-    margin-top: 10px;
-  }
 
   .menu {
     width: 100%;

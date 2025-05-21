@@ -17,7 +17,6 @@
   justify-content: center;
 }
 
-
 .logo-placeholder {
   display: flex;
   align-items: center;
@@ -31,7 +30,6 @@
 }
 
 .login-right {
-
   flex-direction: column;
   padding: 30px;
   gap: 20px;
@@ -40,7 +38,9 @@
 
 #text-login h2 {
   margin: 0;
+  color: white;
   text-align: center;
+  font-size: 28px;
 }
 
 #form-login {
@@ -61,23 +61,73 @@ form {
 input,
 button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   font-size: 14px;
   border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+button {
+  background-color: #004d26;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #00331a;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+  width: 100%;
 }
 
 .forgot-password a {
+  color: white;
   text-decoration: none;
-  color: #ffffff;
-  transition: color 0.3s;
+  font-size: 14px;
   cursor: pointer;
+  transition: color 0.3s;
 }
 
 .forgot-password a:hover {
-  color: #009951;
+  color: #a0ffc8;
 }
 
-/* Modal */
+.register-link {
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.register-link span {
+  color: #a0ffc8;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.register-link span:hover {
+  color: #ffffff;
+}
+
+/* Modal de recuperação */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -92,7 +142,7 @@ button {
 }
 
 .modal-recover {
-  position: relative; /* ADICIONE ESSA LINHA */
+  position: relative;
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -113,11 +163,12 @@ button {
   font-size: 14px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  background-color: white;
 }
 
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .modal-buttons button {
@@ -133,6 +184,7 @@ button {
 .modal-buttons button:hover {
   background-color: #007a3a;
 }
+
 .modal-recover .close-button {
   position: absolute;
   top: 10px;
@@ -149,35 +201,4 @@ button {
 
 .modal-recover .close-button:hover {
   color: red;
-}
-.perfil-log{
-
-
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px;
-
-}
-
-#perfil{
-  width: auto;
-  height: 55px;
-  border-radius: 50px;
-  color: #004d26;
-  font-weight: bold;
-  font-size: 12px;
-  background-color: #009952;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-}
-#loggout{
-  margin: 6px;
-  text-decoration: underline;
-  color: #333;
-  cursor: pointer;
 }

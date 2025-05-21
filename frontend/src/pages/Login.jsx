@@ -4,7 +4,7 @@ import Logo from "../assets/logo.png";
 import { loginUser } from "../services/authService";
 import { useAuth } from "../contexts/authFunctions";
 
-const Login = ({ onLoginSuccess }) => {
+const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -31,15 +31,9 @@ const Login = ({ onLoginSuccess }) => {
         throw new Error("Resposta do servidor incompleta");
       }
 
-
-      // ✅ Armazena token e dados do usuário
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.usuario));
-      console.log('Token armazenado no localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
-      console.log('Token recebido do backend:', response.token.substring(0, 20) + '...');
-
-
-      // ✅ Atualiza contexto de autenticação
+      
       login(response.usuario.nome, response.usuario.tipoUsuario, response.token);
       onLoginSuccess(response.usuario.nome, response.usuario.tipoUsuario);
 
@@ -101,6 +95,10 @@ const Login = ({ onLoginSuccess }) => {
 
         <div className="forgot-password">
           <a onClick={() => setShowRecoverModal(true)}>Esqueci minha senha</a>
+        </div>
+
+        <div className="register-link">
+          Não tem uma conta? <span onClick={onRegisterClick}>Cadastre-se</span>
         </div>
       </div>
 
