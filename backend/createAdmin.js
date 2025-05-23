@@ -6,7 +6,7 @@ dotenv.config({ path: '.env' });
 async function createAdmin() {
   await mongoose.connect(process.env.MONGO_URI);
 
-  const adminExists = await User.findOne({ tipoUsuario: 'admin', email: 'admin@exemplo.com' });
+  const adminExists = await User.findOne({ tipoUsuario: 'admGeral', email: 'admin@exemplo.com' });
   if (adminExists) {
     console.log('Admin já existe');
     process.exit(0);
@@ -16,7 +16,7 @@ async function createAdmin() {
     nome: 'Administrador',
     email: 'admin@exemplo.com',
     senha: '123456789', // Vai ser criptografada no pre-save do schema
-    tipoUsuario: 'admin',
+    tipoUsuario: 'admGeral',
     documento: '00000000000', // ou outro dado que faça sentido
   });
 

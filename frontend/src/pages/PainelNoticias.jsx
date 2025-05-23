@@ -1,24 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import './styles/painelNoticias.css'
+import './styles/painelNoticias.css';
 import {
   listarNoticias,
   criarNoticia,
   atualizarNoticia,
   deletarNoticia
 } from '../services/noticiaService';
-
+import { useNavigate } from 'react-router-dom';
 
 const PainelNoticias = () => {
   const [noticias, setNoticias] = useState([]);
-  const [form, setForm] = useState({ title: '', content: '', image: '', tags: '' });
+  const [form, setForm] = useState({ title: '', content: '', tags: '' });
+  const [imageFile, setImageFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    carregarNoticias();
-  }, []);
+    const loadUser = () => {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      const token = localStorage.getItem('token');
+      
+      if (!userData || !token) {
+        console.log('Usuário não autenticado, redirecionando...');
+        navigate('/login');
+        return;
+      }
+      
+      setUser(userData);
+      console.log('Usuário carregado:', userData);
+      
+      if (userData.tipoUsuario !== 'admGeral') {
+        setError('Acesso permitido apenas para administradores gerais');
+        return;
+      }
+      
+      carregarNoticias();
+    };
+    
+    loadUser();
+  }, [navigate]);
 
   const carregarNoticias = async () => {
     setLoading(true);
@@ -26,8 +50,15 @@ const PainelNoticias = () => {
       const data = await listarNoticias();
       setNoticias(data);
     } catch (err) {
-      console.error(err);
+      console.error('Erro ao carregar notícias:', err);
       setError('Erro ao carregar notícias');
+      
+      // Se for erro 401 (não autorizado), redireciona para login
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -38,8 +69,15 @@ const PainelNoticias = () => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
   const limparForm = () => {
-    setForm({ title: '', content: '', image: '', tags: '' });
+    setForm({ title: '', content: '', tags: '' });
+    setImageFile(null);
     setEditId(null);
     setError('');
     setSuccessMsg('');
@@ -49,64 +87,119 @@ const PainelNoticias = () => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
+    
+    if (!user || user.tipoUsuario !== 'admGeral') {
+      setError('Acesso permitido apenas para administradores gerais');
+      return;
+    }
+
     if (!form.title || !form.content) {
       setError('Título e conteúdo são obrigatórios');
       return;
     }
 
-    const noticiaData = {
-      title: form.title,
-      content: form.content,
-      image: form.image,
-      tags: form.tags ? form.tags.split(',').map(tag => tag.trim()) : []
-    };
-
     try {
+      const formData = new FormData();
+      formData.append('title', form.title);
+      formData.append('content', form.content);
+      formData.append('tags', form.tags ? JSON.stringify(form.tags.split(',').map(tag => tag.trim())) : JSON.stringify([]));
+      
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       if (editId) {
-        await atualizarNoticia(editId, noticiaData);
+        await atualizarNoticia(editId, formData);
         setSuccessMsg('Notícia atualizada com sucesso!');
       } else {
-        await criarNoticia(noticiaData);
+        await criarNoticia(formData);
         setSuccessMsg('Notícia criada com sucesso!');
       }
+
       limparForm();
-      carregarNoticias();
+      await carregarNoticias();
+
     } catch (err) {
-      console.error(err);
-      setError('Erro ao salvar notícia');
+      console.error('Erro ao salvar notícia:', err);
+      
+      if (err.response?.status === 403) {
+        setError('Acesso negado. Verifique suas permissões.');
+      } else if (err.response?.status === 401) {
+        setError('Sessão expirada. Faça login novamente.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        setError(err.response?.data?.message || 'Erro ao salvar notícia');
+      }
     }
   };
 
   const handleEditar = (noticia) => {
+    if (!user || user.tipoUsuario !== 'admGeral') {
+      setError('Acesso permitido apenas para administradores gerais');
+      return;
+    }
+    
     setEditId(noticia._id);
     setForm({
       title: noticia.title,
       content: noticia.content,
-      image: noticia.image || '',
       tags: noticia.tags ? noticia.tags.join(', ') : ''
     });
+    setImageFile(null);
     setError('');
     setSuccessMsg('');
   };
 
   const handleDeletar = async (id) => {
+    if (!user || user.tipoUsuario !== 'admGeral') {
+      setError('Acesso permitido apenas para administradores gerais');
+      return;
+    }
+    
     if (!window.confirm('Confirma a exclusão da notícia?')) return;
+    
     try {
       await deletarNoticia(id);
       setSuccessMsg('Notícia deletada com sucesso!');
-      carregarNoticias();
+      await carregarNoticias();
     } catch (err) {
-      console.error(err);
-      setError('Erro ao deletar notícia');
+      console.error('Erro ao deletar notícia:', err);
+      
+      if (err.response?.status === 403) {
+        setError('Acesso negado. Verifique suas permissões.');
+      } else if (err.response?.status === 401) {
+        setError('Sessão expirada. Faça login novamente.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        setError(err.response?.data?.message || 'Erro ao deletar notícia');
+      }
     }
   };
 
+  if (!user) {
+    return <div>Carregando...</div>;
+  }
+
+  if (user.tipoUsuario !== 'admGeral') {
+    return (
+      <div style={{ padding: '1rem', textAlign: 'center' }}>
+        <h2>Acesso Restrito</h2>
+        <p>Você precisa ser um administrador geral para acessar esta página.</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
+<div style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
       <h2>Painel de Notícias (admGeral)</h2>
+      <p>Usuário: {user.nome} ({user.tipoUsuario})</p>
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
-        <div>
+               <div>
           <label>Título:</label><br />
           <input
             type="text"
@@ -131,15 +224,14 @@ const PainelNoticias = () => {
         </div>
 
         <div>
-          <label>Imagem (URL):</label><br />
+          <label>Imagem:</label><br />
           <input
-            type="text"
-            name="image"
-            value={form.image}
-            onChange={handleChange}
-            placeholder="URL da imagem"
-            style={{ width: '100%' }}
+            type="file"
+            name="imageFile"
+            accept="image/*"
+            onChange={handleImageChange}
           />
+          {imageFile && <p>Imagem selecionada: {imageFile.name}</p>}
         </div>
 
         <div>
@@ -167,6 +259,8 @@ const PainelNoticias = () => {
       <h3>Notícias Cadastradas</h3>
       {loading ? (
         <p>Carregando...</p>
+      ) : error ? (
+        <p style={{ color: 'red' }}>{error}</p>
       ) : noticias.length === 0 ? (
         <p>Nenhuma notícia encontrada.</p>
       ) : (

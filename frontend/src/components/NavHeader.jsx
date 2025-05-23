@@ -43,7 +43,7 @@ const NavHeader = () => {
       navigate("/painelEmpresa");
     } else if (role === "coletor") {
       navigate("/painelReciclador");
-    } else if (role ==="admin"){
+    } else if (role ==="admGeral"){
       navigate("/PainelAdm")
     }else{
       navigate("/painelPessoa");
