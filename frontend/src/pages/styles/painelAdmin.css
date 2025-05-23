@@ -1,0 +1,28 @@
+#containerPainelAdmin {
+  padding: 40px;
+  text-align: center;
+}
+
+.card-opcao {
+  border: 2px solid #008f8c;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 30px;
+  cursor: pointer;
+  background-color: #f0fefe;
+  transition: 0.3s;
+}
+
+.card-opcao:hover {
+  background-color: #c6f4f3;
+  transform: scale(1.02);
+}
+
+.card-opcao h2 {
+  margin-bottom: 10px;
+  color: #005f5c;
+}
+
+.card-opcao p {
+  color: #333;
+}

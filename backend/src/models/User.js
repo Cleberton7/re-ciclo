@@ -95,7 +95,7 @@ const UserSchema = new mongoose.Schema({
   tipoUsuario: { 
     type: String, 
     required: true,
-    enum: ['pessoa', 'empresa', 'coletor'],
+    enum: ['pessoa', 'empresa', 'coletor','admin'],
     default: 'pessoa'
   },
   documento: {
@@ -131,7 +131,6 @@ const UserSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-UserSchema.index({ email: 1 });
 UserSchema.index({ tipoUsuario: 1 });
 
 UserSchema.pre('save', async function(next) {
