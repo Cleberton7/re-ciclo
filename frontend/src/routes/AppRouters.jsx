@@ -3,11 +3,12 @@ import Home from "../pages/Home";
 import Contatos from "../pages/Contatos";
 import Empresas from "../pages/Empresas";
 import Recicle from "../pages/Recicle";
-import Eventos from "../pages/Eventos";
+import Eventos from "../pages/NoticiasEventos";
 import Coletas from "../pages/Coletas";
 import PainelEmpresa from "../pages/PainelEmpresa";
 import PainelReciclador from "../pages/PainelReciclador";
 import PainelPessoa from "../pages/PainelPessoa";
+import PainelNoticias from "../pages/PainelNoticias";
 
 import Layout from "../components/Layout";
 
@@ -48,6 +49,11 @@ const AppRoutes = () => {
           path="/painelPessoa"
           element={<ProtectedRoute element={<PainelPessoa />} role="pessoa" />}
         />
+        <Route
+          path="/painelNoticias"
+          element={<ProtectedRoute element={<PainelNoticias />} role="admGeral" />}
+        />
+
 
         {/* Redirecionamentos */}
         <Route path="/login" element={<Navigate to="/" />} />

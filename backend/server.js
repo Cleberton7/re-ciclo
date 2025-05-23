@@ -9,7 +9,9 @@ import empresaRoutes from './src/routes/empresaRoutes.js';
 import centroRoutes from './src/routes/centroRoutes.js';
 import coletorRoutes from './src/routes/coletorRoutes.js'; 
 import coletasRoutes  from './src/routes/coletasRoutes.js';
+import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
+
 
 import { PORT, MONGO_URI, NODE_ENV } from './src/config/config.js';
 
@@ -35,6 +37,7 @@ async function main() {
     app.use("/api/centros-reciclagem", centroRoutes);
     app.use("/api/coletor", coletorRoutes); 
     app.use("/api/coletas",coletasRoutes);
+    app.use("/api/noticias", noticiaRoutes);  
 
     // Middleware de erro
     app.use(errorHandler);
