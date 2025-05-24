@@ -28,7 +28,7 @@ const NoticiasEventos = () => {
 
   return (
     <div className="noticias-publicas-container">
-      <h1>Notícias</h1>
+      <h1>Eventos</h1>
 
       {loading && <p>Carregando notícias...</p>}
       {error && <p className="error-message">{error}</p>}
