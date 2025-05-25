@@ -41,6 +41,7 @@ async function main() {
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+    app.use('/uploads/coletas', express.static(path.join(__dirname, 'uploads/coletas')));
     // Rotas
     app.use("/api/auth", authRoutes);
     app.use("/api/usuarios", userRoutes); 

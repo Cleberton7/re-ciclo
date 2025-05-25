@@ -1,6 +1,8 @@
 import express from 'express';
 import { verifyToken, checkUserType } from '../middlewares/authMiddleware.js';
 import User from '../models/User.js';
+import upload, { configureUpload } from '../config/multerConfig.js';
+
 
 const router = express.Router();
 
@@ -39,24 +41,6 @@ router.get('/coletores-disponiveis', verifyToken, checkUserType(['empresa']), as
   }
 });
 
-router.put('/atualizar', verifyToken, checkUserType(['empresa']), async (req, res) => {
-  try {
-    const updates = req.body;
-    const empresa = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    ).select('-senha -__v');
-
-    res.json({
-      success: true,
-      message: 'Dados atualizados com sucesso',
-      data: empresa
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: 'Erro ao atualizar dados', error: error.message });
-  }
-});
 
 router.put('/atualizar-localizacao', verifyToken, checkUserType(['empresa']), async (req, res) => {
   try {
@@ -102,5 +86,42 @@ router.get('/publicas', async (req, res) => {
     });
   }
 });
+
+router.put(
+  '/atualizar',
+  verifyToken,
+  checkUserType(['empresa']),
+  configureUpload('empresas'), // Define a pasta de upload
+  upload.single('imagemPerfil'), // Processa o arquivo
+  async (req, res) => {
+    try {
+      const updates = req.body;
+
+      // Adiciona o caminho da imagem se houver upload
+      if (req.file) {
+        updates.imagemPerfil = `empresas/${req.file.filename}`;
+      }
+
+      const empresa = await User.findByIdAndUpdate(
+        req.user.id,
+        { $set: updates },
+        { new: true, runValidators: true }
+      ).select('-senha -__v');
+
+      res.json({ 
+        success: true,
+        message: 'Dados atualizados com sucesso',
+        data: empresa 
+      });
+
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar dados', 
+        error: error.message 
+      });
+    }
+  }
+);
 
 export default router;

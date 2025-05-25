@@ -2,14 +2,17 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuração base do multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Pasta base para uploads
-    const baseDir = 'uploads/';
+  destination: (req, file, cb) => { 
+    // Pasta base para uploads (relativa ao arquivo atual)
+    const baseDir = path.join(__dirname, '../../uploads');
     
-    // Subpasta baseada no tipo de upload (noticias, coletas, etc)
+    // Subpasta baseada no tipo de upload (users, noticias, etc)
     const subfolder = req.uploadType || 'generic';
     const uploadDir = path.join(baseDir, subfolder);
     
@@ -22,10 +25,11 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const nomeArquivo = `${Date.now()}${ext}`;
+    const nomeArquivo = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
     cb(null, nomeArquivo);
   }
 });
+
 
 // Filtro para aceitar apenas imagens
 const fileFilter = (req, file, cb) => {
@@ -53,5 +57,4 @@ export const configureUpload = (uploadType) => {
     next();
   };
 };
-
 export default upload;

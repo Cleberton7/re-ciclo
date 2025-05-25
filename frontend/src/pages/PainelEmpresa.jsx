@@ -12,6 +12,7 @@ const PainelEmpresa = () => {
   const [residuos, setResiduos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagem, setImagem] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
     tipoMaterial: "",
@@ -36,20 +37,23 @@ const PainelEmpresa = () => {
   const adicionarResiduo = async () => {
     setLoading(true);
     try {
-      const dados = {
-        tipoMaterial: novoResiduo.tipoMaterial,
-        quantidade: Number(novoResiduo.quantidade),
-        endereco: novoResiduo.endereco,
-        observacoes: novoResiduo.observacoes,
-      };
+      const formData = new FormData();
+      formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+      formData.append("quantidade", novoResiduo.quantidade);
+      formData.append("endereco", novoResiduo.endereco);
+      formData.append("observacoes", novoResiduo.observacoes);
+      if (imagem) {
+        formData.append("imagem", imagem);
+      }
 
-      await criarSolicitacaoColeta(dados);
+      await criarSolicitacaoColeta(formData);
       setNovoResiduo({
         tipoMaterial: "",
         quantidade: "",
         endereco: "",
         observacoes: "",
       });
+      setImagem(null);
       setShowModal(false);
       carregarResiduos();
     } catch (error) {
@@ -79,12 +83,13 @@ const PainelEmpresa = () => {
               <th>Endereço</th>
               <th>Status</th>
               <th>Data Solicitação</th>
+              <th>Imagem</th>
             </tr>
           </thead>
           <tbody>
             {residuos.length === 0 && (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="6" style={{ textAlign: "center" }}>
                   Nenhum resíduo disponível
                 </td>
               </tr>
@@ -100,6 +105,17 @@ const PainelEmpresa = () => {
                     ? new Date(res.createdAt).toLocaleDateString()
                     : "-"}
                 </td>
+                <td>
+                  {res.imagem ? (
+                    <img
+                      src={res.imagem} // ✅ Usa direto a URL completa salva no banco
+                      alt="Resíduo"
+                      className="imagem-residuo"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -108,8 +124,10 @@ const PainelEmpresa = () => {
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-             <CloseButton onClose={() => setShowModal(false)} />
+              <CloseButton onClose={() => setShowModal(false)} />
               <h3>Adicionar Resíduo</h3>
+
+              <label>Tipo de Material:</label>
               <select
                 value={novoResiduo.tipoMaterial}
                 onChange={(e) =>
@@ -126,6 +144,8 @@ const PainelEmpresa = () => {
                 <option value="metais">Metais</option>
                 <option value="plásticos">Plásticos</option>
               </select>
+
+              <label>Quantidade:</label>
               <input
                 type="number"
                 placeholder="Quantidade (kg/unidades)"
@@ -137,6 +157,8 @@ const PainelEmpresa = () => {
                   })
                 }
               />
+
+              <label>Endereço:</label>
               <input
                 type="text"
                 placeholder="Endereço"
@@ -148,6 +170,8 @@ const PainelEmpresa = () => {
                   })
                 }
               />
+
+              <label>Observações:</label>
               <textarea
                 placeholder="Observações (opcional)"
                 value={novoResiduo.observacoes}
@@ -159,6 +183,15 @@ const PainelEmpresa = () => {
                 }
                 rows={3}
               />
+
+              <label>Imagem:</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImagem(e.target.files[0])}
+                name="imagem" // Campo deve ser "imagem" (igual ao backend)
+              />
+
               <button
                 onClick={adicionarResiduo}
                 disabled={formularioInvalido || loading}

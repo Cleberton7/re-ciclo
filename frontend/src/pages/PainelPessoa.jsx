@@ -26,7 +26,7 @@ const PainelPessoa = () => {
       }
 
       try {
-        console.log('Enviando token:', token.substring(0, 20) + '...');
+        //console.log('Enviando token:', token.substring(0, 20) + '...');
         
         const response = await axios.get('http://localhost:5000/api/usuarios/pessoal', {
           headers: { 

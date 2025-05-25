@@ -46,7 +46,7 @@ export const criarNoticia = async (formData) => {
       'Content-Type': 'multipart/form-data',
     };
     
-    console.log('Enviando headers:', headers); // Log para depuração
+    //console.log('Enviando headers:', headers); // Log para depuração
     
     const res = await axios.post(API_URL, formData, { headers });
     return res.data;

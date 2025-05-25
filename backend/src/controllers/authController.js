@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
-console.log('JWT_SECRET carregado:', process.env.JWT_SECRET?.substring(0, 10) + '...');
+//console.log('JWT_SECRET carregado:', process.env.JWT_SECRET?.substring(0, 10) + '...');
 
 export const register = async (req, res) => {
   try {
@@ -31,7 +31,7 @@ export const register = async (req, res) => {
       }
     );
 
-    console.log('Token gerado no registro:', token.substring(0, 20) + '...');
+    //console.log('Token gerado no registro:', token.substring(0, 20) + '...');
 
     res.status(201).json({
       mensagem: "Usuário registrado com sucesso",
@@ -54,7 +54,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, senha } = req.body;
-  console.log('Iniciando login para:', email);
+  //console.log('Iniciando login para:', email);
 
   try {
     const user = await User.findOne({ email });
@@ -68,8 +68,8 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    console.log('Secret usado para gerar token:', process.env.JWT_SECRET?.substring(0, 10) + '...');
-    console.log('Token gerado no login:', token.substring(0, 20) + '...');
+    //console.log('Secret usado para gerar token:', process.env.JWT_SECRET?.substring(0, 10) + '...');
+    //console.log('Token gerado no login:', token.substring(0, 20) + '...');
 
     res.json({
       mensagem: 'Login bem-sucedido',

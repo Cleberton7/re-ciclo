@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useCallback } from 'react';
 import './styles/painelNoticias.css';
 import {
   listarNoticias,
@@ -19,19 +19,37 @@ const PainelNoticias = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  const carregarNoticias = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await listarNoticias();
+      setNoticias(data);
+    } catch (err) {
+      console.error('Erro ao carregar notícias:', err);
+      setError('Erro ao carregar notícias');
+      
+      // Tratamento específico para token expirado/inválido
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]); // Dependências do useCallback
+
   useEffect(() => {
     const loadUser = () => {
       const userData = JSON.parse(localStorage.getItem('user'));
       const token = localStorage.getItem('token');
       
       if (!userData || !token) {
-        console.log('Usuário não autenticado, redirecionando...');
         navigate('/login');
         return;
       }
       
       setUser(userData);
-      console.log('Usuário carregado:', userData);
       
       if (userData.tipoUsuario !== 'admGeral') {
         setError('Acesso permitido apenas para administradores gerais');
@@ -42,27 +60,7 @@ const PainelNoticias = () => {
     };
     
     loadUser();
-  }, [navigate]);
-
-  const carregarNoticias = async () => {
-    setLoading(true);
-    try {
-      const data = await listarNoticias();
-      setNoticias(data);
-    } catch (err) {
-      console.error('Erro ao carregar notícias:', err);
-      setError('Erro ao carregar notícias');
-      
-      // Se for erro 401 (não autorizado), redireciona para login
-      if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [navigate, carregarNoticias]); // Dependências do useEffect
 
   const handleChange = (e) => {
     const { name, value } = e.target;

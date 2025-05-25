@@ -92,6 +92,10 @@ const UserSchema = new mongoose.Schema({
       return this.tipoUsuario === 'coletor';
     }
   },
+    imagemPerfil: {
+    type: String,
+    default: null
+  },
   tipoUsuario: { 
     type: String, 
     required: true,
@@ -106,11 +110,14 @@ const UserSchema = new mongoose.Schema({
         if (this.tipoUsuario === 'pessoa') return validarCPF(v);
         if (this.tipoUsuario === 'empresa') return validarCNPJ(v);
         if (this.tipoUsuario === 'coletor') return validarCNPJ(v);
-        return true; // Para coletores (sem validação específica)
+        return true;
       },
-      message: props => `${props.value} não é um documento válido para ${this.tipoUsuario}`
+      message: function(props) {
+        return `${props.value} não é um documento válido para ${this.tipoUsuario}`;
+      }
     }
   },
+
   telefone: { type: String },
   razaoSocial: { 
     type: String,
@@ -125,7 +132,8 @@ const UserSchema = new mongoose.Schema({
   localizacao: {
     lat: { type: Number, min: -90, max: 90 },
     lng: { type: Number, min: -180, max: 180 }
-  }
+  },
+
   
 }, {
   toJSON: { virtuals: true },
@@ -140,7 +148,19 @@ UserSchema.pre('save', async function(next) {
   this.senha = await bcrypt.hash(this.senha, salt);
   next();
 });
-
+UserSchema.pre('remove', async function(next) {
+  if (this.imagemPerfil) {
+    try {
+      const imagePath = path.join(__dirname, '../../uploads', this.imagemPerfil);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    } catch (err) {
+      console.error('Erro ao remover imagem:', err);
+    }
+  }
+  next();
+});
 UserSchema.methods.comparePassword = async function(senha) {
   return await bcrypt.compare(senha, this.senha);
 };

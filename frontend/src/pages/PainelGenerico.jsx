@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import './styles/painelGenerico.css';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-import "./styles/containerPrincipal.css"
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -14,9 +13,12 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const [saving, setSaving] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: -3.765734, lng: -49.679455 });
   const [watchId, setWatchId] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [tempDados, setTempDados] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
 
-  // Clean up watchPosition on unmount
   useEffect(() => {
     return () => {
       if (watchId) navigator.geolocation.clearWatch(watchId);
@@ -36,7 +38,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
       const endpoint = {
         empresa: 'api/empresas/dados',
         pessoa: 'api/usuarios/pessoal',
-        coletor: 'api/coletor/dados'
+        coletor: 'api/coletor/dados',
+        admGeral: 'api/admin/dados'
       }[tipoUsuario];
 
       if (!endpoint) {
@@ -56,11 +59,14 @@ const PainelGenerico = ({ tipoUsuario }) => {
           ? dadosRecebidos.cnpj || dadosRecebidos.documento || 'Não informado'
           : dadosRecebidos.cpf || dadosRecebidos.documento || 'Não informado';
 
-        setDados({
+        const dadosFormatados = {
           ...dadosRecebidos,
           documento,
           email: dadosRecebidos.email || 'Não informado'
-        });
+        };
+
+        setDados(dadosFormatados);
+        setTempDados(dadosFormatados);
 
         if (dadosRecebidos.localizacao) {
           const { lat, lng } = dadosRecebidos.localizacao;
@@ -69,6 +75,10 @@ const PainelGenerico = ({ tipoUsuario }) => {
             setLng(lng);
             setMapCenter({ lat, lng });
           }
+        }
+
+        if (dadosRecebidos.imagemPerfil) {
+          setImagePreview(`http://localhost:5000/uploads/${dadosRecebidos.imagemPerfil}`);
         }
 
       } catch (err) {
@@ -93,7 +103,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
     };
 
-    // Check geolocation permissions
     if ("geolocation" in navigator) {
       navigator.permissions?.query({ name: 'geolocation' })
         .then(permissionStatus => {
@@ -105,6 +114,101 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
     fetchData();
   }, [navigate, tipoUsuario]);
+
+  const handleEdit = () => {
+    setEditing(true);
+    setTempDados({ ...dados });
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setTempDados({ ...dados });
+    setImagePreview(dados.imagemPerfil ? `http://localhost:5000/uploads/${dados.imagemPerfil}` : null);
+    setImageFile(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const token = localStorage.getItem("token");
+    
+    try {
+      const formData = new FormData();
+      
+      // Campos genéricos para todos os tipos
+      formData.append('documento', tempDados.documento);
+      
+      // Campos específicos por tipo de usuário
+      switch(tipoUsuario) {
+        case "empresa":
+          formData.append('razaoSocial', tempDados.razaoSocial || '');
+          formData.append('telefone', tempDados.telefone || '');
+          break;
+        
+        case "pessoa":
+          formData.append('nome', tempDados.nome || '');
+          formData.append('telefone', tempDados.telefone || '');
+          break;
+        
+        case "coletor":
+          formData.append('veiculo', tempDados.veiculo || '');
+          formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
+          break;
+      }
+
+      // Adiciona a imagem se foi selecionada
+      if (imageFile) {
+        formData.append('imagemPerfil', imageFile);
+      }
+
+      const endpoint = {
+        empresa: 'api/empresas/atualizar',
+        pessoa: 'api/usuarios/atualizar',
+        coletor: 'api/coletor/atualizar'
+      }[tipoUsuario];
+
+      const response = await axios.put(`http://localhost:5000/${endpoint}`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Atualiza preview da imagem com novo caminho
+      const novosDados = response.data.data || response.data;
+      setDados(novosDados);
+      setImagePreview(novosDados.imagemPerfil 
+        ? `http://localhost:5000/uploads/${novosDados.imagemPerfil}`
+        : null
+      );
+      
+      setEditing(false);
+      alert("Dados atualizados com sucesso!");
+
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err.response?.data?.message || "Erro ao atualizar dados";
+      alert(`Erro: ${errorMessage}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setTempDados(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSaveLocation = async () => {
     if (!lat || !lng) {
@@ -158,7 +262,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
     const newLat = position.coords.latitude;
     const newLng = position.coords.longitude;
 
-    console.log(`Precisão: ${accuracy}m`, position.coords);
+    //console.log(`Precisão: ${accuracy}m`, position.coords);
 
     if (accuracy > 1000) {
       alert(`Precisão baixa (${Math.round(accuracy)}m). Posição pode estar aproximada.`);
@@ -238,67 +342,195 @@ const PainelGenerico = ({ tipoUsuario }) => {
     </div>
   );
 
+  if (!dados) return null;
+
   return (
-      <div id="containerPrincipal">
-        {(tipoUsuario === "empresa" || tipoUsuario === "coletor") ? (
-          <div className="painel-content">
-            <div className="dados-section">
-              <h3>Seus Dados</h3>
-              <div className="info-row">
-                <span>Email:</span>
-                <strong>{dados.email}</strong>
-              </div>
-              <div className="info-row">
-                <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
-                <strong>{dados.documento}</strong>
-              </div>
-              {tipoUsuario === "empresa" && dados.tipoEmpresa && (
-                <div className="info-row">
-                  <span>Tipo Empresa:</span>
-                  <strong>{dados.tipoEmpresa}</strong>
-                </div>
-              )}
-              {tipoUsuario === "coletor" && (
-                <div className="info-row">
-                  <span>Veículo:</span>
-                  <strong>{dados.veiculo || 'Não informado'}</strong>
+    <div className="painel-container" id="containerPrincipal">
+      <div className="painel-header">
+        <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'coletor' ? 'Coletor' : 'Usuário'}</h2>
+        {tipoUsuario !== 'admGeral' && (
+          <div className="action-buttons">
+            {!editing ? (
+              <button onClick={handleEdit} className="edit-button">Editar Dados</button>
+            ) : (
+              <>
+                <button onClick={handleSave} disabled={saving} className="save-button">
+                  {saving ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+                <button onClick={handleCancel} disabled={saving} className="cancel-button">
+                  Cancelar
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="painel-content">
+        <div className="profile-section">
+          <div className="image-upload">
+            <div className="image-preview">
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" />
+              ) : (
+                <div className="image-placeholder">
+                  {tipoUsuario === 'empresa' ? 'Logo da Empresa' : 'Foto de Perfil'}
                 </div>
               )}
             </div>
+            {editing && (
+              <div className="upload-controls">
+                <label htmlFor="image-upload" className="upload-button">
+                  Selecionar Imagem
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                />
+                {imagePreview && (
+                  <button 
+                    onClick={() => {
+                      setImagePreview(null);
+                      setImageFile(null);
+                    }} 
+                    className="remove-image-button"
+                  >
+                    Remover
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
-            <div className="localizacao-section">
-              <h3>Localização</h3>
+          <div className="dados-section">
+            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : 'Pessoais'}</h3>
+            
+            <div className="info-row">
+              <span>Email:</span>
+              {editing ? (
+                <input
+                  type="email"
+                  value={tempDados.email || ''}
+                  onChange={handleInputChange}
+                  name="email"
+                  disabled // Email não pode ser editado
+                />
+              ) : (
+                <strong>{dados.email}</strong>
+              )}
+            </div>
+
+            <div className="info-row">
+              <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
+              {editing ? (
+                <input
+                  type="text"
+                  value={tempDados.documento || ''}
+                  onChange={handleInputChange}
+                  name="documento"
+                  disabled // Documento não pode ser editado
+                />
+              ) : (
+                <strong>{dados.documento}</strong>
+              )}
+            </div>
+
+            {tipoUsuario === "empresa" && (
               <div className="info-row">
-                <button onClick={handleGetCurrentLocation}>
-                  Usar localização atual
-                </button>
+                <span>Razão Social:</span>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={tempDados.razaoSocial || ''}
+                    onChange={handleInputChange}
+                    name="razaoSocial"
+                  />
+                ) : (
+                  <strong>{dados.razaoSocial || 'Não informado'}</strong>
+                )}
               </div>
-              <div style={{ height: '300px', width: '100%', margin: '10px 0' }}>
-                <Map
-                  defaultCenter={mapCenter}
-                  defaultZoom={15}
-                  mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-                  style={{ height: '100%', width: '100%' }}
-                  onClick={handleMapClick}
-                >
-                  {lat && lng && (
-                    <AdvancedMarker
-                      position={{ lat: Number(lat), lng: Number(lng) }}
-                      title={dados.nome}
-                    >
-                      <div style={{
-                        backgroundColor: tipoUsuario === "empresa" ? '#4285F4' : '#0F9D58',
-                        color: 'white',
-                        padding: '8px',
-                        borderRadius: '50%',
-                        transform: 'translate(-50%, -50%)'
-                      }}>
-                        {tipoUsuario === "empresa" ? 'E' : 'C'}
-                      </div>
-                    </AdvancedMarker>
+            )}
+
+            {(tipoUsuario === "pessoa" || tipoUsuario === "empresa") && (
+              <div className="info-row">
+                <span>{tipoUsuario === "empresa" ? "Telefone Comercial" : "Telefone"}:</span>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={tempDados.telefone || ''}
+                    onChange={handleInputChange}
+                    name="telefone"
+                  />
+                ) : (
+                  <strong>{dados.telefone || 'Não informado'}</strong>
+                )}
+              </div>
+            )}
+
+            {tipoUsuario === "coletor" && (
+              <>
+                <div className="info-row">
+                  <span>Veículo:</span>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={tempDados.veiculo || ''}
+                      onChange={handleInputChange}
+                      name="veiculo"
+                    />
+                  ) : (
+                    <strong>{dados.veiculo || 'Não informado'}</strong>
                   )}
-                </Map>
-              </div>
+                </div>
+                <div className="info-row">
+                  <span>Capacidade de Coleta:</span>
+                  {editing ? (
+                    <input
+                      type="number"
+                      value={tempDados.capacidadeColeta || ''}
+                      onChange={handleInputChange}
+                      name="capacidadeColeta"
+                    />
+                  ) : (
+                    <strong>{dados.capacidadeColeta || 'Não informado'}</strong>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {(tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
+          <div className="localizacao-section">
+            <h3>Localização</h3>
+            <div className="info-row">
+              <button onClick={handleGetCurrentLocation} className="location-button">
+                Usar localização atual
+              </button>
+            </div>
+            <div className="map-container">
+              <Map
+                defaultCenter={mapCenter}
+                defaultZoom={15}
+                mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+                onClick={handleMapClick}
+              >
+                {lat && lng && (
+                  <AdvancedMarker
+                    position={{ lat: Number(lat), lng: Number(lng) }}
+                    title={dados.nome || dados.razaoSocial}
+                  >
+                    <div className="marker">
+                      {tipoUsuario === "empresa" ? 'E' : 'C'}
+                    </div>
+                  </AdvancedMarker>
+                )}
+              </Map>
+            </div>
+            <div className="coordinates-input">
               <div className="info-row">
                 <span>Latitude:</span>
                 <input
@@ -317,26 +549,18 @@ const PainelGenerico = ({ tipoUsuario }) => {
                   step="0.000001"
                 />
               </div>
-              <button onClick={handleSaveLocation} disabled={saving}>
+              <button 
+                onClick={handleSaveLocation} 
+                disabled={saving}
+                className="save-location-button"
+              >
                 {saving ? "Salvando..." : "Salvar Localização"}
               </button>
             </div>
           </div>
-        ) : (
-          // caso não seja empresa ou coletor
-          <div className="dados-section">
-            <h3>Seus Dados</h3>
-            <div className="info-row">
-              <span>Email:</span>
-              <strong>{dados.email}</strong>
-            </div>
-            <div className="info-row">
-              <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
-              <strong>{dados.documento}</strong>
-            </div>
-          </div>
         )}
       </div>
+    </div>
   );
 };
 

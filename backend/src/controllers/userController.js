@@ -1,16 +1,10 @@
 import User from "../models/User.js";
+import path from 'path';
+import fs from 'fs';
 
-/**
- * Controller para operações relacionadas a usuários
- */
 export const userController = {
-  /**
-   * Obtém dados básicos do usuário
-   */
   async getUserData(req, res) {
     try {
-      console.log('Usuário autenticado:', req.user);
-      
       const user = await User.findById(req.user.id)
         .select('-senha -__v -createdAt -updatedAt');
 
@@ -42,11 +36,10 @@ export const userController = {
     }
   },
 
-  /**
-   * Atualiza dados do usuário
-   */
   async updateUserData(req, res) {
     try {
+    //console.log('📤 Arquivo recebido:', req.file); 
+    //console.log('📦 Campos recebidos:', req.body);
       const { 
         nome, 
         email, 
@@ -73,6 +66,19 @@ export const userController = {
         ...(endereco && { endereco })
       };
 
+      // Tratamento da imagem
+      if (req.file) {
+        //console.log('🔄 Atualizando imagem:', `users/${req.file.filename}`);
+        // Remover imagem antiga se existir
+        if (user.imagemPerfil) {
+          const oldImagePath = path.join(process.cwd(), 'uploads', user.imagemPerfil);
+          if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+        }
+        // Armazenar caminho relativo universal (substitua path.join)
+        updateFields.imagemPerfil = `users/${req.file.filename}`; // <-- Linha modificada
+      }
+
+      // Campos específicos por tipo de usuário
       switch(user.tipoUsuario) {
         case "empresa":
           Object.assign(updateFields, {
@@ -103,14 +109,19 @@ export const userController = {
         }
       ).select("-senha");
 
+      // Formatar URL da imagem
+      if (updatedUser.imagemPerfil) {
+        updatedUser.imagemPerfil = `${process.env.BASE_URL}/uploads/${updatedUser.imagemPerfil}`;
+      }
+
       return res.json({
         success: true,
         message: "Dados atualizados com sucesso",
         data: updatedUser
       });
-
+    //console.log('✅ Usuário atualizado:', updatedUser);
     } catch (error) {
-      console.error("Erro ao atualizar usuário:", error);
+    console.error('❌ Erro crítico:', error);
       
       if (error.name === 'ValidationError') {
         return res.status(400).json({
@@ -128,13 +139,8 @@ export const userController = {
     }
   },
 
-  /**
-   * Obtém dados específicos de pessoas físicas
-   */
   async getPersonalData(req, res) {
     try {
-      console.log('ID do usuário:', req.user.id); // Debug
-      
       const user = await User.findOne({
         _id: req.user.id,
         tipoUsuario: "pessoa"
@@ -167,6 +173,7 @@ export const userController = {
       });
     }
   },
+
   async updateLocation(req, res) {
     try {
       const { lat, lng } = req.body;
@@ -205,7 +212,6 @@ export const userController = {
       });
     }
   }
-  
 };
 
 export default userController;

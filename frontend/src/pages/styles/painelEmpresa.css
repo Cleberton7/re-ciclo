@@ -1,41 +1,38 @@
-.container-container{
-    background-color: #009951;
-    border-radius: 10px;
+/* Container geral */
+.container-container {
+  background-color: #009951;
+  border-radius: 10px;
 }
 
+/* Formulário */
 form.form-empresa input {
   display: block;
   margin-bottom: 10px;
   padding: 8px;
   width: 100%;
 }
-  
-button {
-  padding: 10px 20px;
-  margin: 10px 0;
-  cursor: pointer;
-}
-  
+
+/* Tabela */
 .tabela-residuos {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
-  
+
 .tabela-residuos th,
 .tabela-residuos td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
 }
-  
+
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,7 +41,7 @@ button {
 }
 
 .modal {
-  background-color: #f0f9f4; /* Verde bem clarinho */
+  background-color: #009951;
   padding: 30px 25px;
   border-radius: 12px;
   max-width: 480px;
@@ -56,24 +53,6 @@ button {
   gap: 15px;
   position: relative;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #005c32;
-}
-
-.fechar-modal {
-  position: absolute;
-  top: 12px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #009951;
-  transition: color 0.3s ease;
-}
-
-.fechar-modal:hover {
-  color: #00491a;
 }
 
 .modal h3 {
@@ -81,9 +60,10 @@ button {
   font-weight: 700;
   font-size: 1.6rem;
   text-align: center;
-  color: #007f3f;
+  color: white;
 }
 
+/* Inputs e selects */
 select,
 input[type="number"],
 input[type="text"],
@@ -92,7 +72,7 @@ textarea {
   border-radius: 8px;
   border: 1.8px solid #9ed6a6;
   font-size: 1rem;
-  color: #00491a;
+  color: white;
   outline-offset: 2px;
   outline-color: #009951;
   transition: border-color 0.3s ease;
@@ -112,6 +92,7 @@ textarea {
   min-height: 70px;
 }
 
+/* Botões */
 button {
   padding: 12px 20px;
   border: none;
@@ -131,6 +112,51 @@ button:disabled {
 
 button:hover:not(:disabled) {
   background-color: #007f3f;
+}
+
+.imagem-residuo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px; /* 🔥 Espaço entre imagem e botão/texto abaixo */
+}
+
+/* Cards */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.card h3 {
+  text-align: left;
+  color: #333;
+  margin: 0;
+}
+
+.card p {
+  text-align: left;
+  color: #555;
+  margin: 0;
+}
+
+/* Botão centralizado no bottom do card */
+.card button {
+  align-self: center;
+  margin-top: auto;
 }
 
 /* Animações */

@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyToken, checkUserType } from '../middlewares/authMiddleware.js';
 import User from '../models/User.js';
+import upload, { configureUpload } from '../config/multerConfig.js';
 
 const router = express.Router();
 
@@ -45,25 +46,6 @@ router.get('/centros-disponiveis', verifyToken, checkUserType(['coletor']), asyn
   }
 });
 
-// PUT atualizar dados do coletor
-router.put('/atualizar', verifyToken, checkUserType(['coletor']), async (req, res) => {
-  try {
-    const updates = req.body;
-    const coletor = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    ).select('-senha -__v');
-
-    res.json({
-      success: true,
-      message: 'Dados atualizados com sucesso',
-      data: coletor
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: 'Erro ao atualizar dados', error: error.message });
-  }
-});
 
 // PUT atualizar localização do coletor
 router.put('/atualizar-localizacao', verifyToken, checkUserType(['coletor']), async (req, res) => {
@@ -111,5 +93,42 @@ router.get('/localizacoes', async (req, res) => {
     res.status(500).json({ message: "Erro ao buscar localizações dos coletores" });
   }
 });
+// Substitua a rota PUT /atualizar existente por:
+router.put(
+  '/atualizar',
+  verifyToken,
+  checkUserType(['coletor']),
+  configureUpload('coletores'), // Define a pasta de upload
+  upload.single('imagemPerfil'), // Processa o arquivo
+  async (req, res) => {
+    try {
+      const updates = req.body;
+
+      // Adiciona o caminho da imagem se houver upload
+      if (req.file) {
+        updates.imagemPerfil = `coletores/${req.file.filename}`;
+      }
+
+      const coletor = await User.findByIdAndUpdate(
+        req.user.id,
+        { $set: updates },
+        { new: true, runValidators: true }
+      ).select('-senha -__v');
+
+      res.json({ 
+        success: true,
+        message: 'Dados atualizados com sucesso',
+        data: coletor 
+      });
+
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar dados', 
+        error: error.message 
+      });
+    }
+  }
+);
 
 export default router;

@@ -1,6 +1,5 @@
 import Noticia from '../models/noticiaModel.js';
-import { configureUpload } from '../config/multerConfig.js';
-import upload from '../config/multerConfig.js';
+import upload, {configureUpload} from '../config/multerConfig.js';
 
 const baseUrl = 'http://localhost:5000';
 

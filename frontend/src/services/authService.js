@@ -8,7 +8,7 @@ const api = axios.create({
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
-    console.log('Enviando token no header:', token.substring(0, 20) + '...');
+    //console.log('Enviando token no header:', token.substring(0, 20) + '...');
     config.headers.Authorization = `Bearer ${token}`;
   } else {
     console.warn('Nenhum token encontrado no localStorage');
@@ -21,14 +21,14 @@ api.interceptors.request.use(config => {
 
 export const loginUser = async (credentials) => {
   try {
-    console.log('Iniciando login com:', credentials.email);
+    //console.log('Iniciando login com:', credentials.email);
     const response = await api.post('/auth/login', credentials);
     
     if (!response.data.token) {
       throw new Error('Token não recebido na resposta');
     }
     
-    console.log('Login bem-sucedido, token recebido');
+    //console.log('Login bem-sucedido, token recebido');
     return response.data;
   } catch (error) {
     console.error('Erro no login:', {
