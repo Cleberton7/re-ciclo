@@ -6,7 +6,12 @@ const App = () => {
   return (
     <APIProvider 
       apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}
-      onLoad={() => console.log('API do Google Maps carregada com sucesso')}
+      onLoad={() => {
+        if (!window._googleApiLoaded) {  // Evita log duplicado
+          window._googleApiLoaded = true;
+          console.log('API do Google Maps carregada com sucesso');
+        }
+  }}
     >
       <AuthProvider>
         <AppRoutes />

@@ -2,6 +2,7 @@ import Noticia from '../models/noticiaModel.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+const baseUrl = 'http://localhost:5000'; // Ou seu domínio
 
 // Configuração multer para salvar imagens na pasta uploads/
 const storage = multer.diskStorage({
@@ -42,7 +43,7 @@ export const criarNoticia = async (req, res) => {
 
     let imagePath = null;
     if (req.file) {
-      imagePath = `/${req.file.path.replace(/\\/g, '/')}`;
+        imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
     }
 
     const noticia = new Noticia({
@@ -103,9 +104,8 @@ export const atualizarNoticia = async (req, res) => {
     if (tags) noticia.tags = tagsParsed;
 
     if (req.file) {
-      noticia.image = `/${req.file.path.replace(/\\/g, '/')}`;
+      noticia.image = `http://localhost:5000/uploads/${req.file.filename}`;
     }
-
     const updated = await noticia.save();
     res.json(updated);
 

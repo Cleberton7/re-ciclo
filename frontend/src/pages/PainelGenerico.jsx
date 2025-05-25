@@ -239,7 +239,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
   );
 
   return (
-    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
       <div id="containerPrincipal">
         {(tipoUsuario === "empresa" || tipoUsuario === "coletor") ? (
           <div className="painel-content">
@@ -338,7 +337,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
           </div>
         )}
       </div>
-    </APIProvider>
   );
 };
 

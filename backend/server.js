@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { PORT, MONGO_URI, NODE_ENV } from './src/config/config.js';
 
 // Rotas
@@ -13,6 +14,8 @@ import coletorRoutes from './src/routes/coletorRoutes.js';
 import coletasRoutes from './src/routes/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -37,6 +40,7 @@ async function main() {
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
     // Rotas
     app.use("/api/auth", authRoutes);
     app.use("/api/usuarios", userRoutes); 
@@ -45,7 +49,6 @@ async function main() {
     app.use("/api/coletor", coletorRoutes); 
     app.use("/api/coletas", coletasRoutes);
     app.use("/api/noticias", noticiaRoutes);  
-    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
     // Middleware de erro
     app.use(errorHandler);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import "../pages/styles/section.css";
 import "../pages/styles/containerPrincipal.css";
 import { Link } from 'react-router-dom';
@@ -16,7 +16,20 @@ const Section = () => {
     const carregarNoticias = async () => {
       try {
         const data = await listarNoticias();
-        setNoticias(data);
+        console.log('Dados recebidos da API:', data); // Debug importante
+        
+        // Verifica e corrige URLs de imagem se necessário
+        const noticiasFormatadas = data.map(noticia => {
+          if (noticia.image && !noticia.image.startsWith('http')) {
+            return {
+              ...noticia,
+              image: `http://localhost:5000${noticia.image}`
+            };
+          }
+          return noticia;
+        });
+        
+        setNoticias(noticiasFormatadas);
         setLoading(false);
       } catch (err) {
         console.error('Erro ao carregar notícias:', err);
@@ -28,15 +41,15 @@ const Section = () => {
     carregarNoticias();
   }, []);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex + itemsPerPage) % noticias.length);
-  };
+  }, [noticias.length, itemsPerPage]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentIndex((prevIndex) => 
       (prevIndex - itemsPerPage + noticias.length) % noticias.length
     );
-  };
+  }, [noticias.length, itemsPerPage]);
 
   // Auto-slide
   useEffect(() => {
@@ -44,7 +57,7 @@ const Section = () => {
       const interval = setInterval(nextSlide, 5000);
       return () => clearInterval(interval);
     }
-  }, [noticias]);
+  }, [noticias.length, nextSlide]);
 
   // Notícias visíveis no slide atual
   const getVisibleNoticias = () => {
@@ -53,12 +66,11 @@ const Section = () => {
     const endIndex = currentIndex + itemsPerPage;
     if (endIndex <= noticias.length) {
       return noticias.slice(currentIndex, endIndex);
-    } else {
-      return [
-        ...noticias.slice(currentIndex),
-        ...noticias.slice(0, endIndex % noticias.length)
-      ];
     }
+    return [
+      ...noticias.slice(currentIndex),
+      ...noticias.slice(0, endIndex % noticias.length)
+    ];
   };
 
   const visibleNoticias = getVisibleNoticias();
@@ -92,7 +104,9 @@ const Section = () => {
 
   return (
     <section className="section" id="containerPrincipal">
-      <div id="textSection">Notícias e Eventos</div>
+      <Link to="/NoticiasEventos">  
+        <div id="textSection">Notícias e Eventos</div>
+      </Link>
       <div id="containerSection" className="carousel-multiple">
         <button className="carousel-btn prev" onClick={prevSlide} aria-label="Notícias anteriores">
           &lt;
@@ -101,16 +115,17 @@ const Section = () => {
         <div className="carousel-items-container">
           {visibleNoticias.map((noticia) => (
             <div key={noticia._id} className="carousel-item">
-              {noticia.image && (
-                <div className="carousel-image-container">
-                  <img 
-                    src={noticia.image} 
-                    alt={noticia.title}
-                    className="carousel-image"
-                    loading="lazy"
-                  />
-                </div>
-              )}
+              <div className="carousel-image-container">
+                <img 
+                  src={noticia.image || '/imagem-padrao.jpg'}
+                  alt={noticia.title}
+                  className="carousel-image"
+                  onError={(e) => {
+                    console.error(`Falha ao carregar: ${noticia.image}`);
+                    e.target.src = '/imagem-padrao.jpg';
+                  }}
+                />
+              </div>
               <div className="carousel-content">
                 <h3>{noticia.title}</h3>
                 <p>{noticia.content.substring(0, 100)}...</p>

@@ -50,51 +50,49 @@ const Content = () => {
     fetchLocalizacoes();
   }, []);
 
-  return (
-    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
-      <div className='content' id="containerPrincipal">
-        <div className='containerRanked'>
-          <div id='textRanked'>Ranking das empresas</div>
-          <div id='rankedEmpresa'>Ranked empresas</div>
-        </div>
+return (
+    <div className='content' id="containerPrincipal">
+      <div className='containerRanked'>
+        <div id='textRanked'>Ranking das empresas</div>
+        <div id='rankedEmpresa'>Ranked empresas</div>
+      </div>
 
-        <div className='containerGraphic'>
-          <div id='textGraph'>Gráfico de coletas</div>
-          <div id='graphic'>{/* gráfico aqui depois */}</div>
-        </div>
+      <div className='containerGraphic'>
+        <div id='textGraph'>Gráfico de coletas</div>
+        <div id='graphic'>{/* gráfico aqui depois */}</div>
+      </div>
 
-        <div className='containerMaps'>
-          <div id='textLoc'>Localização/empresas</div>
-          <div id='maps'>
-            <Map
-              style={containerStyle}
-              defaultCenter={center}
-              defaultZoom={12}
-              mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-            >
-              {marcadores.map((marcador, index) => (
-                <AdvancedMarker
-                  key={index}
-                  position={{ lat: marcador.lat, lng: marcador.lng }}
-                  title={`${marcador.tipo}: ${marcador.nome}`}
-                >
-                  <div style={{
-                    backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
-                    color: 'white',
-                    padding: '8px',
-                    borderRadius: '50%',
-                    fontSize: '14px',
-                    transform: 'translate(-50%, -50%)'
-                  }}>
-                    {marcador.tipo === 'empresa' ? 'E' : 'C'}
-                  </div>
-                </AdvancedMarker>
-              ))}
-            </Map>
-          </div>
+      <div className='containerMaps'>
+        <div id='textLoc'>Localização/empresas</div>
+        <div id='maps'>
+          <Map
+            style={containerStyle}
+            defaultCenter={center}
+            defaultZoom={12}
+            mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+          >
+            {marcadores.map((marcador, index) => (
+              <AdvancedMarker
+                key={index}
+                position={{ lat: marcador.lat, lng: marcador.lng }}
+                title={`${marcador.tipo}: ${marcador.nome}`}
+              >
+                <div style={{
+                  backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
+                  color: 'white',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  fontSize: '14px',
+                  transform: 'translate(-50%, -50%)'
+                }}>
+                  {marcador.tipo === 'empresa' ? 'E' : 'C'}
+                </div>
+              </AdvancedMarker>
+            ))}
+          </Map>
         </div>
       </div>
-    </APIProvider>
+    </div>
   );
 };
 

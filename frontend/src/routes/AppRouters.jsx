@@ -10,6 +10,7 @@ import PainelReciclador from "../pages/PainelReciclador";
 import PainelPessoa from "../pages/PainelPessoa";
 import PainelNoticias from "../pages/PainelNoticias";
 import PainelAdm from "../pages/PainelAdmin";  
+import NoticiasEventos from '../pages/NoticiasEventos';
 
 import Layout from "../components/Layout";
 
@@ -34,6 +35,7 @@ const AppRoutes = () => {
           <Route path="/coletas" element={<Coletas />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/contatos" element={<Contatos />} />
+          <Route path="/noticiasEventos" element={<NoticiasEventos />} />
         </Route>
 
         {/* Rotas SEM Layout (sem header/footer) */}
