@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { listarNoticias } from '../services/noticiaService';
 import "./styles/containerPrincipal.css";
 import "./styles/eventosNoticias.css";
@@ -49,19 +50,21 @@ const NoticiasEventos = () => {
       <div className="lista-noticias">
         {noticias.map(noticia => (
           <article key={noticia._id} className="noticia-item">
-            <h2>{noticia.title}</h2>
-            <div className="imagem-noticia-container">
-              <img 
-                src={noticia.image || '/imagem-padrao.jpg'}
-                alt={noticia.title}
-                className="imagem-noticia"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/imagem-padrao.jpg';
-                }}
-              />
-            </div>
+        <Link to={`/noticia/${noticia.slug}`}>
+              <h2>{noticia.title}</h2>
+              <div className="imagem-noticia-container">
+                <img 
+                  src={noticia.image || '/imagem-padrao.jpg'}
+                  alt={noticia.title}
+                  className="imagem-noticia"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/imagem-padrao.jpg';
+                  }}
+                />
+              </div>
             <p>{noticia.content}</p>
+            </Link>
             {noticia.tags && noticia.tags.length > 0 && (
               <p className="tags">
                 <strong>Tags:</strong> {noticia.tags.join(', ')}

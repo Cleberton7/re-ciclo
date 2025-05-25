@@ -130,7 +130,7 @@ const Section = () => {
                 <h3>{noticia.title}</h3>
                 <p>{noticia.content.substring(0, 100)}...</p>
                 <Link 
-                  to={`/noticia/${noticia.slug || noticia._id}`} 
+                  to={`/noticia/${noticia._id}`} 
                   className="carousel-link"
                   aria-label={`Ler mais sobre ${noticia.title}`}
                 >

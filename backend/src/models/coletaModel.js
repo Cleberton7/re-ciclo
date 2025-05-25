@@ -45,7 +45,10 @@ const coletaSchema = new mongoose.Schema({
     type: Number,
     min: 1,
     max: 5
-  }
+  },
+  imagem: {
+    type: String // Armazenará o caminho da imagem
+  },
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

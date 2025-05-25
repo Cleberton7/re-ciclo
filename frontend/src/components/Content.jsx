@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import axios from "axios";
 import "../pages/styles/content.css";
 import "../pages/styles/containerPrincipal.css";
 
-const containerStyle = {
-  width: '100%',
-  height: '400px',
-};
 
 const center = {
   lat: -3.7657,
@@ -65,12 +61,13 @@ return (
       <div className='containerMaps'>
         <div id='textLoc'>Localização/empresas</div>
         <div id='maps'>
-          <Map
-            style={containerStyle}
-            defaultCenter={center}
-            defaultZoom={12}
-            mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-          >
+            <Map
+              className="mapa"
+              defaultCenter={center}
+              defaultZoom={12}
+              mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+            >
+
             {marcadores.map((marcador, index) => (
               <AdvancedMarker
                 key={index}

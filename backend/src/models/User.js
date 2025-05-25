@@ -105,6 +105,7 @@ const UserSchema = new mongoose.Schema({
       validator: function(v) {
         if (this.tipoUsuario === 'pessoa') return validarCPF(v);
         if (this.tipoUsuario === 'empresa') return validarCNPJ(v);
+        if (this.tipoUsuario === 'coletor') return validarCNPJ(v);
         return true; // Para coletores (sem validação específica)
       },
       message: props => `${props.value} não é um documento válido para ${this.tipoUsuario}`

@@ -16,14 +16,16 @@ const PainelReciclador = () => {
   useEffect(() => {
     const carregarSolicitacoes = async () => {
       try {
-        const data = await getSolicitacoesColeta(filtros);
-        setSolicitacoes(data);
+        const solicitacoes = await getSolicitacoesColeta(filtros);
+        setSolicitacoes(solicitacoes);
       } catch (error) {
         console.error("Erro ao carregar solicitações:", error);
       }
     };
     carregarSolicitacoes();
   }, [filtros]);
+
+
 
   return (
     <div id="containerPrincipal">

@@ -1,4 +1,3 @@
-// /src/routes/noticiasRoutes.js
 import express from 'express';
 import {
   criarNoticia,
@@ -6,7 +5,7 @@ import {
   buscarNoticiaPorSlug,
   atualizarNoticia,
   deletarNoticia,
-  upload
+  noticiaUpload
 } from '../controllers/noticiaController.js';
 
 import { verifyToken, requireLogin, checkUserType } from '../middlewares/authMiddleware.js';
@@ -20,8 +19,8 @@ router.get('/', listarNoticias);
 router.get('/:slug', buscarNoticiaPorSlug);
 
 // Rotas protegidas
-router.post('/', ...apenasAdmGeral, upload.single('image'), criarNoticia);
-router.put('/:id', ...apenasAdmGeral, upload.single('image'), atualizarNoticia);
+router.post('/', ...apenasAdmGeral, noticiaUpload, criarNoticia);
+router.put('/:id', ...apenasAdmGeral, noticiaUpload, atualizarNoticia);
 router.delete('/:id', ...apenasAdmGeral, deletarNoticia);
 
 export default router;

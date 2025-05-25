@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import './styles/painelGenerico.css';
-import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import "./styles/containerPrincipal.css"
 
 const PainelGenerico = ({ tipoUsuario }) => {

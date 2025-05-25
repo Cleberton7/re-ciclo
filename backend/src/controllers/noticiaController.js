@@ -1,35 +1,22 @@
 import Noticia from '../models/noticiaModel.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-const baseUrl = 'http://localhost:5000'; // Ou seu domínio
+import { configureUpload } from '../config/multerConfig.js';
+import upload from '../config/multerConfig.js';
 
-// Configuração multer para salvar imagens na pasta uploads/
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const nomeArquivo = `${Date.now()}${ext}`;
-    cb(null, nomeArquivo);
-  }
-});
+const baseUrl = 'http://localhost:5000';
 
-export const upload = multer({ storage });
+// Middleware de upload específico para notícias
+export const noticiaUpload = [
+  configureUpload('noticias'), // Configura o multer para usar a pasta uploads/noticias
+  upload.single('image')       // Processa o upload
+];
 
-// Função auxiliar para tratar tags (string JSON ou array)
+// Função auxiliar para tratar tags
 const parseTags = (tags) => {
   if (!tags) return [];
   if (Array.isArray(tags)) return tags;
   try {
     return JSON.parse(tags);
   } catch {
-    // Se não for JSON, tenta separar por vírgula
     return tags.split(',').map(tag => tag.trim());
   }
 };
@@ -43,7 +30,7 @@ export const criarNoticia = async (req, res) => {
 
     let imagePath = null;
     if (req.file) {
-        imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
+      imagePath = `${baseUrl}/uploads/noticias/${req.file.filename}`;
     }
 
     const noticia = new Noticia({
@@ -51,7 +38,7 @@ export const criarNoticia = async (req, res) => {
       slug,
       content,
       image: imagePath,
-      tags: tagsParsed
+      tags: tagsParsed,
     });
 
     const savedNoticia = await noticia.save();
@@ -104,8 +91,10 @@ export const atualizarNoticia = async (req, res) => {
     if (tags) noticia.tags = tagsParsed;
 
     if (req.file) {
-      noticia.image = `http://localhost:5000/uploads/${req.file.filename}`;
+      // Atualiza com o caminho correto incluindo a subpasta 'noticias'
+      noticia.image = `${baseUrl}/uploads/noticias/${req.file.filename}`;
     }
+
     const updated = await noticia.save();
     res.json(updated);
 

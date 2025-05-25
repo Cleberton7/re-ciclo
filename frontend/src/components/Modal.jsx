@@ -1,5 +1,5 @@
-import React from "react";
 import "../pages/styles/modal.css";
+import CloseButton from "../components/CloseButton";
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null; // Se o modal não estiver aberto, não renderiza nada
@@ -7,7 +7,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-button" onClick={onClose}>x</button>
+        <CloseButton onClose={onClose} />
         {children}
       </div>
     </div>

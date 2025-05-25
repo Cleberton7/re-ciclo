@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Modal from "../components/modal";
+import Modal from "../components/Modal";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";

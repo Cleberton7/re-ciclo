@@ -1,30 +1,73 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PainelGenerico from "./PainelGenerico";
+import CloseButton from "../components/CloseButton";
 import "./styles/painelEmpresa.css";
-import "./styles/containerPrincipal.css"
-
+import "./styles/containerPrincipal.css";
+import {
+  criarSolicitacaoColeta,
+  getSolicitacoesColeta,
+} from "../services/coletaService";
 
 const PainelEmpresa = () => {
   const [residuos, setResiduos] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [novoResiduo, setNovoResiduo] = useState({
-    tipo: "",
+    tipoMaterial: "",
     quantidade: "",
-    data: "",
-    foto: null,
+    endereco: "",
+    observacoes: "",
   });
 
-  const adicionarResiduo = () => {
-    setResiduos([...residuos, novoResiduo]);
-    setNovoResiduo({ tipo: "", quantidade: "", data: "", foto: null });
-    setShowModal(false);
+  const carregarResiduos = async () => {
+    try {
+      const dados = await getSolicitacoesColeta();
+      setResiduos(dados.data || dados);
+    } catch (error) {
+      console.error("Erro ao carregar resíduos:", error.message);
+    }
   };
+
+  useEffect(() => {
+    carregarResiduos();
+  }, []);
+
+  const adicionarResiduo = async () => {
+    setLoading(true);
+    try {
+      const dados = {
+        tipoMaterial: novoResiduo.tipoMaterial,
+        quantidade: Number(novoResiduo.quantidade),
+        endereco: novoResiduo.endereco,
+        observacoes: novoResiduo.observacoes,
+      };
+
+      await criarSolicitacaoColeta(dados);
+      setNovoResiduo({
+        tipoMaterial: "",
+        quantidade: "",
+        endereco: "",
+        observacoes: "",
+      });
+      setShowModal(false);
+      carregarResiduos();
+    } catch (error) {
+      alert("Erro ao adicionar resíduo: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formularioInvalido =
+    !novoResiduo.tipoMaterial ||
+    !novoResiduo.quantidade ||
+    !novoResiduo.endereco;
 
   return (
     <div id="containerPrincipal">
-    
       <PainelGenerico tipoUsuario="empresa" />
-      <div className="container-container" >
+      <div className="container-container">
         <h2>Resíduos Disponíveis para Coleta</h2>
         <button onClick={() => setShowModal(true)}>Adicionar Resíduo</button>
 
@@ -33,61 +76,101 @@ const PainelEmpresa = () => {
             <tr>
               <th>Tipo</th>
               <th>Quantidade</th>
-              <th>Data</th>
+              <th>Endereço</th>
+              <th>Status</th>
+              <th>Data Solicitação</th>
             </tr>
           </thead>
           <tbody>
-            {residuos.map((res, index) => (
-              <tr key={index}>
-                <td>{res.tipo}</td>
+            {residuos.length === 0 && (
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  Nenhum resíduo disponível
+                </td>
+              </tr>
+            )}
+            {residuos.map((res) => (
+              <tr key={res._id}>
+                <td>{res.tipoMaterial}</td>
                 <td>{res.quantidade}</td>
-                <td>{res.data}</td>
+                <td>{res.endereco}</td>
+                <td>{res.status}</td>
+                <td>
+                  {res.createdAt
+                    ? new Date(res.createdAt).toLocaleDateString()
+                    : "-"}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <section className="residuos-section">
-          <h3>Gerenciamento de Resíduos</h3>
-          {showModal && (
+        {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <button className="fechar-modal" onClick={() => setShowModal(false)}>×</button>
+             <CloseButton onClose={() => setShowModal(false)} />
               <h3>Adicionar Resíduo</h3>
               <select
-                value={novoResiduo.tipo}
-                onChange={(e) => setNovoResiduo({ ...novoResiduo, tipo: e.target.value })}
+                value={novoResiduo.tipoMaterial}
+                onChange={(e) =>
+                  setNovoResiduo({
+                    ...novoResiduo,
+                    tipoMaterial: e.target.value,
+                  })
+                }
               >
-                <option value="">Selecione o tipo</option>
-                <option value="Eletrônicos">Eletrônicos</option>
-                <option value="Metais">Metais</option>
-                <option value="Plásticos">Plásticos</option>
+                <option value="" disabled>
+                  Selecione o tipo
+                </option>
+                <option value="eletrônicos">Eletrônicos</option>
+                <option value="metais">Metais</option>
+                <option value="plásticos">Plásticos</option>
               </select>
               <input
-                type="text"
+                type="number"
                 placeholder="Quantidade (kg/unidades)"
                 value={novoResiduo.quantidade}
-                onChange={(e) => setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })}
+                onChange={(e) =>
+                  setNovoResiduo({
+                    ...novoResiduo,
+                    quantidade: e.target.value,
+                  })
+                }
               />
               <input
-                type="date"
-                value={novoResiduo.data}
-                onChange={(e) => setNovoResiduo({ ...novoResiduo, data: e.target.value })}
+                type="text"
+                placeholder="Endereço"
+                value={novoResiduo.endereco}
+                onChange={(e) =>
+                  setNovoResiduo({
+                    ...novoResiduo,
+                    endereco: e.target.value,
+                  })
+                }
               />
-              <input
-                type="file"
-                onChange={(e) => setNovoResiduo({ ...novoResiduo, foto: e.target.files[0] })}
+              <textarea
+                placeholder="Observações (opcional)"
+                value={novoResiduo.observacoes}
+                onChange={(e) =>
+                  setNovoResiduo({
+                    ...novoResiduo,
+                    observacoes: e.target.value,
+                  })
+                }
+                rows={3}
               />
-              <button onClick={adicionarResiduo}>Solicitar Coleta</button>
+              <button
+                onClick={adicionarResiduo}
+                disabled={formularioInvalido || loading}
+              >
+                {loading ? "Enviando..." : "Solicitar Coleta"}
+              </button>
             </div>
-
           </div>
         )}
-        </section>
       </div>
     </div>
   );
 };
-
 
 export default PainelEmpresa;

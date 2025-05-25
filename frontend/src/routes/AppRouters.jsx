@@ -11,6 +11,8 @@ import PainelPessoa from "../pages/PainelPessoa";
 import PainelNoticias from "../pages/PainelNoticias";
 import PainelAdm from "../pages/PainelAdmin";  
 import NoticiasEventos from '../pages/NoticiasEventos';
+import NoticiaDetalhe from '../pages/NoticiaDetalhe';
+
 
 import Layout from "../components/Layout";
 
@@ -35,6 +37,7 @@ const AppRoutes = () => {
           <Route path="/coletas" element={<Coletas />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/contatos" element={<Contatos />} />
+          <Route path="/noticia/:id" element={<NoticiaDetalhe />} />
           <Route path="/noticiasEventos" element={<NoticiasEventos />} />
         </Route>
 
