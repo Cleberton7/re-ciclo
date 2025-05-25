@@ -13,6 +13,7 @@ const Register = ({ onLoginClick }) => {
     email: '',
     senha: '',
     cpf: '',
+    telefone: '',
     endereco: '',
     nomeFantasia: '',
     cnpj: '',
@@ -47,6 +48,7 @@ const Register = ({ onLoginClick }) => {
         nome: userType === 'pessoa' ? formData.nome : formData.nomeFantasia,
         email: formData.email,
         senha: formData.senha,
+        telefone: formData.telefone,
         tipoUsuario: userType,
         ...(userType === 'pessoa' && { 
           cpf: formData.cpf.replace(/\D/g, '') 
@@ -119,6 +121,15 @@ const Register = ({ onLoginClick }) => {
                     onAccept={(value) => handleAccept(value, 'cpf')}
                     required
                   />
+                  <IMaskInput
+                    mask="(00) 0 0000-0000"
+                    name="telefone"
+                    placeholder="Telefone *"
+                    value={formData.telefone}
+                    onAccept={(value) => handleAccept(value, 'telefone')}
+                    required
+                  />quired
+                
                 </>
               ) : (
                 <>
@@ -136,6 +147,14 @@ const Register = ({ onLoginClick }) => {
                     placeholder="CNPJ *"
                     value={formData.cnpj}
                     onAccept={(value) => handleAccept(value, 'cnpj')}
+                    required
+                  />
+                  <IMaskInput
+                    mask="(00) 0 0000-0000"
+                    name="telefone"
+                    placeholder="Telefone Comercial *"
+                    value={formData.telefone}
+                    onAccept={(value) => handleAccept(value, 'telefone')}
                     required
                   />
                 </>

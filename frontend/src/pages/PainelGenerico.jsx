@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import './styles/painelGenerico.css';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { IMaskInput } from 'react-imask';
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -35,6 +36,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
     }
 
     const fetchData = async () => {
+      
       const endpoint = {
         empresa: 'api/empresas/dados',
         pessoa: 'api/usuarios/pessoal',
@@ -66,6 +68,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
         };
 
         setDados(dadosFormatados);
+        console.log('Dados recebidos:', dadosFormatados);
         setTempDados(dadosFormatados);
 
         if (dadosRecebidos.localizacao) {
@@ -343,6 +346,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
   );
 
   if (!dados) return null;
+  
 
   return (
     <div className="painel-container" id="containerPrincipal">
@@ -406,7 +410,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
           </div>
 
           <div className="dados-section">
-            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : 'Pessoais'}</h3>
+            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' :tipoUsuario === 'coletor'? 'do centro de Coleta': 'Pessoais'}</h3>
             
             <div className="info-row">
               <span>Email:</span>
@@ -424,45 +428,58 @@ const PainelGenerico = ({ tipoUsuario }) => {
             </div>
 
             <div className="info-row">
-              <span>{tipoUsuario === "empresa" ? "CNPJ" : "CPF"}:</span>
+              <span>{tipoUsuario === "empresa" || tipoUsuario === "coletor" ? "CNPJ" : "CPF"}:</span>
               {editing ? (
                 <input
                   type="text"
-                  value={tempDados.documento || ''}
+                  value={tempDados.cnpj || ''}
                   onChange={handleInputChange}
                   name="documento"
                   disabled // Documento não pode ser editado
                 />
               ) : (
-                <strong>{dados.documento}</strong>
+                <strong>{dados.cnpj}</strong>
               )}
             </div>
 
-            {tipoUsuario === "empresa" && (
+            {(tipoUsuario === "empresa" ||  tipoUsuario === "coletor" )&& (
               <div className="info-row">
-                <span>Razão Social:</span>
+                <span>{tipoUsuario === "empresa" ? "Razão Social" : "Nome Fantasia"}:</span>
                 {editing ? (
                   <input
                     type="text"
-                    value={tempDados.razaoSocial || ''}
+                    value={
+                      tempDados.nomeFantasia === 'empresa'
+                      ? tempDados.razaoSocial || ''
+                      : tempDados.nomeFantasia|| ''}
                     onChange={handleInputChange}
-                    name="razaoSocial"
+                    name={ tipoUsuario === "empresa"?"razãoSocial" : "nomeFantasia"}
                   />
                 ) : (
-                  <strong>{dados.razaoSocial || 'Não informado'}</strong>
+                      <strong>
+                        {tipoUsuario === "empresa" 
+                          ? dados.razaoSocial 
+                          : dados.nomeFantasia || 'Não informado'}
+                      </strong>
                 )}
               </div>
             )}
 
-            {(tipoUsuario === "pessoa" || tipoUsuario === "empresa") && (
+            {(tipoUsuario === "pessoa" || tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
               <div className="info-row">
-                <span>{tipoUsuario === "empresa" ? "Telefone Comercial" : "Telefone"}:</span>
+                <span>
+                  {tipoUsuario === "empresa" ? "Telefone Comercial" :
+                  tipoUsuario === "coletor" ? "Telefone Comercial" :
+                  "Telefone"}:
+                </span>
                 {editing ? (
-                  <input
-                    type="text"
+                  <IMaskInput
+                    mask="(00) 0 0000-0000"
+                    name="telefone"
+                    placeholder="Telefone Comercial *"
                     value={tempDados.telefone || ''}
                     onChange={handleInputChange}
-                    name="telefone"
+                    required
                   />
                 ) : (
                   <strong>{dados.telefone || 'Não informado'}</strong>

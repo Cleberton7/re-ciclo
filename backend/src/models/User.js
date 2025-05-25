@@ -71,14 +71,15 @@ const UserSchema = new mongoose.Schema({
   nome: { 
     type: String, 
     required: true,
-    trim: true
+    trim: true,
   },
   email: { 
     type: String, 
     required: true, 
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'],
-    lowercase: true
+    lowercase: true,
+
   },
   senha: { 
     type: String, 
@@ -92,7 +93,9 @@ const UserSchema = new mongoose.Schema({
       return this.tipoUsuario === 'coletor';
     }
   },
-    imagemPerfil: {
+  telefone: { type: String },
+
+  imagemPerfil: {
     type: String,
     default: null
   },
@@ -118,13 +121,16 @@ const UserSchema = new mongoose.Schema({
     }
   },
 
-  telefone: { type: String },
   razaoSocial: { 
     type: String,
-    required: function() { return this.tipoUsuario === 'empresa'; }
+    required: function() { return this.tipoUsuario === 'empresa'; },
+
   },
   veiculo: { type: String },
-  capacidadeColeta: { type: Number },
+  capacidadeColeta: { 
+    type: Number,
+    default: 0
+  },
   dataCadastro: { 
     type: Date, 
     default: Date.now 
