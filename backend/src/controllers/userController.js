@@ -45,6 +45,7 @@ export const userController = {
         email, 
         endereco, 
         cpf, 
+        telefone,
         veiculo, 
         capacidadeColeta, 
         nomeFantasia, 
@@ -63,7 +64,8 @@ export const userController = {
       const updateFields = {
         ...(nome && { nome }),
         ...(email && { email }),
-        ...(endereco && { endereco })
+        ...(endereco && { endereco }),
+        ...(telefone && { telefone: telefone.replace(/[^\d]+/g, '') })
       };
 
       // Tratamento da imagem

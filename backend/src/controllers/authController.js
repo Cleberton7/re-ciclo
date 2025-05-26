@@ -12,12 +12,27 @@ export const register = async (req, res) => {
       return res.status(400).json({ mensagem: 'E-mail já cadastrado!' });
     }
 
+    // Modificar a criação do usuário:
     const newUser = new User({
-      nome,
       email,
       senha,
+      telefone,
+      endereco,
       tipoUsuario,
-      ...rest,
+      
+      // Campos específicos por tipo
+      ...(userType === 'pessoa' && { 
+        nome: formData.nome,
+        cpf: formData.cpf 
+      }),
+      ...(userType === 'empresa' && {
+        razaoSocial: formData.razaoSocial,
+        cnpj: formData.cnpj
+      }),
+      ...(userType === 'coletor' && {
+        nomeFantasia: formData.nomeFantasia,
+        cnpj: formData.cnpj
+      })
     });
 
     await newUser.save();

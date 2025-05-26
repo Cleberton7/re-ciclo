@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
+
 
 // Função para validar CPF
 function validarCPF(cpf) {
@@ -68,11 +71,21 @@ function validarCNPJ(cnpj) {
 }
 
 const UserSchema = new mongoose.Schema({
+  // No UserSchema, ajustar os campos:
+  razaoSocial: { 
+    type: String,
+    required: function() { return this.tipoUsuario === 'empresa'; },
+  },
+  nomeFantasia: {
+    type: String,
+    required: function() { return this.tipoUsuario === 'coletor'; },
+  },
   nome: { 
     type: String, 
-    required: true,
+    required: function() { return this.tipoUsuario === 'pessoa'; },
     trim: true,
   },
+
   email: { 
     type: String, 
     required: true, 
@@ -89,11 +102,17 @@ const UserSchema = new mongoose.Schema({
   },
   endereco: { 
     type: String,
-    required: function() {
-      return this.tipoUsuario === 'coletor';
+    required: true
+  },
+  telefone: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(v);
+      },
+      message: props => `${props.value} não é um número de telefone válido`
     }
   },
-  telefone: { type: String },
 
   imagemPerfil: {
     type: String,
@@ -105,26 +124,30 @@ const UserSchema = new mongoose.Schema({
     enum: ['pessoa', 'empresa', 'coletor','admGeral'],
     default: 'pessoa'
   },
-  documento: {
+  cpf: {
     type: String,
-    required: true,
+    required: function() { return this.tipoUsuario === 'pessoa'; },
     validate: {
       validator: function(v) {
         if (this.tipoUsuario === 'pessoa') return validarCPF(v);
-        if (this.tipoUsuario === 'empresa') return validarCNPJ(v);
-        if (this.tipoUsuario === 'coletor') return validarCNPJ(v);
         return true;
       },
-      message: function(props) {
-        return `${props.value} não é um documento válido para ${this.tipoUsuario}`;
-      }
+      message: props => `${props.value} não é um CPF válido`
     }
   },
-
-  razaoSocial: { 
+  cnpj: {
     type: String,
-    required: function() { return this.tipoUsuario === 'empresa'; },
-
+    required: function() {
+      return this.tipoUsuario === 'empresa' || this.tipoUsuario === 'coletor';
+    },
+    validate: {
+      validator: function(v) {
+        if (this.tipoUsuario === 'empresa' || this.tipoUsuario === 'coletor') 
+          return validarCNPJ(v);
+        return true;
+      },
+      message: props => `${props.value} não é um CNPJ válido`
+    }
   },
   veiculo: { type: String },
   capacidadeColeta: { 

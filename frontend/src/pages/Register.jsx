@@ -16,6 +16,7 @@ const Register = ({ onLoginClick }) => {
     telefone: '',
     endereco: '',
     nomeFantasia: '',
+    razaoSocial: '',
     cnpj: '',
     tipoUsuario: 'pessoa'
   });
@@ -42,28 +43,34 @@ const Register = ({ onLoginClick }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+
     try {
-      const userData = {
-        nome: userType === 'pessoa' ? formData.nome : formData.nomeFantasia,
-        email: formData.email,
-        senha: formData.senha,
-        telefone: formData.telefone,
-        tipoUsuario: userType,
-        ...(userType === 'pessoa' && { 
-          cpf: formData.cpf.replace(/\D/g, '') 
-        }),
-        ...((userType === 'empresa' || userType === 'coletor') && { 
-          cnpj: formData.cnpj.replace(/\D/g, ''),
-          nomeFantasia: formData.nomeFantasia || formData.nome
-        }),
-        ...(formData.endereco && { endereco: formData.endereco })
-      };
-  
+     // Ajustar o handleSubmit:
+    const userData = {
+      email: formData.email,
+      senha: formData.senha,
+      telefone: formData.telefone.replace(/\D/g, ''),
+      endereco: formData.endereco,
+      tipoUsuario: userType,
+    };
+
+    if (userType === 'pessoa') {
+      userData.nome = formData.nome;
+      userData.cpf = formData.cpf.replace(/\D/g, '');
+    } else if (userType === 'empresa') {
+      userData.razaoSocial = formData.razaoSocial;
+      userData.cnpj = formData.cnpj.replace(/\D/g, '');
+    } else if (userType === 'coletor') {
+      userData.nomeFantasia = formData.nomeFantasia;
+      userData.cnpj = formData.cnpj.replace(/\D/g, '');
+    }
+
+      console.log("Dados enviados para registro:", userData);
       await registerUser(userData);
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
+      console.error('Erro ao cadastrar:', err.response?.data || err.message);
       setError(err.response?.data?.mensagem || err.message || 'Erro ao cadastrar');
     } finally {
       setLoading(false);
@@ -90,7 +97,7 @@ const Register = ({ onLoginClick }) => {
         <div id="form-register">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <select 
+              <select
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
                 className="form-select"
@@ -103,7 +110,7 @@ const Register = ({ onLoginClick }) => {
             </div>
 
             <div className="form-fields">
-              {userType === 'pessoa' ? (
+              {userType === 'pessoa' && (
                 <>
                   <input
                     type="text"
@@ -122,21 +129,56 @@ const Register = ({ onLoginClick }) => {
                     required
                   />
                   <IMaskInput
-                    mask="(00) 0 0000-0000"
-                    name="telefone"
+                     mask={[
+                      { mask: '(00) 0000-0000' },
+                      { mask: '(00) 00000-0000' }
+                    ]}                    name="telefone"
                     placeholder="Telefone *"
                     value={formData.telefone}
                     onAccept={(value) => handleAccept(value, 'telefone')}
                     required
-                  />quired
-                
+                  />
                 </>
-              ) : (
+              )}
+
+              {userType === 'empresa' && (
+                <>
+                  <input
+                    type="text"
+                    name="razaoSocial"
+                    placeholder="Razão Social *"
+                    value={formData.razaoSocial}
+                    onChange={handleChange}
+                    required
+                  />
+                  <IMaskInput
+                    mask="00.000.000/0000-00"
+                    name="cnpj"
+                    placeholder="CNPJ *"
+                    value={formData.cnpj}
+                    onAccept={(value) => handleAccept(value, 'cnpj')}
+                    required
+                  />
+                  <IMaskInput
+                    mask={[
+                      { mask: '(00) 0000-0000' },
+                      { mask: '(00) 00000-0000' }
+                    ]}
+                    name="telefone"
+                    placeholder="Telefone Comercial *"
+                    value={formData.telefone}
+                    onAccept={(value) => handleAccept(value, 'telefone')}
+                    required
+                  />
+                </>
+              )}
+
+              {userType === 'coletor' && (
                 <>
                   <input
                     type="text"
                     name="nomeFantasia"
-                    placeholder={userType === 'empresa' ? 'Razão Social *' : 'Nome Fantasia *'}
+                    placeholder="Nome Fantasia *"
                     value={formData.nomeFantasia}
                     onChange={handleChange}
                     required
@@ -150,7 +192,10 @@ const Register = ({ onLoginClick }) => {
                     required
                   />
                   <IMaskInput
-                    mask="(00) 0 0000-0000"
+                    mask={[
+                      { mask: '(00) 0000-0000' },
+                      { mask: '(00) 00000-0000' }
+                    ]}
                     name="telefone"
                     placeholder="Telefone Comercial *"
                     value={formData.telefone}
@@ -160,6 +205,15 @@ const Register = ({ onLoginClick }) => {
                 </>
               )}
 
+              {/* Endereço para todos */}
+              <input
+                type="text"
+                name="endereco"
+                placeholder="Endereço"
+                value={formData.endereco}
+                onChange={handleChange}
+              />
+
               <input
                 type="email"
                 name="email"
@@ -168,7 +222,7 @@ const Register = ({ onLoginClick }) => {
                 onChange={handleChange}
                 required
               />
-              
+
               <input
                 type="password"
                 name="senha"
@@ -177,14 +231,6 @@ const Register = ({ onLoginClick }) => {
                 onChange={handleChange}
                 required
                 minLength="6"
-              />
-              
-              <input
-                type="text"
-                name="endereco"
-                placeholder="Endereço"
-                value={formData.endereco}
-                onChange={handleChange}
               />
             </div>
 
