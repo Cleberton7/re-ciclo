@@ -1,0 +1,142 @@
+.coleta-public-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 0.5rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.coleta-public-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.material-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.material-icon {
+  font-size: 1.5rem;
+  color: #009951;
+}
+
+.material-type {
+  font-weight: 600;
+  color: #495057;
+  text-transform: capitalize;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.concluída {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.info-value {
+  color: #495057;
+  text-align: right;
+}
+
+.card-footer {
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.impact-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.impact-icon {
+  font-size: 1.2rem;
+}
+
+.impact-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Classes para ícones de materiais */
+.material-icon.plastico {
+  color: #e63946;
+}
+
+.material-icon.papel {
+  color: #1d3557;
+}
+
+.material-icon.vidro {
+  color: #457b9d;
+}
+
+.material-icon.metal {
+  color: #a8dadc;
+}
+
+.material-icon.organico {
+  color: #588157;
+}
+
+.material-icon.eletronicos {
+  color: #3a5a40;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .coleta-public-card {
+    max-width: 100%;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .info-value {
+    text-align: left;
+  }
+}

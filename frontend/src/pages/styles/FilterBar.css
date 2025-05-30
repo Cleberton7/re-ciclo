@@ -1,39 +1,93 @@
 .filter-bar {
   display: flex;
-  gap: 16px;
-  padding: 12px;
-  background-color: rgba(64, 114, 158, 0.8);
-  border-radius: 6px;
-  margin-bottom: 16px;
+  gap: 1.5rem;
+  padding: 1.2rem;
+  background-color: #009951;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  align-items: flex-end;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.filter-bar:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.5rem;
+  flex-grow: 1;
+  min-width: 200px;
 }
 
 .filter-group label {
-  font-weight: bold;
+  font-weight: 600;
   color: white;
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
 }
 
 .filter-group select {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
   background-color: white;
-  min-width: 180px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 1rem;
 }
 
+.filter-group select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Efeito hover para os selects */
+.filter-group select:hover {
+  border-color: #b3b3b3;
+}
+
+/* Estilo para mobile */
 @media (max-width: 768px) {
   .filter-bar {
     flex-direction: column;
-    gap: 8px;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .filter-group {
+    min-width: 100%;
   }
   
   .filter-group select {
     width: 100%;
+    padding: 0.8rem;
   }
+}
+
+/* Estilo para o placeholder */
+.filter-group select option[value=""] {
+  color: #6c757d;
+}
+
+/* Estilo para as opções */
+.filter-group select option {
+  color: #333;
+  padding: 0.5rem;
+}
+
+/* Feedback visual quando há filtros aplicados */
+.filter-group select:not([value=""]) {
+  border-left: 3px solid #28a745;
+  padding-left: 0.9rem;
 }

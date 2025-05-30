@@ -1,4 +1,5 @@
 import React from 'react';
+import "../pages/styles/RankingEmpresas.css"
 
 const RankingEmpresas = ({ ranking }) => {
   if (!ranking || ranking.length === 0) {

@@ -1,5 +1,7 @@
 import React from 'react';
 import { formatDate, getMaterialIcon } from '../utils/helpers';
+import "../pages/styles/ColetaPublicCards.css"
+
 
 const ColetaPublicCard = ({ coleta }) => {
   // Verifica se há dados da coleta

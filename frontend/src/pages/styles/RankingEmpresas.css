@@ -1,0 +1,91 @@
+.ranking-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  padding: 1.5rem;
+}
+
+.ranking-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ranking-container thead {
+  background-color: #009951;
+  color: white;
+}
+
+.ranking-container th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.ranking-container tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.ranking-container tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.ranking-container td {
+  padding: 1rem;
+  color: #495057;
+}
+
+/* Estilo para as posições do ranking */
+.ranking-container td:first-child {
+  font-weight: 700;
+  color: #009951;
+  width: 60px;
+}
+
+/* Estilo para o top 3 */
+.ranking-container tbody tr:nth-child(1) td:first-child::before {
+  content: "🥇";
+  margin-right: 0.5rem;
+}
+
+.ranking-container tbody tr:nth-child(2) td:first-child::before {
+  content: "🥈";
+  margin-right: 0.5rem;
+}
+
+.ranking-container tbody tr:nth-child(3) td:first-child::before {
+  content: "🥉";
+  margin-right: 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .ranking-container {
+    padding: 0.5rem;
+  }
+  
+  .ranking-container th,
+  .ranking-container td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .ranking-container td:first-child {
+    width: 40px;
+  }
+}
+
+/* Mensagem quando não há dados */
+.ranking-container p {
+  text-align: center;
+  color: #6c757d;
+  padding: 1.5rem;
+  font-style: italic;
+}
