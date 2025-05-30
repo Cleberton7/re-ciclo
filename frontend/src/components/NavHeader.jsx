@@ -61,7 +61,8 @@ const NavHeader = () => {
     { path: "/", label: "Home" },
     { path: "/empresas", label: "Empresas Parceiras" },
     { path: "/recicle", label: "Recicle" },
-    { path: "/coletas", label: "Coletas" },
+    //{ path: "/coletas", label: "Coletas" },
+    { path: "/publicColetasPage", label: "Coletas" },
     { path: "/eventos", label: "Eventos" },
     { path: "/contatos", label: "Contatos" }
   ];

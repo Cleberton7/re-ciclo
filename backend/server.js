@@ -13,7 +13,9 @@ import centroRoutes from './src/routes/centroRoutes.js';
 import coletorRoutes from './src/routes/coletorRoutes.js'; 
 import coletasRoutes from './src/routes/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
+import publicRoutes from './src/routes/publicRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
+
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,6 +51,7 @@ async function main() {
     app.use("/api/coletor", coletorRoutes); 
     app.use("/api/coletas", coletasRoutes);
     app.use("/api/noticias", noticiaRoutes);  
+    app.use("/api/public", publicRoutes);
 
     // Middleware de erro
     app.use(errorHandler);

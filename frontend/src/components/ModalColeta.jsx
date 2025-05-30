@@ -45,7 +45,6 @@ const ModalColeta = ({ coleta, onClose, onSave, isEdit }) => {
             >
               <option value="eletrônicos">Eletrônicos</option>
               <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>
               <option value="vidro">Vidro</option>
               <option value="papel">Papel</option>
             </select>
