@@ -5,56 +5,39 @@ const api = axios.create({
   timeout: 15000,
 });
 
+// Intercepta e adiciona o token automaticamente
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
-    console.log('Enviando token no header:', token.substring(0, 20) + '...');
     config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    console.warn('Nenhum token encontrado no localStorage');
   }
   return config;
-}, error => {
-  console.error('Erro no interceptor:', error);
-  return Promise.reject(error);
-});
+}, error => Promise.reject(error));
 
+// Login
 export const loginUser = async (credentials) => {
-  try {
-    console.log('Iniciando login com:', credentials.email);
-    const response = await api.post('/auth/login', credentials);
-    
-    if (!response.data.token) {
-      throw new Error('Token não recebido na resposta');
-    }
-    
-    console.log('Login bem-sucedido, token recebido');
-    return response.data;
-  } catch (error) {
-    console.error('Erro no login:', {
-      message: error.message,
-      response: error.response?.data
-    });
-    throw new Error(error.response?.data?.message || "Erro ao fazer login");
+  const response = await api.post('/auth/login', credentials);
+  
+  if (!response.data.token || !response.data.usuario) {
+    throw new Error('Resposta de login inválida');
   }
+
+  return {
+    token: response.data.token,
+    usuario: response.data.usuario
+  };
 };
 
+// Registro
 export const registerUser = async (userData) => {
-  try {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Erro ao registrar usuário");
-  }
+  const response = await api.post('/auth/register', userData);
+  return response.data;
 };
 
+// Dados do usuário autenticado
 export const getUserData = async () => {
-  try {
-    const response = await api.get('/usuario/pessoal');
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Erro ao carregar dados");
-  }
+  const response = await api.get('/usuario/pessoal');
+  return response.data;
 };
 
 export default {

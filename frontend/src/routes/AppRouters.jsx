@@ -9,27 +9,17 @@ import PainelEmpresa from "../pages/PainelEmpresa";
 import PainelReciclador from "../pages/PainelReciclador";
 import PainelPessoa from "../pages/PainelPessoa";
 import PainelNoticias from "../pages/PainelNoticias";
-import PainelAdm from "../pages/PainelAdmin";  
+import PainelAdm from "../pages/PainelAdmin";
 import NoticiasEventos from '../pages/NoticiasEventos';
 import NoticiaDetalhe from '../pages/NoticiaDetalhe';
-
-
 import Layout from "../components/Layout";
-
-
-const ProtectedRoute = ({ element, role, redirectPath = "/" }) => {
-  const userRole = localStorage.getItem("role");
-  if (!userRole || (role && userRole !== userRole)) {
-    return <Navigate to={redirectPath} />;
-  }
-  return element;
-};
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        {/* Rotas com Layout (header + footer) */}
+        {/* Rotas COM layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/empresas" element={<Empresas />} />
@@ -41,7 +31,7 @@ const AppRoutes = () => {
           <Route path="/noticiasEventos" element={<NoticiasEventos />} />
         </Route>
 
-        {/* Rotas SEM Layout (sem header/footer) */}
+        {/* Rotas SEM layout */}
         <Route
           path="/painelEmpresa"
           element={<ProtectedRoute element={<PainelEmpresa />} role="empresa" />}
@@ -54,15 +44,13 @@ const AppRoutes = () => {
           path="/painelPessoa"
           element={<ProtectedRoute element={<PainelPessoa />} role="pessoa" />}
         />
-        {/* Rota para Painel do Admin */}
         <Route
-          path="/painelAdm"
-          element={<ProtectedRoute element={<PainelAdm />} role="admin" />}
+          path="/painelAdmin"
+          element={<ProtectedRoute element={<PainelAdm />} role="adminGeral" />}
         />
-        {/* Rota para Painel de Notícias (acessível só para admin) */}
         <Route
           path="/painelNoticias"
-          element={<ProtectedRoute element={<PainelNoticias />} role="admin" />}
+          element={<ProtectedRoute element={<PainelNoticias />} role="adminGeral" />}
         />
 
         {/* Redirecionamentos */}

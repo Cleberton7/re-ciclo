@@ -1,65 +1,80 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
-//console.log('JWT_SECRET carregado:', process.env.JWT_SECRET?.substring(0, 10) + '...');
-
 export const register = async (req, res) => {
   try {
-    const { nome, email, senha, tipoUsuario, ...rest } = req.body;
+    const { email, senha, telefone, endereco, tipoUsuario, ...rest } = req.body;
+
+    if (!email || !senha || !telefone || !endereco || !tipoUsuario) {
+      return res.status(400).json({ mensagem: 'Campos obrigatórios faltando!' });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ mensagem: 'E-mail já cadastrado!' });
     }
 
-    // Modificar a criação do usuário:
-    const newUser = new User({
+    const userData = {
       email,
       senha,
-      telefone,
+      telefone: telefone.replace(/\D/g, ''),
       endereco,
-      tipoUsuario,
-      
-      // Campos específicos por tipo
-      ...(userType === 'pessoa' && { 
-        nome: formData.nome,
-        cpf: formData.cpf 
-      }),
-      ...(userType === 'empresa' && {
-        razaoSocial: formData.razaoSocial,
-        cnpj: formData.cnpj
-      }),
-      ...(userType === 'coletor' && {
-        nomeFantasia: formData.nomeFantasia,
-        cnpj: formData.cnpj
-      })
-    });
+      tipoUsuario
+    };
 
-    await newUser.save();
+    switch(tipoUsuario) {
+      case 'pessoa':
+        if (!rest.nome || !rest.cpf) {
+          return res.status(400).json({ mensagem: 'Nome e CPF são obrigatórios' });
+        }
+        userData.nome = rest.nome;
+        userData.cpf = rest.cpf.replace(/\D/g, '');
+        break;
+      case 'empresa':
+        if (!rest.razaoSocial || !rest.cnpj) {
+          return res.status(400).json({ mensagem: 'Razão Social e CNPJ são obrigatórios' });
+        }
+        userData.razaoSocial = rest.razaoSocial;
+        userData.cnpj = rest.cnpj.replace(/\D/g, '');
+        break;
+      case 'coletor':
+        if (!rest.nomeFantasia || !rest.cnpj) {
+          return res.status(400).json({ mensagem: 'Nome Fantasia e CNPJ são obrigatórios' });
+        }
+        userData.nomeFantasia = rest.nomeFantasia;
+        userData.cnpj = rest.cnpj.replace(/\D/g, '');
+        break;
+      case 'adminGeral':
+        if (!rest.nome) {
+          return res.status(400).json({ mensagem: 'Nome é obrigatório para adminGeral' });
+        }
+        userData.nome = rest.nome;
+        break;
+      default:
+        return res.status(400).json({ mensagem: 'Tipo de usuário inválido' });
+    }
+
+    const newUser = await User.create(userData);
     
     const token = jwt.sign(
       { id: newUser._id, tipoUsuario: newUser.tipoUsuario },
       process.env.JWT_SECRET,
-      { 
-        algorithm: 'HS256',
-        expiresIn: "1h" 
-      }
+      { expiresIn: "1h" }
     );
-
-    //console.log('Token gerado no registro:', token.substring(0, 20) + '...');
 
     res.status(201).json({
       mensagem: "Usuário registrado com sucesso",
       token,
-      usuario: { 
-        nome: newUser.nome, 
-        email: newUser.email, 
-        tipoUsuario: newUser.tipoUsuario 
-      },
+      usuario: newUser
     });
 
   } catch (err) {
-    console.error('Erro no registro:', err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        mensagem: 'Erro de validação',
+        erros: Object.values(err.errors).map(e => e.message)
+      });
+    }
     res.status(500).json({ 
       mensagem: 'Erro no servidor', 
       erro: err.message 
@@ -69,35 +84,27 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, senha } = req.body;
-  //console.log('Iniciando login para:', email);
 
   try {
-    const user = await User.findOne({ email });
-    if (!user || !user.comparePassword(senha)) {
+    const user = await User.findOne({ email }).select('+senha');
+    
+    if (!user || !(await user.comparePassword(senha))) {
       return res.status(401).json({ mensagem: 'Credenciais incorretas' });
     }
-    
-    // No authController.js corrigir:
+
     const token = jwt.sign(
-      { id: user._id, tipoUsuario: user.tipoUsuario }, // ERRADO: usuario._id
+      { id: user._id, tipoUsuario: user.tipoUsuario },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    //console.log('Secret usado para gerar token:', process.env.JWT_SECRET?.substring(0, 10) + '...');
-    //console.log('Token gerado no login:', token.substring(0, 20) + '...');
 
     res.json({
       mensagem: 'Login bem-sucedido',
       token,
-      usuario: { 
-        nome: user.nome, 
-        email: user.email, 
-        tipoUsuario: user.tipoUsuario 
-      },
+      usuario: user
     });
 
   } catch (err) {
-    console.error('Erro no login:', err);
     res.status(500).json({ 
       mensagem: 'Erro no servidor', 
       erro: err.message 

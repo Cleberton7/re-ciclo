@@ -16,7 +16,7 @@ const Section = () => {
     const carregarNoticias = async () => {
       try {
         const data = await listarNoticias();
-        console.log('Dados recebidos da API:', data); // Debug importante
+        //console.log('Dados recebidos da API:', data); // Debug importante
         
         // Verifica e corrige URLs de imagem se necessário
         const noticiasFormatadas = data.map(noticia => {

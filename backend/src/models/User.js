@@ -3,13 +3,12 @@ import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
-
-// Função para validar CPF
+// Funções de validação
 function validarCPF(cpf) {
   if (typeof cpf !== "string") return false;
   cpf = cpf.replace(/[^\d]+/g,'');
   if (cpf.length !== 11) return false;
-  if (/^(\d)\1+$/.test(cpf)) return false; // CPF com todos dígitos iguais é inválido
+  if (/^(\d)\1+$/.test(cpf)) return false;
 
   let soma = 0;
   let resto;
@@ -32,7 +31,6 @@ function validarCPF(cpf) {
   return true;
 }
 
-// Função para validar CNPJ
 function validarCNPJ(cnpj) {
   if (typeof cnpj !== "string") return false;
   cnpj = cnpj.replace(/[^\d]+/g,'');
@@ -71,7 +69,6 @@ function validarCNPJ(cnpj) {
 }
 
 const UserSchema = new mongoose.Schema({
-  // No UserSchema, ajustar os campos:
   razaoSocial: { 
     type: String,
     required: function() { return this.tipoUsuario === 'empresa'; },
@@ -82,17 +79,17 @@ const UserSchema = new mongoose.Schema({
   },
   nome: { 
     type: String, 
-    required: function() { return this.tipoUsuario === 'pessoa'; },
-    trim: true,
+    required: function() {
+      return ['pessoa', 'adminGeral'].includes(this.tipoUsuario);
+    },
+    trim: true
   },
-
   email: { 
     type: String, 
     required: true, 
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'],
     lowercase: true,
-
   },
   senha: { 
     type: String, 
@@ -106,6 +103,7 @@ const UserSchema = new mongoose.Schema({
   },
   telefone: {
     type: String,
+    required: true,
     validate: {
       validator: function(v) {
         return /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(v);
@@ -113,7 +111,6 @@ const UserSchema = new mongoose.Schema({
       message: props => `${props.value} não é um número de telefone válido`
     }
   },
-
   imagemPerfil: {
     type: String,
     default: null
@@ -121,17 +118,14 @@ const UserSchema = new mongoose.Schema({
   tipoUsuario: { 
     type: String, 
     required: true,
-    enum: ['pessoa', 'empresa', 'coletor','admGeral'],
+    enum: ['pessoa', 'empresa', 'coletor', 'adminGeral'],
     default: 'pessoa'
   },
   cpf: {
     type: String,
     required: function() { return this.tipoUsuario === 'pessoa'; },
     validate: {
-      validator: function(v) {
-        if (this.tipoUsuario === 'pessoa') return validarCPF(v);
-        return true;
-      },
+      validator: validarCPF,
       message: props => `${props.value} não é um CPF válido`
     }
   },
@@ -141,18 +135,15 @@ const UserSchema = new mongoose.Schema({
       return this.tipoUsuario === 'empresa' || this.tipoUsuario === 'coletor';
     },
     validate: {
-      validator: function(v) {
-        if (this.tipoUsuario === 'empresa' || this.tipoUsuario === 'coletor') 
-          return validarCNPJ(v);
-        return true;
-      },
+      validator: validarCNPJ,
       message: props => `${props.value} não é um CNPJ válido`
     }
   },
   veiculo: { type: String },
   capacidadeColeta: { 
     type: Number,
-    default: 0
+    default: 0,
+    required: function(){ return this.tipoUsuario === 'coletor'}
   },
   dataCadastro: { 
     type: Date, 
@@ -161,22 +152,36 @@ const UserSchema = new mongoose.Schema({
   localizacao: {
     lat: { type: Number, min: -90, max: 90 },
     lng: { type: Number, min: -180, max: 180 }
-  },
-
-  
+  }
 }, {
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  toJSON: { 
+    virtuals: true,
+    transform: function(doc, ret) {
+      delete ret.senha;
+      delete ret.__v;
+      return ret;
+    }
+  },
+  toObject: { 
+    virtuals: true,
+    transform: function(doc, ret) {
+      delete ret.senha;
+      delete ret.__v;
+      return ret;
+    }
+  }
 });
 
-UserSchema.index({ tipoUsuario: 1 });
-
+// Middleware para hash da senha antes de salvar
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('senha')) return next();
+  
   const salt = await bcrypt.genSalt(10);
   this.senha = await bcrypt.hash(this.senha, salt);
   next();
 });
+
+// Middleware para remover imagem ao deletar usuário
 UserSchema.pre('remove', async function(next) {
   if (this.imagemPerfil) {
     try {
@@ -190,6 +195,8 @@ UserSchema.pre('remove', async function(next) {
   }
   next();
 });
+
+// Método para comparar senhas
 UserSchema.methods.comparePassword = async function(senha) {
   return await bcrypt.compare(senha, this.senha);
 };

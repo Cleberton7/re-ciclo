@@ -1,41 +1,117 @@
+/* content.css - Versão Atualizada */
 .content {
-    background-color: #009951;
-    display: flex;
-    color: rgb(0, 0, 0);
-  }
-  
-
-.containerRanked,.containerGraphic,.containerMaps{
-    margin: 4px;
-    flex: 1;
-    padding: 3px;
-
+  background-color: #009951;
+  display: flex;
+  color: rgb(0, 0, 0);
+  gap: 8px; /* Espaço entre os containers */
+  padding: 8px;
 }
-.containerMaps{
-    flex: 3;
+
+.containerRanked, .containerGraphic, .containerMaps {
+  margin: 4px;
+  flex: 1;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
+
+.containerMaps {
+  flex: 3;
+}
+
 #maps {
   height: 500px;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .mapa {
   width: 100%;
   height: 100%;
+  border-radius: 6px;
 }
 
-#rankedEmpresa, #graphic{
-    background-color: rgb(64, 114, 158);
-    height: 500px;
-    padding: 4px;
-    margin: 2px;
-}
-#textRanked, #textGraph, #textLoc{
-    background-color: antiquewhite;
-    border-radius: 5px;
-    height: 30px;
-    margin-bottom: 10px;
-    padding: 3px;
-    width: fit-content;
-    cursor: pointer;
+#rankedEmpresa, #graphic {
+  background-color: rgb(64, 114, 158);
+  height: 500px;
+  padding: 12px;
+  margin: 2px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+#textRanked, #textGraph, #textLoc {
+  background-color: antiquewhite;
+  border-radius: 5px;
+  height: 30px;
+  margin-bottom: 10px;
+  padding: 3px 12px;
+  width: fit-content;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para os gráficos */
+.chart-container {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  padding: 12px;
+  height: calc(50% - 6px);
+}
+
+/* Tabela de ranking */
+.tabela-ranking {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tabela-ranking th, .tabela-ranking td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabela-ranking th {
+  background-color: #2c5282;
+  color: white;
+}
+
+.tabela-ranking tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.tabela-ranking tr:hover {
+  background-color: #e6f7ff;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+  }
+  
+  .containerMaps {
+    flex: 1;
+  }
+  
+  #rankedEmpresa, #graphic, #maps {
+    height: 300px;
+  }
+}
+
+/* Estilo para mensagens de carregamento */
+#rankedEmpresa p, #graphic p {
+  color: white;
+  text-align: center;
+  margin-top: 50%;
+  transform: translateY(-50%);
+}

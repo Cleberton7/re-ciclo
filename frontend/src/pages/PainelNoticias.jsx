@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import './styles/painelNoticias.css';
 import {
   listarNoticias,
@@ -7,8 +7,10 @@ import {
   deletarNoticia
 } from '../services/noticiaService';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../contexts/AuthContext';
 
 const PainelNoticias = () => {
+  const { userData: user, role } = useContext(AuthContext);
   const [noticias, setNoticias] = useState([]);
   const [form, setForm] = useState({ title: '', content: '', tags: '' });
   const [imageFile, setImageFile] = useState(null);
@@ -16,7 +18,6 @@ const PainelNoticias = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const carregarNoticias = useCallback(async () => {
@@ -27,8 +28,7 @@ const PainelNoticias = () => {
     } catch (err) {
       console.error('Erro ao carregar notícias:', err);
       setError('Erro ao carregar notícias');
-      
-      // Tratamento específico para token expirado/inválido
+
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -37,30 +37,13 @@ const PainelNoticias = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]); // Dependências do useCallback
+  }, [navigate]);
 
   useEffect(() => {
-    const loadUser = () => {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      const token = localStorage.getItem('token');
-      
-      if (!userData || !token) {
-        navigate('/login');
-        return;
-      }
-      
-      setUser(userData);
-      
-      if (userData.tipoUsuario !== 'admGeral') {
-        setError('Acesso permitido apenas para administradores gerais');
-        return;
-      }
-      
+    if (role === 'adminGeral') {
       carregarNoticias();
-    };
-    
-    loadUser();
-  }, [navigate, carregarNoticias]); // Dependências do useEffect
+    }
+  }, [role, carregarNoticias]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,8 +68,8 @@ const PainelNoticias = () => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
-    
-    if (!user || user.tipoUsuario !== 'admGeral') {
+
+    if (role !== 'adminGeral') {
       setError('Acesso permitido apenas para administradores gerais');
       return;
     }
@@ -100,8 +83,11 @@ const PainelNoticias = () => {
       const formData = new FormData();
       formData.append('title', form.title);
       formData.append('content', form.content);
-      formData.append('tags', form.tags ? JSON.stringify(form.tags.split(',').map(tag => tag.trim())) : JSON.stringify([]));
-      
+      formData.append(
+        'tags',
+        form.tags ? JSON.stringify(form.tags.split(',').map(tag => tag.trim())) : JSON.stringify([])
+      );
+
       if (imageFile) {
         formData.append('image', imageFile);
       }
@@ -119,7 +105,7 @@ const PainelNoticias = () => {
 
     } catch (err) {
       console.error('Erro ao salvar notícia:', err);
-      
+
       if (err.response?.status === 403) {
         setError('Acesso negado. Verifique suas permissões.');
       } else if (err.response?.status === 401) {
@@ -134,11 +120,11 @@ const PainelNoticias = () => {
   };
 
   const handleEditar = (noticia) => {
-    if (!user || user.tipoUsuario !== 'admGeral') {
+    if (role !== 'adminGeral') {
       setError('Acesso permitido apenas para administradores gerais');
       return;
     }
-    
+
     setEditId(noticia._id);
     setForm({
       title: noticia.title,
@@ -151,20 +137,20 @@ const PainelNoticias = () => {
   };
 
   const handleDeletar = async (id) => {
-    if (!user || user.tipoUsuario !== 'admGeral') {
+    if (role !== 'adminGeral') {
       setError('Acesso permitido apenas para administradores gerais');
       return;
     }
-    
+
     if (!window.confirm('Confirma a exclusão da notícia?')) return;
-    
+
     try {
       await deletarNoticia(id);
       setSuccessMsg('Notícia deletada com sucesso!');
       await carregarNoticias();
     } catch (err) {
       console.error('Erro ao deletar notícia:', err);
-      
+
       if (err.response?.status === 403) {
         setError('Acesso negado. Verifique suas permissões.');
       } else if (err.response?.status === 401) {
@@ -178,11 +164,7 @@ const PainelNoticias = () => {
     }
   };
 
-  if (!user) {
-    return <div>Carregando...</div>;
-  }
-
-  if (user.tipoUsuario !== 'admGeral') {
+  if (role !== 'adminGeral') {
     return (
       <div style={{ padding: '1rem', textAlign: 'center' }}>
         <h2>Acesso Restrito</h2>
@@ -192,12 +174,12 @@ const PainelNoticias = () => {
   }
 
   return (
-<div style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
-      <h2>Painel de Notícias (admGeral)</h2>
-      <p>Usuário: {user.nome} ({user.tipoUsuario})</p>
+    <div style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
+      <h2>Painel de Notícias (adminGeral)</h2>
+      <p>Usuário: {user?.nome} ({role})</p>
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
-               <div>
+        <div>
           <label>Título:</label><br />
           <input
             type="text"

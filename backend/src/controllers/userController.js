@@ -4,37 +4,27 @@ import fs from 'fs';
 
 export const userController = {
   async getUserData(req, res) {
-    try {
-      const user = await User.findById(req.user.id)
-        .select('-senha -__v -createdAt -updatedAt');
+      try {
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+          return res.status(404).json({
+            success: false,
+            message: "Usuário não encontrado"
+          });
+        }
 
-      if (!user) {
-        return res.status(404).json({
+        res.json({
+          success: true,
+          data: user
+        });
+      } catch (error) {
+        res.status(500).json({
           success: false,
-          message: "Usuário não encontrado"
+          message: "Erro ao processar requisição"
         });
       }
-
-      if (req.query.tipo && user.tipoUsuario !== req.query.tipo) {
-        return res.status(403).json({
-          success: false,
-          message: `Acesso restrito para usuários do tipo ${req.query.tipo}`
-        });
-      }
-
-      return res.json({
-        success: true,
-        data: user
-      });
-
-    } catch (error) {
-      console.error('Erro ao buscar dados do usuário:', error);
-      return res.status(500).json({
-        success: false,
-        message: "Erro ao processar requisição"
-      });
-    }
-  },
+    },
 
   async updateUserData(req, res) {
     try {
@@ -143,35 +133,23 @@ export const userController = {
 
   async getPersonalData(req, res) {
     try {
-      const user = await User.findOne({
-        _id: req.user.id,
-        tipoUsuario: "pessoa"
-      }).select("-senha -__v");
-  
+      const user = await User.findById(req.user.id);
+      
       if (!user) {
         return res.status(404).json({ 
           success: false,
-          message: "Dados pessoais não encontrados" 
+          message: "Usuário não encontrado" 
         });
       }
-  
-      return res.json({
+
+      res.json({
         success: true,
-        data: {
-          id: user._id,
-          nome: user.nome,
-          email: user.email,
-          cpf: user.cpf,
-          endereco: user.endereco,
-          tipoUsuario: user.tipoUsuario
-        }
+        data: user
       });
     } catch (error) {
-      console.error("Erro ao buscar dados pessoais:", error);
-      return res.status(500).json({ 
+      res.status(500).json({ 
         success: false,
-        message: "Erro ao buscar dados pessoais",
-        error: error.message 
+        message: "Erro ao buscar dados pessoais"
       });
     }
   },

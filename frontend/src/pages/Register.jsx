@@ -39,43 +39,55 @@ const Register = ({ onLoginClick }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-     // Ajustar o handleSubmit:
+  try {
+    // Preparar dados para envio
     const userData = {
       email: formData.email,
       senha: formData.senha,
-      telefone: formData.telefone.replace(/\D/g, ''),
+      telefone: formData.telefone,
       endereco: formData.endereco,
       tipoUsuario: userType,
     };
 
-    if (userType === 'pessoa') {
+    // Adicionar campos específicos
+    if (userType === 'pessoa' || userType === 'adminGeral') {
       userData.nome = formData.nome;
-      userData.cpf = formData.cpf.replace(/\D/g, '');
+      userData.cpf = formData.cpf;
     } else if (userType === 'empresa') {
       userData.razaoSocial = formData.razaoSocial;
-      userData.cnpj = formData.cnpj.replace(/\D/g, '');
+      userData.cnpj = formData.cnpj;
     } else if (userType === 'coletor') {
       userData.nomeFantasia = formData.nomeFantasia;
-      userData.cnpj = formData.cnpj.replace(/\D/g, '');
+      userData.cnpj = formData.cnpj;
     }
 
-      console.log("Dados enviados para registro:", userData);
-      await registerUser(userData);
+    console.log("Dados enviados para registro:", userData);
+    const response = await registerUser(userData);
+    
+    if (response && response.token) {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
-    } catch (err) {
-      console.error('Erro ao cadastrar:', err.response?.data || err.message);
-      setError(err.response?.data?.mensagem || err.message || 'Erro ao cadastrar');
-    } finally {
-      setLoading(false);
+    } else {
+      throw new Error('Resposta inválida do servidor');
     }
-  };
+  } catch (err) {
+    console.error('Erro ao cadastrar:', err);
+    
+    // Tratar erros de validação do backend
+    if (err.response?.data?.erros) {
+      setError(err.response.data.erros.join(', '));
+    } else {
+      setError(err.response?.data?.mensagem || err.message || 'Erro ao cadastrar');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="register-modal-content">
@@ -129,10 +141,11 @@ const Register = ({ onLoginClick }) => {
                     required
                   />
                   <IMaskInput
-                     mask={[
+                    mask={[
                       { mask: '(00) 0000-0000' },
                       { mask: '(00) 00000-0000' }
-                    ]}                    name="telefone"
+                    ]}                    
+                    name="telefone"
                     placeholder="Telefone *"
                     value={formData.telefone}
                     onAccept={(value) => handleAccept(value, 'telefone')}

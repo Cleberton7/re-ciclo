@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
 import { loginUser } from "../services/authService";
-import { useAuth } from "../contexts/authFunctions";
+import useAuth from "../contexts/authFunctions";
 
 const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);
@@ -26,16 +26,20 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
     try {
       const response = await loginUser({ email, senha });
-      
+      console.log('Resposta completa da API:', response);
+      console.log('Dados do usuário recebidos:', response.usuario);
+
+
       if (!response?.token || !response?.usuario) {
         throw new Error("Resposta do servidor incompleta");
       }
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.usuario));
-      
-      login(response.usuario.nome, response.usuario.tipoUsuario, response.token);
-      onLoginSuccess(response.usuario.nome, response.usuario.tipoUsuario);
+  
+
+      // Chama o contexto para atualizar o estado global
+      login(response.usuario, response.token);
+      // Callback de sucesso
+      onLoginSuccess();
 
     } catch (err) {
       console.error("Erro no login:", err);
@@ -43,7 +47,9 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
     } finally {
       setLoading(false);
     }
+    
   };
+  
 
   return (
     <div className="login-modal-content">
@@ -75,7 +81,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
               required
               minLength="6"
             />
-            
+
             {error && (
               <div className="error-message">
                 {error}

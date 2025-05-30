@@ -1,8 +1,7 @@
 import Coleta from '../models/coletaModel.js';
-import upload ,{configureUpload} from '../config/multerConfig.js';
-import path from 'path';
-import fs from 'fs';
-const baseUrl = process.env.BASE_URL; 
+import { configureUpload } from '../config/multerConfig.js';
+import upload from '../config/multerConfig.js';
+import { getImageUrl } from '../utils/fileHelper.js';
 
 // Middleware para upload de imagens de coleta
 export const coletaUpload = [
@@ -17,7 +16,7 @@ export const criarSolicitacao = async (req, res) => {
     
     let imagemPath = null;
     if (req.file) {
-      imagemPath = `coletas/${req.file.filename}`; // Caminho relativo padronizado
+      imagemPath = getImageUrl(req, req.file.filename);
     }
 
     const novaColeta = await Coleta.create({
@@ -31,9 +30,11 @@ export const criarSolicitacao = async (req, res) => {
     });
 
     res.status(201).json({
-      ...novaColeta._doc,
-      imagem: imagemPath // Envia apenas o caminho relativo
+      success: true,
+      message: 'Solicitação de coleta criada com sucesso',
+      data: novaColeta
     });
+
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -69,15 +70,10 @@ export const getSolicitacoes = async (req, res) => {
       .populate('coletor', 'nome email telefone')
       .sort({ createdAt: -1 });
 
-    const formatted = solicitacoes.map(coleta => ({
-      ...coleta._doc,
-      imagem: coleta.imagem // Mantém o caminho relativo
-    }));
-
     res.json({
       success: true,
-      count: formatted.length,
-      data: formatted // <-- Usar dados formatados
+      count: solicitacoes.length,
+      data: solicitacoes
     });
   } catch (error) {
     res.status(500).json({
@@ -113,12 +109,8 @@ export const aceitarColeta = async (req, res) => {
     res.json({
       success: true,
       message: "Coleta aceita com sucesso!",
-      data: {
-        ...coleta._doc,
-        imagem: coleta.imagem ? `${process.env.BASE_URL}/uploads/${coleta.imagem}` : null
-      }
+      data: coleta
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -127,44 +119,34 @@ export const aceitarColeta = async (req, res) => {
     });
   }
 };
+
+// Atualizar coleta (com possibilidade de atualizar imagem)
 export const atualizarColeta = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
 
-    // Primeiro busca a coleta existente
-    const coletaExistente = await Coleta.findById(id);
-    
-    if (!coletaExistente) {
-      return res.status(404).json({
-        success: false,
-        message: 'Coleta não encontrada'
-      });
-    }
-
     if (req.file) {
-      // Remove imagem antiga SE EXISTIR
-      if (coletaExistente.imagem) {
-        const oldImage = path.join(process.cwd(), 'uploads', coletaExistente.imagem);
-        if (fs.existsSync(oldImage)) fs.unlinkSync(oldImage);
-      }
-      updateData.imagem = path.join('coletas', req.file.filename);
+      updateData.imagem = getImageUrl(req, req.file.filename);
     }
 
-    // Atualiza após verificação
     const coletaAtualizada = await Coleta.findByIdAndUpdate(
       id, 
       updateData,
       { new: true, runValidators: true }
     ).populate('solicitante', 'nome email');
 
+    if (!coletaAtualizada) {
+      return res.status(404).json({
+        success: false,
+        message: 'Coleta não encontrada'
+      });
+    }
+
     res.json({
       success: true,
       message: 'Coleta atualizada com sucesso',
-      data: {
-        ...coletaAtualizada._doc,
-        imagem: coletaAtualizada.imagem ? `${baseUrl}/uploads/${coletaAtualizada.imagem}` : null
-      }
+      data: coletaAtualizada
     });
 
   } catch (error) {
@@ -175,4 +157,3 @@ export const atualizarColeta = async (req, res) => {
     });
   }
 };
-

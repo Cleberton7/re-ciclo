@@ -57,18 +57,26 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
         const dadosRecebidos = response.data.data || response.data;
 
-        const documento = tipoUsuario === "empresa"
-          ? dadosRecebidos.cnpj || dadosRecebidos.documento || 'Não informado'
-          : dadosRecebidos.cpf || dadosRecebidos.documento || 'Não informado';
+        // Determina o documento correto baseado no tipo de usuário
+        const documento = tipoUsuario === "empresa" || tipoUsuario === "coletor"
+          ? dadosRecebidos.cnpj || 'Não informado'
+          : dadosRecebidos.cpf || 'Não informado';
+
+        // Determina o nome correto baseado no tipo de usuário
+        const nomeExibido = tipoUsuario === "empresa"
+          ? dadosRecebidos.razaoSocial
+          : tipoUsuario === "coletor"
+          ? dadosRecebidos.nomeFantasia
+          : dadosRecebidos.nome;
 
         const dadosFormatados = {
           ...dadosRecebidos,
           documento,
+          nomeExibido,
           email: dadosRecebidos.email || 'Não informado'
         };
 
         setDados(dadosFormatados);
-        console.log('Dados recebidos:', dadosFormatados);
         setTempDados(dadosFormatados);
 
         if (dadosRecebidos.localizacao) {
@@ -137,22 +145,22 @@ const PainelGenerico = ({ tipoUsuario }) => {
     try {
       const formData = new FormData();
       
-      // Campos genéricos para todos os tipos
-      formData.append('documento', tempDados.documento);
-      
+      // Campos comuns para todos os tipos
+      formData.append('telefone', tempDados.telefone || '');
+      formData.append('endereco', tempDados.endereco || '');
+
       // Campos específicos por tipo de usuário
       switch(tipoUsuario) {
         case "empresa":
           formData.append('razaoSocial', tempDados.razaoSocial || '');
-          formData.append('telefone', tempDados.telefone || '');
           break;
         
         case "pessoa":
           formData.append('nome', tempDados.nome || '');
-          formData.append('telefone', tempDados.telefone || '');
           break;
         
         case "coletor":
+          formData.append('nomeFantasia', tempDados.nomeFantasia || '');
           formData.append('veiculo', tempDados.veiculo || '');
           formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
           break;
@@ -163,20 +171,13 @@ const PainelGenerico = ({ tipoUsuario }) => {
         formData.append('imagemPerfil', imageFile);
       }
 
-      const endpoint = {
-        empresa: 'api/empresas/atualizar',
-        pessoa: 'api/usuarios/atualizar',
-        coletor: 'api/coletor/atualizar'
-      }[tipoUsuario];
-
-      const response = await axios.put(`http://localhost:5000/${endpoint}`, formData, {
+      const response = await axios.put(`http://localhost:5000/api/usuario/dados`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      // Atualiza preview da imagem com novo caminho
       const novosDados = response.data.data || response.data;
       setDados(novosDados);
       setImagePreview(novosDados.imagemPerfil 
@@ -195,7 +196,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
       setSaving(false);
     }
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setTempDados(prev => ({ ...prev, [name]: value }));
@@ -348,7 +348,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
   if (!dados) return null;
   
 
-  return (
+   return (
     <div className="painel-container" id="containerPrincipal">
       <div className="painel-header">
         <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'coletor' ? 'Coletor' : 'Usuário'}</h2>
@@ -394,98 +394,53 @@ const PainelGenerico = ({ tipoUsuario }) => {
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
                 />
-                {imagePreview && (
-                  <button 
-                    onClick={() => {
-                      setImagePreview(null);
-                      setImageFile(null);
-                    }} 
-                    className="remove-image-button"
-                  >
-                    Remover
-                  </button>
-                )}
               </div>
             )}
           </div>
 
           <div className="dados-section">
-            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' :tipoUsuario === 'coletor'? 'do centro de Coleta': 'Pessoais'}</h3>
+            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : tipoUsuario === 'coletor' ? 'do Coletor' : 'Pessoais'}</h3>
             
             <div className="info-row">
               <span>Email:</span>
-              {editing ? (
-                <input
-                  type="email"
-                  value={tempDados.email || ''}
-                  onChange={handleInputChange}
-                  name="email"
-                  disabled // Email não pode ser editado
-                />
-              ) : (
-                <strong>{dados.email}</strong>
-              )}
+              <strong>{dados.email}</strong>
             </div>
 
             <div className="info-row">
               <span>{tipoUsuario === "empresa" || tipoUsuario === "coletor" ? "CNPJ" : "CPF"}:</span>
+              <strong>{dados.documento}</strong>
+            </div>
+
+            <div className="info-row">
+              <span>{tipoUsuario === "empresa" ? "Razão Social" : tipoUsuario === "coletor" ? "Nome Fantasia" : "Nome"}:</span>
               {editing ? (
                 <input
                   type="text"
-                  value={tempDados.cnpj || ''}
+                  value={tempDados.nomeExibido || ''}
                   onChange={handleInputChange}
-                  name="documento"
-                  disabled // Documento não pode ser editado
+                  name={tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"}
                 />
               ) : (
-                <strong>{dados.cnpj}</strong>
+                <strong>{dados.nomeExibido}</strong>
               )}
             </div>
 
-            {(tipoUsuario === "empresa" ||  tipoUsuario === "coletor" )&& (
-              <div className="info-row">
-                <span>{tipoUsuario === "empresa" ? "Razão Social" : "Nome Fantasia"}:</span>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={
-                      tempDados.nomeFantasia === 'empresa'
-                      ? tempDados.razaoSocial || ''
-                      : tempDados.nomeFantasia|| ''}
-                    onChange={handleInputChange}
-                    name={ tipoUsuario === "empresa"?"razãoSocial" : "nomeFantasia"}
-                  />
-                ) : (
-                      <strong>
-                        {tipoUsuario === "empresa" 
-                          ? dados.razaoSocial 
-                          : dados.nomeFantasia || 'Não informado'}
-                      </strong>
-                )}
-              </div>
-            )}
-
-            {(tipoUsuario === "pessoa" || tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
-              <div className="info-row">
-                <span>
-                  {tipoUsuario === "empresa" ? "Telefone Comercial" :
-                  tipoUsuario === "coletor" ? "Telefone Comercial" :
-                  "Telefone"}:
-                </span>
-                {editing ? (
-                  <IMaskInput
-                    mask="(00) 0 0000-0000"
-                    name="telefone"
-                    placeholder="Telefone Comercial *"
-                    value={tempDados.telefone || ''}
-                    onChange={handleInputChange}
-                    required
-                  />
-                ) : (
-                  <strong>{dados.telefone || 'Não informado'}</strong>
-                )}
-              </div>
-            )}
+            <div className="info-row">
+              <span>Telefone:</span>
+              {editing ? (
+                <IMaskInput
+                  mask={[
+                    { mask: '(00) 0000-0000' },
+                    { mask: '(00) 00000-0000' }
+                  ]}
+                  name="telefone"
+                  value={tempDados.telefone || ''}
+                  onAccept={(value) => setTempDados(prev => ({ ...prev, telefone: value }))}
+                />
+              ) : (
+                <strong>{dados.telefone || 'Não informado'}</strong>
+              )}
+            </div>
 
             {tipoUsuario === "coletor" && (
               <>
@@ -503,7 +458,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
                   )}
                 </div>
                 <div className="info-row">
-                  <span>Capacidade de Coleta:</span>
+                  <span>Capacidade de Coleta (kg):</span>
                   {editing ? (
                     <input
                       type="number"
@@ -519,12 +474,14 @@ const PainelGenerico = ({ tipoUsuario }) => {
             )}
           </div>
         </div>
-
         {(tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
           <div className="localizacao-section">
             <h3>Localização</h3>
             <div className="info-row">
-              <button onClick={handleGetCurrentLocation} className="location-button">
+              <button 
+                onClick={handleGetCurrentLocation} 
+                className="location-button"
+              >
                 Usar localização atual
               </button>
             </div>
@@ -538,7 +495,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
                 {lat && lng && (
                   <AdvancedMarker
                     position={{ lat: Number(lat), lng: Number(lng) }}
-                    title={dados.nome || dados.razaoSocial}
+                    title={dados.nomeExibido}
                   >
                     <div className="marker">
                       {tipoUsuario === "empresa" ? 'E' : 'C'}

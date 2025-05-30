@@ -8,7 +8,7 @@ async function deleteAdmin() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-    const result = await User.deleteOne({ tipoUsuario: 'admGeral' });
+    const result = await User.deleteOne({ tipoUsuario: 'adminGeral' });
     
     if (result.deletedCount > 0) {
       console.log('Admin deletado com sucesso.');
