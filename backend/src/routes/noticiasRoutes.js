@@ -4,23 +4,29 @@ import {
   listarNoticias,
   buscarNoticiaPorSlug,
   atualizarNoticia,
-  deletarNoticia,
-  noticiaUpload
+  deletarNoticia
 } from '../controllers/noticiaController.js';
-
 import { verifyToken, requireLogin, checkUserType } from '../middlewares/authMiddleware.js';
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 
 const router = express.Router();
 
-const apenasAdmGeral = [verifyToken, requireLogin, checkUserType(['admGeral'])];
+// Configuração do upload para notícias
+const noticiaUpload = createUploader({
+  subfolder: 'noticias',
+  fieldName: 'image',
+  allowedTypes: ['IMAGE']
+});
+
+const apenasAdmGeral = [verifyToken, requireLogin, checkUserType(['adminGeral'])];
 
 // Rotas públicas
 router.get('/', listarNoticias);
 router.get('/:slug', buscarNoticiaPorSlug);
 
 // Rotas protegidas
-router.post('/', ...apenasAdmGeral, noticiaUpload, criarNoticia);
-router.put('/:id', ...apenasAdmGeral, noticiaUpload, atualizarNoticia);
+router.post('/', noticiaUpload, ...apenasAdmGeral, uploadErrorHandler, criarNoticia);
+router.put('/:id', noticiaUpload, ...apenasAdmGeral, uploadErrorHandler, atualizarNoticia);
 router.delete('/:id', ...apenasAdmGeral, deletarNoticia);
 
 export default router;

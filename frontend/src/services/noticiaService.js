@@ -26,7 +26,10 @@ const getAuthHeader = () => {
     return {};
   }
 
-  return { Authorization: `Bearer ${token}` };
+  return { 
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json' // Adicione isso para requisições JSON
+  };
 };
 
 export const listarNoticias = async () => {

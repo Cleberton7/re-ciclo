@@ -1,13 +1,12 @@
 import Coleta from '../models/coletaModel.js';
-import { configureUpload } from '../config/multerConfig.js';
-import upload from '../config/multerConfig.js';
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 import { getImageUrl } from '../utils/fileHelper.js';
 
-// Middleware para upload de imagens de coleta
-export const coletaUpload = [
-  configureUpload('coletas'),
-  upload.single('imagem')
-];
+export const coletaUpload = createUploader({
+  subfolder: 'coletas',
+  fieldName: 'imagem',
+  allowedTypes: ['IMAGE']
+});
 
 // Criar solicitação de coleta (com imagem)
 export const criarSolicitacao = async (req, res) => {
@@ -16,7 +15,7 @@ export const criarSolicitacao = async (req, res) => {
     
     let imagemPath = null;
     if (req.file) {
-      imagemPath = getImageUrl(req, req.file.filename);
+      imagemPath = `/uploads/coletas/${req.file.filename}`;
     }
 
     const novaColeta = await Coleta.create({
@@ -66,16 +65,23 @@ export const getSolicitacoes = async (req, res) => {
     if (status) filter.status = status;
 
     const solicitacoes = await Coleta.find(filter)
-      .populate('solicitante', 'nome email telefone')
-      .populate('coletor', 'nome email telefone')
-      .sort({ createdAt: -1 });
+          .populate('solicitante', 'nome email telefone')
+          .populate('coletor', 'nome email telefone')
+          .sort({ createdAt: -1 })
+          .lean();
 
-    res.json({
-      success: true,
-      count: solicitacoes.length,
-      data: solicitacoes
-    });
-  } catch (error) {
+        // Adiciona URL completa para imagens
+        const results = solicitacoes.map(coleta => ({
+          ...coleta,
+          imagem: coleta.imagem ? `${req.protocol}://${req.get('host')}${coleta.imagem}` : null
+        }));
+
+        res.json({
+          success: true,
+          count: results.length,
+          data: results
+        });
+    } catch (error) {
     res.status(500).json({
       success: false,
       message: "Erro ao buscar solicitações",

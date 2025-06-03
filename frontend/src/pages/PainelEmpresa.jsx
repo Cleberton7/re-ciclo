@@ -105,17 +105,21 @@ const PainelEmpresa = () => {
                     ? new Date(res.createdAt).toLocaleDateString()
                     : "-"}
                 </td>
-                <td>
-                  {res.imagem ? (
-                    <img
-                      src={res.imagem} // ✅ Usa direto a URL completa salva no banco
-                      alt="Resíduo"
-                      className="imagem-residuo"
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </td>
+            <td>
+              {res.imagem ? (
+                <img
+                  src={res.imagem}
+                  alt={`Resíduo de ${res.tipoMaterial}`}
+                  className="imagem-residuo"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/imagem-padrao.jpg";
+                  }}
+                />
+              ) : (
+                <span className="sem-imagem">-</span>
+              )}
+            </td>
               </tr>
             ))}
           </tbody>

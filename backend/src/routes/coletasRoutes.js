@@ -1,8 +1,17 @@
 import express from 'express';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 import Coleta from '../models/coletaModel.js';
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 
 const router = express.Router();
+
+// Configuração do upload para coletas
+const coletaUpload = createUploader({
+  subfolder: 'coletas',
+  fieldName: 'imagem',
+  allowedTypes: ['IMAGE'],
+  maxFileSize: 5 * 1024 * 1024 // 5MB
+});
 
 // GET /api/coletas - Listar coletas com filtros
 router.get('/', verifyToken, async (req, res) => {
@@ -49,7 +58,7 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 // POST /api/coletas - Criar nova solicitação de coleta
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, coletaUpload, uploadErrorHandler, async (req, res) => {
   try {
     const { tipoMaterial, quantidade, endereco, observacoes } = req.body;
     
@@ -58,7 +67,8 @@ router.post('/', verifyToken, async (req, res) => {
       tipoMaterial,
       quantidade,
       endereco,
-      observacoes
+      observacoes,
+      ...(req.file && { imagem: `/uploads/coletas/${req.file.filename}` })
     });
 
     res.status(201).json({
@@ -66,7 +76,6 @@ router.post('/', verifyToken, async (req, res) => {
       message: 'Solicitação de coleta criada com sucesso',
       data: novaColeta
     });
-
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -75,5 +84,6 @@ router.post('/', verifyToken, async (req, res) => {
     });
   }
 });
+
 
 export default router;

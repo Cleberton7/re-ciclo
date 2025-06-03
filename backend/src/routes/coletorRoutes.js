@@ -1,9 +1,16 @@
 import express from 'express';
 import { verifyToken, checkUserType } from '../middlewares/authMiddleware.js';
 import User from '../models/User.js';
-import upload, { configureUpload } from '../config/multerConfig.js';
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 
 const router = express.Router();
+
+// Configuração do upload para coletores
+const uploadColetor = createUploader({
+  subfolder: 'coletores',
+  fieldName: 'imagemPerfil',
+  allowedTypes: ['IMAGE']
+});
 
 // GET dados do coletor logado
 router.get('/dados', verifyToken, checkUserType(['coletor']), async (req, res) => {
@@ -98,15 +105,14 @@ router.put(
   '/atualizar',
   verifyToken,
   checkUserType(['coletor']),
-  configureUpload('coletores'), // Define a pasta de upload
-  upload.single('imagemPerfil'), // Processa o arquivo
+  uploadColetor,
+  uploadErrorHandler,
   async (req, res) => {
     try {
       const updates = req.body;
 
-      // Adiciona o caminho da imagem se houver upload
       if (req.file) {
-        updates.imagemPerfil = `coletores/${req.file.filename}`;
+        updates.imagemPerfil = `/uploads/coletores/${req.file.filename}`;
       }
 
       const coletor = await User.findByIdAndUpdate(
@@ -120,7 +126,6 @@ router.put(
         message: 'Dados atualizados com sucesso',
         data: coletor 
       });
-
     } catch (error) {
       res.status(400).json({ 
         success: false, 

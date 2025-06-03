@@ -14,6 +14,7 @@ const PainelNoticias = () => {
   const [noticias, setNoticias] = useState([]);
   const [form, setForm] = useState({ title: '', content: '', tags: '' });
   const [imageFile, setImageFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,7 +25,14 @@ const PainelNoticias = () => {
     setLoading(true);
     try {
       const data = await listarNoticias();
-      setNoticias(data);
+      // Garante que todas as imagens tenham URLs completas
+      const noticiasComImagens = data.map(noticia => ({
+        ...noticia,
+        image: noticia.image && !noticia.image.startsWith('http') 
+          ? `${ 'http://localhost:5000'}${noticia.image}`
+          : noticia.image
+      }));
+      setNoticias(noticiasComImagens);
     } catch (err) {
       console.error('Erro ao carregar notícias:', err);
       setError('Erro ao carregar notícias');
@@ -52,13 +60,22 @@ const PainelNoticias = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setImageFile(file);
+      
+      // Criar preview da imagem
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const limparForm = () => {
     setForm({ title: '', content: '', tags: '' });
     setImageFile(null);
+    setPreviewImage(null);
     setEditId(null);
     setError('');
     setSuccessMsg('');
@@ -131,6 +148,9 @@ const PainelNoticias = () => {
       content: noticia.content,
       tags: noticia.tags ? noticia.tags.join(', ') : ''
     });
+    
+    // Configura a pré-visualização da imagem existente
+    setPreviewImage(noticia.image || null);
     setImageFile(null);
     setError('');
     setSuccessMsg('');
@@ -166,7 +186,7 @@ const PainelNoticias = () => {
 
   if (role !== 'adminGeral') {
     return (
-      <div style={{ padding: '1rem', textAlign: 'center' }}>
+      <div className="painel-noticias-container">
         <h2>Acesso Restrito</h2>
         <p>Você precisa ser um administrador geral para acessar esta página.</p>
       </div>
@@ -174,95 +194,120 @@ const PainelNoticias = () => {
   }
 
   return (
-    <div style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
-      <h2>Painel de Notícias (adminGeral)</h2>
-      <p>Usuário: {user?.nome} ({role})</p>
+    <div className="painel-noticias-container" id='containerPrincipal'>
+      <h3>Painel de Notícias</h3>
+      <div className='formNoticia'>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
-        <div>
-          <label>Título:</label><br />
-          <input
-            type="text"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-            style={{ width: '100%' }}
-          />
-        </div>
+        <p className="user-info">Usuário: {user?.nome} ({role})</p>
 
-        <div>
-          <label>Conteúdo:</label><br />
-          <textarea
-            name="content"
-            value={form.content}
-            onChange={handleChange}
-            required
-            rows={6}
-            style={{ width: '100%' }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} >
+          <div className="form-group">
+            <label>Título:</label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label>Imagem:</label><br />
-          <input
-            type="file"
-            name="imageFile"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          {imageFile && <p>Imagem selecionada: {imageFile.name}</p>}
-        </div>
+          <div className="form-group">
+            <label>Conteúdo:</label>
+            <textarea
+              name="content"
+              value={form.content}
+              onChange={handleChange}
+              required
+              rows={6}
+            />
+          </div>
 
-        <div>
-          <label>Tags (separadas por vírgula):</label><br />
-          <input
-            type="text"
-            name="tags"
-            value={form.tags}
-            onChange={handleChange}
-            placeholder="tag1, tag2, tag3"
-            style={{ width: '100%' }}
-          />
-        </div>
+          <div className="form-group">
+            <label>Imagem:</label>
+            <input
+              type="file"
+              name="imageFile"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            {(previewImage || imageFile) && (
+              <div className="image-preview">
+                <img 
+                  src={previewImage} 
+                  alt="Preview" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/imagem-padrao.jpg';
+                  }}
+                />
+                {imageFile && <p>Arquivo selecionado: {imageFile.name}</p>}
+              </div>
+            )}
+          </div>
 
-        <button type="submit" style={{ marginTop: '1rem' }}>
-          {editId ? 'Atualizar Notícia' : 'Criar Notícia'}
-        </button>
+          <div className="form-group">
+            <label>Tags (separadas por vírgula):</label>
+            <input
+              type="text"
+              name="tags"
+              value={form.tags}
+              onChange={handleChange}
+              placeholder="tag1, tag2, tag3"
+            />
+          </div>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {successMsg && <p style={{ color: 'green' }}>{successMsg}</p>}
-      </form>
+          <button type="submit" className="submit-button">
+            {editId ? 'Atualizar Notícia' : 'Criar Notícia'}
+          </button>
 
-      <hr />
+          {error && <p className="error-message">{error}</p>}
+          {successMsg && <p className="success-message">{successMsg}</p>}
+        </form>
+      </div>
 
-      <h3>Notícias Cadastradas</h3>
-      {loading ? (
-        <p>Carregando...</p>
-      ) : error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : noticias.length === 0 ? (
-        <p>Nenhuma notícia encontrada.</p>
-      ) : (
-        <ul>
-          {noticias.map(noticia => (
-            <li key={noticia._id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '0.5rem' }}>
-              <h4>{noticia.title}</h4>
-              {noticia.image && (
-                <img src={noticia.image} alt={noticia.title} style={{ maxWidth: 200, maxHeight: 120, objectFit: 'cover' }} />
-              )}
-              <p>{noticia.content.substring(0, 150)}...</p>
-              <p><small>Tags: {noticia.tags.join(', ')}</small></p>
-              <button onClick={() => handleEditar(noticia)} style={{ marginRight: '0.5rem' }}>
-                Editar
-              </button>
-              <button onClick={() => handleDeletar(noticia._id)}>
-                Deletar
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="noticias-list">
+        <h3>Notícias Cadastradas</h3>
+        {loading ? (
+          <p>Carregando...</p>
+        ) : error ? (
+          <p className="error-message">{error}</p>
+        ) : noticias.length === 0 ? (
+          <p>Nenhuma notícia encontrada.</p>
+        ) : (
+          <ul>
+            {noticias.map(noticia => (
+              <li key={noticia._id} className="noticia-item">
+                <div className="noticia-image">
+                  {noticia.image && (
+                    <img 
+                      src={noticia.image} 
+                      alt={noticia.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/imagem-padrao.jpg';
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="noticia-content">
+                  <h4>{noticia.title}</h4>
+                  <p>{noticia.content.substring(0, 150)}...</p>
+                  <p className="noticia-tags"><small>Tags: {noticia.tags?.join(', ') || 'Nenhuma'}</small></p>
+                  <div className="noticia-actions">
+                    <button onClick={() => handleEditar(noticia)} className="edit-button">
+                      Editar
+                    </button>
+                    <button onClick={() => handleDeletar(noticia._id)} className="delete-button">
+                      Deletar
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };

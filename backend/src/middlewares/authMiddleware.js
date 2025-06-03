@@ -68,6 +68,6 @@ export const checkUserType = (tiposPermitidos) => (req, res, next) => {
 };
 
 // Funções específicas para tipos de usuário
-export const verificarAdmGeral = checkUserType(['admGeral']);
+export const verificarAdmGeral = checkUserType(['adminGeral']);
 export const verificarColetor = checkUserType(['coletor']);
 export const verificarEmpresa = checkUserType(['empresa']);

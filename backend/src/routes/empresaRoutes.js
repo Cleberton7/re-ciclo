@@ -1,11 +1,17 @@
 import express from 'express';
 import { verifyToken, checkUserType } from '../middlewares/authMiddleware.js';
 import User from '../models/User.js';
-import upload, { configureUpload } from '../config/multerConfig.js';
-
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 
 const router = express.Router();
 
+// Configuração do upload para empresas
+const uploadEmpresa = createUploader({
+  subfolder: 'empresas',
+  fieldName: 'imagemPerfil',
+  allowedTypes: ['IMAGE'],
+  maxFileSize: 2 * 1024 * 1024 // 2MB
+});
 router.get('/dados', verifyToken, checkUserType(['empresa']), async (req, res) => {
   try {
     const empresa = await User.findById(req.user.id).select('-senha -__v -createdAt -updatedAt');
@@ -91,15 +97,14 @@ router.put(
   '/atualizar',
   verifyToken,
   checkUserType(['empresa']),
-  configureUpload('empresas'), // Define a pasta de upload
-  upload.single('imagemPerfil'), // Processa o arquivo
+  uploadEmpresa,
+  uploadErrorHandler,
   async (req, res) => {
     try {
       const updates = req.body;
 
-      // Adiciona o caminho da imagem se houver upload
       if (req.file) {
-        updates.imagemPerfil = `empresas/${req.file.filename}`;
+        updates.imagemPerfil = `/uploads/empresas/${req.file.filename}`;
       }
 
       const empresa = await User.findByIdAndUpdate(
@@ -113,7 +118,6 @@ router.put(
         message: 'Dados atualizados com sucesso',
         data: empresa 
       });
-
     } catch (error) {
       res.status(400).json({ 
         success: false, 
@@ -123,5 +127,4 @@ router.put(
     }
   }
 );
-
 export default router;

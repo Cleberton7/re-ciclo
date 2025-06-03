@@ -9,7 +9,7 @@ const coletaSchema = new mongoose.Schema({
   tipoMaterial: {
     type: String,
     required: true,
-    enum: ['eletrônicos', 'metais', 'plásticos', 'vidro', 'papel', 'orgânicos', 'outros'],
+    enum: ['eletrônicos', 'metais', 'plásticos', 'outros'],
     default: 'outros'
   },
   quantidade: {

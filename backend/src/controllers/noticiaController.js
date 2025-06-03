@@ -1,14 +1,14 @@
 import Noticia from '../models/noticiaModel.js';
-import upload, {configureUpload} from '../config/multerConfig.js';
+import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
 
 const baseUrl = 'http://localhost:5000';
 
 // Middleware de upload específico para notícias
-export const noticiaUpload = [
-  configureUpload('noticias'), // Configura o multer para usar a pasta uploads/noticias
-  upload.single('image')       // Processa o upload
-];
-
+export const noticiaUpload = createUploader({
+  subfolder: 'noticias',
+  fieldName: 'image',
+  allowedTypes: ['IMAGE']
+});
 // Função auxiliar para tratar tags
 const parseTags = (tags) => {
   if (!tags) return [];
@@ -29,7 +29,7 @@ export const criarNoticia = async (req, res) => {
 
     let imagePath = null;
     if (req.file) {
-      imagePath = `${baseUrl}/uploads/noticias/${req.file.filename}`;
+      imagePath = `/uploads/noticias/${req.file.filename}`;
     }
 
     const noticia = new Noticia({
@@ -42,7 +42,6 @@ export const criarNoticia = async (req, res) => {
 
     const savedNoticia = await noticia.save();
     res.status(201).json(savedNoticia);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
