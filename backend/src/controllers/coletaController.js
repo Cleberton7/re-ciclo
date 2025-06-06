@@ -1,49 +1,35 @@
 import Coleta from '../models/coletaModel.js';
-import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
-import { getImageUrl } from '../utils/fileHelper.js';
+import { getImagePath, getFullImageUrl } from '../utils/fileHelper.js';
 
-export const coletaUpload = createUploader({
-  subfolder: 'coletas',
-  fieldName: 'imagem',
-  allowedTypes: ['IMAGE']
-});
-
-// Criar solicitação de coleta (com imagem)
 export const criarSolicitacao = async (req, res) => {
   try {
     const { tipoMaterial, quantidade, endereco, observacoes } = req.body;
     
-    let imagemPath = null;
-    if (req.file) {
-      imagemPath = `/uploads/coletas/${req.file.filename}`;
-    }
-
     const novaColeta = await Coleta.create({
       solicitante: req.user.id,
       tipoMaterial,
       quantidade,
       endereco,
       observacoes,
-      imagem: imagemPath,
+      imagem: req.file ? getImagePath(req, req.file.filename) : null,
       status: 'pendente'
     });
 
     res.status(201).json({
       success: true,
-      message: 'Solicitação de coleta criada com sucesso',
-      data: novaColeta
+      data: {
+        ...novaColeta.toObject(),
+        imagem: getFullImageUrl(req, novaColeta.imagem)
+      }
     });
-
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: 'Erro ao criar solicitação de coleta',
-      error: error.message
+      error: 'Erro ao criar solicitação'
     });
   }
 };
 
-// Busca solicitações de coleta com filtros
 export const getSolicitacoes = async (req, res) => {
   try {
     const { tipoMaterial, status } = req.query;
@@ -65,32 +51,25 @@ export const getSolicitacoes = async (req, res) => {
     if (status) filter.status = status;
 
     const solicitacoes = await Coleta.find(filter)
-          .populate('solicitante', 'nome email telefone')
-          .populate('coletor', 'nome email telefone')
-          .sort({ createdAt: -1 })
-          .lean();
+      .populate('solicitante', 'nome email telefone')
+      .populate('coletor', 'nome email telefone')
+      .sort({ createdAt: -1 })
+      .lean();
 
-        // Adiciona URL completa para imagens
-        const results = solicitacoes.map(coleta => ({
-          ...coleta,
-          imagem: coleta.imagem ? `${req.protocol}://${req.get('host')}${coleta.imagem}` : null
-        }));
+    const results = solicitacoes.map(coleta => ({
+      ...coleta,
+      imagem: getFullImageUrl(req, coleta.imagem)
+    }));
 
-        res.json({
-          success: true,
-          count: results.length,
-          data: results
-        });
-    } catch (error) {
+    res.json({ success: true, data: results });
+  } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Erro ao buscar solicitações",
-      error: error.message
+      error: 'Erro ao buscar solicitações'
     });
   }
 };
 
-// Aceitar uma coleta (para coletores)
 export const aceitarColeta = async (req, res) => {
   try {
     const { id } = req.params;
@@ -114,26 +93,26 @@ export const aceitarColeta = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Coleta aceita com sucesso!",
-      data: coleta
+      data: {
+        ...coleta.toObject(),
+        imagem: getFullImageUrl(req, coleta.imagem)
+      }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Erro ao aceitar coleta",
-      error: error.message
+      error: "Erro ao aceitar coleta"
     });
   }
 };
 
-// Atualizar coleta (com possibilidade de atualizar imagem)
 export const atualizarColeta = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
 
     if (req.file) {
-      updateData.imagem = getImageUrl(req, req.file.filename);
+      updateData.imagem = getImagePath(req, req.file.filename);
     }
 
     const coletaAtualizada = await Coleta.findByIdAndUpdate(
@@ -151,15 +130,59 @@ export const atualizarColeta = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Coleta atualizada com sucesso',
-      data: coletaAtualizada
+      data: {
+        ...coletaAtualizada.toObject(),
+        imagem: getFullImageUrl(req, coletaAtualizada.imagem)
+      }
     });
-
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: 'Erro ao atualizar coleta',
-      error: error.message
+      error: 'Erro ao atualizar coleta'
+    });
+  }
+};
+export const deletarColeta = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userType = req.user.tipoUsuario;
+
+    // Verifica se a coleta existe e pertence ao usuário
+    const coleta = await Coleta.findOne({
+      _id: id,
+      $or: [
+        { solicitante: userId },
+        { coletor: userId }
+      ]
+    });
+
+    if (!coleta) {
+      return res.status(404).json({
+        success: false,
+        message: 'Coleta não encontrada ou você não tem permissão para excluí-la'
+      });
+    }
+
+    // Verifica se a coleta pode ser deletada (apenas pendentes ou canceladas)
+    if (!['pendente', 'cancelada'].includes(coleta.status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Só é possível excluir coletas pendentes ou canceladas'
+      });
+    }
+
+    await Coleta.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Coleta excluída com sucesso'
+    });
+  } catch (error) {
+    console.error('Erro ao deletar coleta:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erro ao excluir coleta'
     });
   }
 };

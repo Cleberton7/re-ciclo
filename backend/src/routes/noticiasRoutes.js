@@ -7,7 +7,8 @@ import {
   deletarNoticia
 } from '../controllers/noticiaController.js';
 import { verifyToken, requireLogin, checkUserType } from '../middlewares/authMiddleware.js';
-import { createUploader, uploadErrorHandler } from '../config/multerConfig.js';
+import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
+
 
 const router = express.Router();
 

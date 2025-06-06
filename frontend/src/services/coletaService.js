@@ -2,45 +2,87 @@ import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const getSolicitacoesColeta = async (filters = {}) => {
   try {
-    const token = localStorage.getItem('token');
-    
     const params = new URLSearchParams();
     if (filters.tipoMaterial) params.append('tipoMaterial', filters.tipoMaterial);
     if (filters.status) params.append('status', filters.status);
     
-    const response = await axios.get(`${API_BASE}/coletas?${params.toString()}`, {
-      headers: { Authorization: `Bearer ${token}` }
+    const { data } = await axios.get(`${API_BASE}/coletas?${params.toString()}`, {
+      headers: getAuthHeader()
     });
 
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Erro ao buscar coletas');
-    }
-
-    return response.data.data;
-
+    if (!data.success) throw new Error(data.message || 'Erro ao buscar coletas');
+    
+    return data.data.map(coleta => ({
+      ...coleta,
+      imagem: coleta.imagem?.startsWith('http') 
+        ? coleta.imagem 
+        : `${API_BASE}${coleta.imagem}`
+    }));
   } catch (error) {
-    console.error('Erro ao buscar solicitações:', error);
-    throw new Error(error.response?.data?.message || 'Erro ao buscar solicitações de coleta');
+    console.error('Erro ao buscar coletas:', error);
+    throw new Error(error.response?.data?.error || 'Erro ao buscar coletas');
   }
 };
 
-export const criarSolicitacaoColeta = async (dadosColeta) => {
+export const criarSolicitacaoColeta = async (formData) => {
   try {
-    const token = localStorage.getItem('token');
-    
-    const response = await axios.post(`${API_BASE}/coletas`, dadosColeta, {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data'
       }
     });
-
-    return response.data;
-
+    return data;
   } catch (error) {
     console.error('Erro ao criar solicitação:', error);
-    throw new Error(error.response?.data?.message || 'Erro ao criar solicitação de coleta');
+    throw new Error(error.response?.data?.error || 'Erro ao criar solicitação');
   }
-}
+};
+
+export const atualizarSolicitacaoColeta = async (id, formData) => {
+  try {
+    const { data } = await axios.put(`${API_BASE}/coletas/${id}`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return data;
+  } catch (error) {
+    console.error('Erro ao atualizar solicitação:', error);
+    throw new Error(error.response?.data?.error || 'Erro ao atualizar solicitação');
+  }
+};
+
+export const deletarSolicitacaoColeta = async (id) => {
+  try {
+    const { data } = await axios.delete(`${API_BASE}/coletas/${id}`, {
+      headers: getAuthHeader(),
+      validateStatus: (status) => status < 500 // Para capturar erros 400 e 404 como respostas normais
+    });
+
+    if (!data.success) {
+      throw new Error(data.message || 'Não foi possível excluir a solicitação');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erro ao deletar solicitação:', error);
+    
+    let errorMessage = 'Erro ao deletar solicitação';
+    if (error.response) {
+      errorMessage = error.response.data.message || 
+                    error.response.data.error || 
+                    errorMessage;
+    }
+    
+    throw new Error(errorMessage);
+  }
+};

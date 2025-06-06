@@ -2,12 +2,9 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
 
-// Tipos de mídia permitidos com suas extensões
 const MEDIA_TYPES = {
   IMAGE: {
     mimes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -19,18 +16,12 @@ const MEDIA_TYPES = {
   }
 };
 
-// Configuração de storage dinâmica
 const createStorage = (subfolder = 'generic') => {
   return multer.diskStorage({
     destination: async (req, file, cb) => {
       const uploadDir = path.join(__dirname, '../../uploads', subfolder);
-      
-      try {
-        await fs.mkdir(uploadDir, { recursive: true });
-        cb(null, uploadDir);
-      } catch (err) {
-        cb(err);
-      }
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();
@@ -40,7 +31,6 @@ const createStorage = (subfolder = 'generic') => {
   });
 };
 
-// Filtro de arquivos dinâmico
 const createFileFilter = (allowedTypes = ['IMAGE']) => {
   return (req, file, cb) => {
     const allowedMimes = [];
@@ -66,12 +56,11 @@ const createFileFilter = (allowedTypes = ['IMAGE']) => {
   };
 };
 
-// Middleware de upload configurável
-export const createUploader = ({
+const createUploader = ({
   subfolder = 'generic',
   fieldName = 'file',
   allowedTypes = ['IMAGE'],
-  maxFileSize = 5 * 1024 * 1024, // 5MB
+  maxFileSize = 5 * 1024 * 1024,
   maxFiles = 1
 } = {}) => {
   const upload = multer({
@@ -82,32 +71,31 @@ export const createUploader = ({
       files: maxFiles
     }
   });
-  
-  // Retorna o middleware configurado
-  if (maxFiles > 1) {
-    return upload.array(fieldName, maxFiles);
-  }
-  return upload.single(fieldName);
+
+  const middleware = (req, res, next) => {
+    req.uploadType = subfolder;
+    if (maxFiles > 1) {
+      upload.array(fieldName, maxFiles)(req, res, next);
+    } else {
+      upload.single(fieldName)(req, res, next);
+    }
+  };
+
+  middleware.upload = upload;
+  return middleware;
 };
 
-// Middleware de tratamento de erros
+export default createUploader;
+
 export const uploadErrorHandler = (err, req, res, next) => {
   if (err) {
-    if (err instanceof multer.MulterError) {
-      return res.status(400).json({
-        success: false,
-        error: err.code === 'LIMIT_FILE_SIZE' 
-          ? 'Arquivo muito grande' 
-          : 'Erro no upload do arquivo'
-      });
-    }
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
-      error: err.message
+      error: err.message.includes('Tipo de arquivo') 
+        ? err.message 
+        : 'Erro no upload do arquivo'
     });
+  } else {
+    next();
   }
-  next();
 };
-
-
-export default createUploader();
