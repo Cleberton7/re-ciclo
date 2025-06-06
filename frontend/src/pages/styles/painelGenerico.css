@@ -2,7 +2,6 @@
 
   margin: 20px auto;
   padding: 20px;
-  
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f9f9f9;
   border-radius: 10px;
@@ -28,15 +27,15 @@
   gap: 10px;
 }
 
-button {
-  padding: 10px 15px;
+.edit-button, .save-button, .cancel-button, 
+.delete-account-button, .upload-button {
+  padding: 8px 16px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
-
 .edit-button {
   background-color: #3498db;
   color: white;
@@ -63,7 +62,15 @@ button {
 .cancel-button:hover {
   background-color: #c0392b;
 }
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+}
 
+.delete-account-button:hover {
+  background-color: #c82333;
+}
+/*######################################################*/
 .location-button {
   background-color: #9b59b6;
   color: white;
@@ -98,7 +105,7 @@ button {
   flex-direction: column;
   gap: 20px;
 }
-
+/*######################################################*/
 .image-upload {
   display: flex;
   flex-direction: column;
@@ -107,31 +114,40 @@ button {
 }
 
 .image-preview {
-  width: 200px;
-  height: 200px;
-  border-radius: 10px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
   overflow: hidden;
-  background-color: #ecf0f1;
+  margin: 0 auto 15px;
+  border: 3px solid #009951;
   display: flex;
-  justify-content: center;
   align-items: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  background-color: #f5f5f5;
 }
+
 
 .image-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  color: #666;
+  font-size: 14px;
   text-align: center;
-  color: #7f8c8d;
-  padding: 20px;
+  padding: 10px;
 }
 
 .upload-controls {
   display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -149,18 +165,81 @@ button {
 }
 
 .remove-image-button {
-  padding: 8px 15px;
-  background-color: #e74c3c;
+  background-color: #dc3545;
   color: white;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .remove-image-button:hover {
-  background-color: #c0392b;
+  background-color: #c82333;
+}
+/* Modal de exclusão */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
+.delete-modal {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.delete-modal h3 {
+  color: #dc3545;
+  margin-top: 0;
+}
+
+.delete-modal p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirm-delete-button {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirm-delete-button:hover {
+  background-color: #c82333;
+}
+
+.cancel-delete-button {
+  background-color: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-delete-button:hover {
+  background-color: #5a6268;
+}
 .dados-section {
   background-color: white;
   padding: 25px;
@@ -207,8 +286,14 @@ button {
   border-radius: 4px;
   width: 200px;
   font-size: 14px;
+  transition: all 0.3s;
 }
 
+.info-row input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  outline: none;
+}
 .localizacao-section {
   flex: 1;
   min-width: 400px;
@@ -252,15 +337,26 @@ button {
   font-weight: bold;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
 }
 
-.error {
-  color: #e74c3c;
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+  color: #dc3545;
 }
+
 
 .error button {
   margin-top: 15px;
@@ -272,11 +368,21 @@ button {
   background-color: #2980b9;
 }
 
+
 @media (max-width: 768px) {
   .painel-content {
     flex-direction: column;
   }
+    .painel-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
   
+  .action-buttons {
+    width: 100%;
+    justify-content: center;
+  }
   .profile-section, .localizacao-section {
     min-width: 100%;
   }

@@ -4,45 +4,30 @@ import fs from 'fs';
 
 export const userController = {
   async getUserData(req, res) {
-      try {
-        const user = await User.findById(req.user.id);
-        
-        if (!user) {
-          return res.status(404).json({
-            success: false,
-            message: "Usuário não encontrado"
-          });
-        }
-
-        res.json({
-          success: true,
-          data: user
-        });
-      } catch (error) {
-        res.status(500).json({
+    try {
+      const user = await User.findById(req.user.id);
+      
+      if (!user) {
+        return res.status(404).json({
           success: false,
-          message: "Erro ao processar requisição"
+          message: "Usuário não encontrado"
         });
       }
-    },
+
+      res.json({
+        success: true,
+        data: user
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Erro ao processar requisição"
+      });
+    }
+  },
 
   async updateUserData(req, res) {
     try {
-    //console.log('📤 Arquivo recebido:', req.file); 
-    //console.log('📦 Campos recebidos:', req.body);
-      const { 
-        nome, 
-        email, 
-        endereco, 
-        cpf, 
-        telefone,
-        veiculo, 
-        capacidadeColeta, 
-        nomeFantasia, 
-        cnpj, 
-        tipoEmpresa 
-      } = req.body;
-
       const user = await User.findById(req.user.id);
       if (!user) {
         return res.status(404).json({ 
@@ -51,45 +36,61 @@ export const userController = {
         });
       }
 
-      const updateFields = {
-        ...(nome && { nome }),
-        ...(email && { email }),
-        ...(endereco && { endereco }),
-        ...(telefone && { telefone: telefone.replace(/[^\d]+/g, '') })
-      };
+      // Obter dados do form-data
+      const {
+        nome, 
+        email, 
+        endereco, 
+        telefone,
+        veiculo, 
+        capacidadeColeta, 
+        nomeFantasia,
+        razaoSocial,
+        removeImage // Novo campo para remoção de imagem
+      } = req.body;
+
+      const updateFields = {};
+
+      // Campos comuns a todos os usuários
+      if (nome) updateFields.nome = nome;
+      if (email) updateFields.email = email;
+      if (endereco) updateFields.endereco = endereco;
+      if (telefone) updateFields.telefone = telefone.replace(/[^\d]+/g, '');
 
       // Tratamento da imagem
       if (req.file) {
-        //console.log('🔄 Atualizando imagem:', `users/${req.file.filename}`);
         // Remover imagem antiga se existir
         if (user.imagemPerfil) {
           const oldImagePath = path.join(process.cwd(), 'uploads', user.imagemPerfil);
           if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
         }
-        // Armazenar caminho relativo universal (substitua path.join)
-        updateFields.imagemPerfil = `users/${req.file.filename}`; // <-- Linha modificada
+        // Salvar caminho relativo da nova imagem
+        updateFields.imagemPerfil = `users/profiles/${req.file.filename}`;
+      } else if (removeImage === 'true') {
+        // Remover imagem existente se solicitado
+        if (user.imagemPerfil) {
+          const oldImagePath = path.join(process.cwd(), 'uploads', user.imagemPerfil);
+          if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+          updateFields.imagemPerfil = null;
+        }
       }
 
       // Campos específicos por tipo de usuário
       switch(user.tipoUsuario) {
         case "empresa":
-          Object.assign(updateFields, {
-            ...(nomeFantasia && { nomeFantasia }),
-            ...(cnpj && { cnpj }),
-            ...(tipoEmpresa && { tipoEmpresa })
-          });
+          if (razaoSocial) updateFields.razaoSocial = razaoSocial;
+          if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
           break;
         
         case "coletor":
-          Object.assign(updateFields, {
-            ...(veiculo && { veiculo }),
-            ...(capacidadeColeta && { capacidadeColeta }),
-            ...(cpf && { cpf })
-          });
+          if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
+          if (veiculo) updateFields.veiculo = veiculo;
+          if (capacidadeColeta) updateFields.capacidadeColeta = capacidadeColeta;
           break;
         
-        default:
-          if (cpf) updateFields.cpf = cpf;
+        case "pessoa":
+          // Campos específicos para pessoa física
+          break;
       }
 
       const updatedUser = await User.findByIdAndUpdate(
@@ -101,19 +102,20 @@ export const userController = {
         }
       ).select("-senha");
 
-      // Formatar URL da imagem
-      if (updatedUser.imagemPerfil) {
-        updatedUser.imagemPerfil = `${process.env.BASE_URL}/uploads/${updatedUser.imagemPerfil}`;
+      // Formatar URL da imagem para resposta
+      const userResponse = updatedUser.toObject();
+      if (userResponse.imagemPerfil) {
+        userResponse.imagemPerfil = `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${userResponse.imagemPerfil}`;
       }
 
       return res.json({
         success: true,
         message: "Dados atualizados com sucesso",
-        data: updatedUser
+        data: userResponse
       });
-    //console.log('✅ Usuário atualizado:', updatedUser);
+
     } catch (error) {
-    console.error('❌ Erro crítico:', error);
+      console.error('Erro ao atualizar usuário:', error);
       
       if (error.name === 'ValidationError') {
         return res.status(400).json({
@@ -191,7 +193,45 @@ export const userController = {
         message: "Erro ao atualizar localização"
       });
     }
+  },
+  async deleteAccount(req, res) {
+  try {
+    const userId = req.user.id;
+    
+    // Primeiro encontre o usuário para pegar a imagem de perfil
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuário não encontrado"
+      });
+    }
+
+    // Remove a imagem de perfil se existir
+    if (user.imagemPerfil) {
+      const imagePath = path.join(__dirname, '../../uploads', user.imagemPerfil);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    // Remove o usuário do banco de dados
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      success: true,
+      message: "Conta excluída com sucesso"
+    });
+
+  } catch (error) {
+    console.error("Erro ao excluir conta:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao excluir conta"
+    });
   }
+}
 };
+
 
 export default userController;

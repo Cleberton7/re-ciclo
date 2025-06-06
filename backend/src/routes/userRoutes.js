@@ -24,5 +24,6 @@ router.put(
   uploadErrorHandler,
   userController.updateUserData
 );
+router.delete('/conta', verifyToken, userController.deleteAccount); // Nova rota
 
 export default router;

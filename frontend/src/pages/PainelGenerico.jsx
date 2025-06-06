@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import './styles/painelGenerico.css';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { IMaskInput } from 'react-imask';
+import { ClipLoader } from "react-spinners";
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -18,6 +19,9 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const [tempDados, setTempDados] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [removeImage, setRemoveImage] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +40,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
     }
 
     const fetchData = async () => {
-      
       const endpoint = {
         empresa: 'api/empresas/dados',
         pessoa: 'api/usuarios/pessoal',
@@ -56,13 +59,10 @@ const PainelGenerico = ({ tipoUsuario }) => {
         });
 
         const dadosRecebidos = response.data.data || response.data;
-
-        // Determina o documento correto baseado no tipo de usuário
         const documento = tipoUsuario === "empresa" || tipoUsuario === "coletor"
           ? dadosRecebidos.cnpj || 'Não informado'
           : dadosRecebidos.cpf || 'Não informado';
 
-        // Determina o nome correto baseado no tipo de usuário
         const nomeExibido = tipoUsuario === "empresa"
           ? dadosRecebidos.razaoSocial
           : tipoUsuario === "coletor"
@@ -103,10 +103,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
           }
           errorMessage = err.response.data?.message ||
             `Erro ${err.response.status}: ${err.response.statusText}`;
-        } else if (err.request) {
-          errorMessage = "Sem resposta do servidor - verifique sua conexão";
-        } else {
-          errorMessage = err.message || "Erro desconhecido";
         }
         setError(errorMessage);
       } finally {
@@ -114,29 +110,22 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
     };
 
-    if ("geolocation" in navigator) {
-      navigator.permissions?.query({ name: 'geolocation' })
-        .then(permissionStatus => {
-          if (permissionStatus.state === 'denied') {
-            alert('Por favor, permita acesso à localização nas configurações do site');
-          }
-        });
-    }
-
     fetchData();
   }, [navigate, tipoUsuario]);
 
   const handleEdit = () => {
     setEditing(true);
     setTempDados({ ...dados });
+    setRemoveImage(false);
   };
 
   const handleCancel = () => {
-    setEditing(false);
-    setTempDados({ ...dados });
-    setImagePreview(dados.imagemPerfil ? `http://localhost:5000/uploads/${dados.imagemPerfil}` : null);
-    setImageFile(null);
-  };
+      setEditing(false);
+      setTempDados({ ...dados });
+      setImagePreview(dados.imagemPerfil ? `http://localhost:5000/uploads/${dados.imagemPerfil}` : null);
+      setImageFile(null);
+      setRemoveImage(false);
+    };
 
   const handleSave = async () => {
     setSaving(true);
@@ -145,51 +134,83 @@ const PainelGenerico = ({ tipoUsuario }) => {
     try {
       const formData = new FormData();
       
-      // Campos comuns para todos os tipos
+      // Campos comuns
       formData.append('telefone', tempDados.telefone || '');
       formData.append('endereco', tempDados.endereco || '');
 
       // Campos específicos por tipo de usuário
-      switch(tipoUsuario) {
-        case "empresa":
-          formData.append('razaoSocial', tempDados.razaoSocial || '');
-          break;
-        
-        case "pessoa":
-          formData.append('nome', tempDados.nome || '');
-          break;
-        
-        case "coletor":
-          formData.append('nomeFantasia', tempDados.nomeFantasia || '');
-          formData.append('veiculo', tempDados.veiculo || '');
-          formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
-          break;
+      if (tipoUsuario === "empresa") {
+        formData.append('razaoSocial', tempDados.razaoSocial || '');
+        formData.append('nomeFantasia', tempDados.nomeFantasia || '');
+      } else if (tipoUsuario === "pessoa") {
+        formData.append('nome', tempDados.nome || '');
+      } else if (tipoUsuario === "coletor") {
+        formData.append('nomeFantasia', tempDados.nomeFantasia || '');
+        formData.append('veiculo', tempDados.veiculo || '');
+        formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
       }
 
-      // Adiciona a imagem se foi selecionada
       if (imageFile) {
         formData.append('imagemPerfil', imageFile);
+      } else if (removeImage) {
+        formData.append('removeImage', 'true');
       }
 
-      const response = await axios.put(`http://localhost:5000/api/usuario/dados`, formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.put(
+        `http://localhost:5000/api/usuario/dados`, 
+        formData, 
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      });
-
-      const novosDados = response.data.data || response.data;
-      setDados(novosDados);
-      setImagePreview(novosDados.imagemPerfil 
-        ? `http://localhost:5000/uploads/${novosDados.imagemPerfil}`
-        : null
       );
+
+      // Atualização completa dos dados
+      const novosDados = response.data.data || response.data;
       
+      // Construir a URL da imagem corretamente
+      let updatedImageUrl = null;
+      if (removeImage) {
+        updatedImageUrl = null;
+      } else if (imageFile) {
+        // Se foi enviada uma nova imagem, usar o preview temporário
+        updatedImageUrl = URL.createObjectURL(imageFile);
+      } else if (novosDados.imagemPerfil) {
+        // Se não foi alterada a imagem, usar o caminho do servidor
+        updatedImageUrl = novosDados.imagemPerfil.includes('http') 
+          ? novosDados.imagemPerfil 
+          : `http://localhost:5000/uploads/${novosDados.imagemPerfil}`;
+      } else if (dados.imagemPerfil && !removeImage) {
+        // Manter a imagem existente se não foi removida
+        updatedImageUrl = dados.imagemPerfil.includes('http')
+          ? dados.imagemPerfil
+          : `http://localhost:5000/uploads/${dados.imagemPerfil}`;
+      }
+
+      setDados(prev => ({
+        ...prev, // Mantém todos os dados anteriores
+        ...novosDados, // Adiciona os novos dados
+        documento: tipoUsuario === "empresa" || tipoUsuario === "coletor" 
+          ? novosDados.cnpj || prev.documento 
+          : novosDados.cpf || prev.documento,
+        nomeExibido: tipoUsuario === "empresa"
+          ? novosDados.razaoSocial || prev.nomeExibido
+          : tipoUsuario === "coletor"
+          ? novosDados.nomeFantasia || prev.nomeExibido
+          : novosDados.nome || prev.nomeExibido,
+        imagemPerfil: updatedImageUrl // Atualiza a URL da imagem
+      }));
+
+      setImagePreview(updatedImageUrl);
       setEditing(false);
+      setRemoveImage(false);
+      setImageFile(null);
       alert("Dados atualizados com sucesso!");
 
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao atualizar:", err);
       const errorMessage = err.response?.data?.message || "Erro ao atualizar dados";
       alert(`Erro: ${errorMessage}`);
     } finally {
@@ -204,12 +225,49 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 5MB");
+        return;
+      }
       setImageFile(file);
+      setRemoveImage(false); // Se o usuário selecionar nova imagem, cancela a remoção
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+    setRemoveImage(true);
+  };
+  const handleDeleteAccount = async () => {
+    const confirmacao = window.confirm(
+      'Tem certeza que deseja excluir sua conta permanentemente?\nEsta ação não pode ser desfeita!'
+    );
+    
+    if (!confirmacao) return;
+    
+    setDeletingAccount(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:5000/api/usuario/conta`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      localStorage.removeItem("token");
+      alert("Sua conta foi excluída com sucesso");
+      navigate("/login");
+      
+    } catch (err) {
+      console.error("Erro ao excluir conta:", err);
+      const errorMessage = err.response?.data?.message || "Erro ao excluir conta";
+      alert(`Erro: ${errorMessage}`);
+    } finally {
+      setDeletingAccount(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -336,10 +394,15 @@ const PainelGenerico = ({ tipoUsuario }) => {
     setMapCenter({ lat: newLat, lng: newLng });
   };
 
-  if (loading) return <div className="loading">Carregando dados...</div>;
+if (loading) return (
+    <div className="loading-screen">
+      <ClipLoader color="#009951" size={50} />
+      <p>Carregando seus dados...</p>
+    </div>
+  );
 
   if (error) return (
-    <div className="error">
+    <div className="error-screen">
       <p>{error}</p>
       <button onClick={() => window.location.reload()}>Tentar novamente</button>
     </div>
@@ -347,19 +410,28 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
   if (!dados) return null;
   
-
-   return (
+  return (
     <div className="painel-container" id="containerPrincipal">
       <div className="painel-header">
         <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'coletor' ? 'Coletor' : 'Usuário'}</h2>
         {tipoUsuario !== 'admGeral' && (
           <div className="action-buttons">
             {!editing ? (
-              <button onClick={handleEdit} className="edit-button">Editar Dados</button>
+              <>
+                <button onClick={handleEdit} className="edit-button">
+                  Editar Dados
+                </button>
+                <button 
+                  onClick={() => setShowDeleteModal(true)}
+                  className="delete-account-button"
+                >
+                  Excluir Conta
+                </button>
+              </>
             ) : (
               <>
                 <button onClick={handleSave} disabled={saving} className="save-button">
-                  {saving ? 'Salvando...' : 'Salvar Alterações'}
+                  {saving ? <ClipLoader color="#fff" size={18} /> : 'Salvar Alterações'}
                 </button>
                 <button onClick={handleCancel} disabled={saving} className="cancel-button">
                   Cancelar
@@ -370,12 +442,46 @@ const PainelGenerico = ({ tipoUsuario }) => {
         )}
       </div>
 
+      {/* Modal de confirmação de exclusão */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="delete-modal">
+            <h3>Confirmar Exclusão de Conta</h3>
+            <p>Tem certeza que deseja excluir sua conta permanentemente? Todos os seus dados serão removidos.</p>
+            
+            <div className="modal-buttons">
+              <button 
+                onClick={handleDeleteAccount} 
+                disabled={deletingAccount}
+                className="confirm-delete-button"
+              >
+                {deletingAccount ? <ClipLoader color="#fff" size={18} /> : 'Confirmar Exclusão'}
+              </button>
+              <button 
+                onClick={() => setShowDeleteModal(false)} 
+                disabled={deletingAccount}
+                className="cancel-delete-button"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="painel-content">
         <div className="profile-section">
           <div className="image-upload">
             <div className="image-preview">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" />
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/imagem-padrao.jpg';
+                  }}
+                />
               ) : (
                 <div className="image-placeholder">
                   {tipoUsuario === 'empresa' ? 'Logo da Empresa' : 'Foto de Perfil'}
@@ -385,7 +491,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
             {editing && (
               <div className="upload-controls">
                 <label htmlFor="image-upload" className="upload-button">
-                  Selecionar Imagem
+                  {imagePreview ? 'Alterar Imagem' : 'Selecionar Imagem'}
                 </label>
                 <input
                   id="image-upload"
@@ -394,6 +500,14 @@ const PainelGenerico = ({ tipoUsuario }) => {
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
                 />
+                {imagePreview && (
+                  <button 
+                    onClick={handleRemoveImage}
+                    className="remove-image-button"
+                  >
+                    Remover Imagem
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -416,9 +530,11 @@ const PainelGenerico = ({ tipoUsuario }) => {
               {editing ? (
                 <input
                   type="text"
-                  value={tempDados.nomeExibido || ''}
-                  onChange={handleInputChange}
-                  name={tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"}
+                  value={tempDados[tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"] || ''}
+                  onChange={(e) => setTempDados(prev => ({
+                    ...prev,
+                    [tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"]: e.target.value
+                  }))}
                 />
               ) : (
                 <strong>{dados.nomeExibido}</strong>
