@@ -6,7 +6,10 @@ const API_BASE = 'http://localhost:5000/api';
 export const getEmpresasPublicas = async () => {
   try {
     const response = await axios.get(`${API_BASE}/empresas/publicas`);
-    return response.data.data;
+        return response.data.data.map(empresa => ({
+      ...empresa,
+      imagemPerfil: empresa.imagemPerfil || null
+    }));
   } catch (error) {
     console.error('Erro ao buscar empresas públicas:', error);
     throw error;
@@ -16,7 +19,11 @@ export const getEmpresasPublicas = async () => {
 export const getColetoresPublicos = async () => {
   try {
     const response = await axios.get(`${API_BASE}/coletor/publicos`);
-    return response.data.data;
+    return response.data.data.map(coletor => ({
+      ...coletor,
+    
+      imagemPerfil: coletor.imagemPerfil || null
+    }));
   } catch (error) {
     console.error('Erro ao buscar coletores públicos:', error);
     throw error;

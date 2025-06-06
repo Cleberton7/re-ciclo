@@ -77,7 +77,7 @@ router.put('/atualizar-localizacao', verifyToken, checkUserType(['coletor']), as
 router.get('/publicos', async (req, res) => {
   try {
     const coletores = await User.find({ tipoUsuario: 'coletor' })
-      .select('nome email endereco telefone veiculo capacidadeColeta')
+      .select('nome email endereco cnpj telefone nomeFantasia veiculo capacidadeColeta imagemPerfil')
       .lean();
       
     res.json({ success: true, data: coletores });

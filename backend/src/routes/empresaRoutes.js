@@ -77,7 +77,7 @@ router.get('/localizacoes', async (req, res) => {
 router.get('/publicas', async (req, res) => {
   try {
     const empresas = await User.find({ tipoUsuario: 'empresa' })
-      .select('nome email endereco cnpj razaoSocial telefone')
+      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil')
       .lean();
     res.json({
       success: true,
