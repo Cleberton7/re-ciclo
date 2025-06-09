@@ -1,194 +1,293 @@
+/* contatos.css - Versão Atualizada */
 .container {
-    background-color: #009951;
-    padding: 10px;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: #009951;
+  color: white;
+}
+
+.container h3 {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.containerContatos {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-bottom: 40px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.tituloCompartilhe {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.iconesRedes {
+  display: flex;
+  gap: 15px;
+}
+
+.imagemComTexto {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.imagemComTexto:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.containerFormulario {
+  margin: 40px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.formularioTexto {
+  flex: 1;
+  min-width: 300px;
+}
+
+.formularioTexto h4 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.formularioTexto h1 {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #c9ffe1;
+}
+
+.formularioContato {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formularioContato input,
+.formularioContato textarea,
+.formularioContato select {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.formularioContato input::placeholder,
+.formularioContato textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.formularioContato input:focus,
+.formularioContato textarea:focus,
+.formularioContato select:focus {
+  outline: none;
+  border-color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.formularioContato textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.formularioContato button {
+  padding: 15px;
+  background-color: #0066cc;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.formularioContato button:hover {
+  background-color: #0052a3;
+  transform: translateY(-2px);
+}
+
+.selectContainer {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.selectContainer select {
+  flex: 1;
+  min-width: 200px;
+}
+
+.imagemFormularioContainer {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.imagemFormulario {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.containerOutrosContatos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+  flex-wrap: wrap;
+  margin-top: 50px;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+#Imagem {
+  flex: 1;
+  min-width: 300px;
+}
+
+#Imagem img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#outrosContatos {
+  flex: 1;
+  min-width: 300px;
+}
+
+.contatoItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.iconeContato {
+  width: 70px;
+  height: 70px;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.iconeContato img {
+  width: 35px;
+  height: 35px;
+}
+
+.textoContato {
+  flex: 1;
+}
+
+.tituloContato {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.infoContato {
+  font-size: 1.1rem;
+  color: #c9ffe1;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .container {
+    padding: 25px;
+  }
+  
+  .containerFormulario,
+  .containerOutrosContatos {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
   }
   
   .container h3 {
-    text-align: left;
-    margin-left: 40px; /* opcional para afastar da borda */
+    font-size: 2rem;
   }
-  h4{
-    font-size: 30px;
-  }
-  .formularioTexto h1{
-    font-size: 18px;
-  }
+  
   .containerContatos {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end; /* alinha conteúdo à direita */
-    gap: 20px;
-    margin-bottom: 20px;
-    max-width: 400px; /* limita largura para não ocupar 100% */
-    margin-left: auto; /* empurra para direita */
-    margin-right: 0;
+    justify-content: center;
   }
   
-  .tituloCompartilhe {
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-  
-  .iconesRedes {
-    display: flex;
-    gap: 10px;
-  }
-  
-.imagemComTexto {
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-  
-  .imagemComTexto:hover {
-    transform: scale(1.1);
-  }
-  
-  .containerFormulario {
-    margin-top: 50px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 40px;
-    gap: 40px;
-    flex-wrap: wrap;
-  }
-  
-  .formularioContato {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 400px;
-    width: 100%; /* Garante que use toda a largura disponível dentro do container */
-  }
-  
-  .formularioTexto {
-    text-align: left;
-  }
-  
-  .formularioContato input,
-  .formularioContato textarea {
-    padding: 8px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%; /* Garante largura completa */
-    box-sizing: border-box; /* padding não ultrapassa tamanho */
-  }
-  
-  .formularioContato textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .formularioContato button {
-    padding: 10px;
-    background-color: #0066cc;
-    color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .formularioContato button:hover {
-    background-color: #004c99;
-  }
-  
-  .selectContainer {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+  .formularioTexto h4 {
+    font-size: 1.5rem;
   }
   
   .selectContainer select {
-    padding: 8px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    min-width: 180px;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 15px;
   }
   
-  .imagemFormulario {
-    max-width: 400px;
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
+  .container h3 {
+    font-size: 1.8rem;
   }
   
-  .containerOutrosContatos {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 40px;
-    gap: 40px;
-    flex-wrap: wrap;
+  .formularioTexto h4 {
+    font-size: 1.3rem;
   }
   
-  /* Estilo para a imagem do lado esquerdo */
-  #Imagem img {
-    max-width: 400px;
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-  }
-  
-  /* Limita a largura de cada lado */
-  #Imagem, #outrosContatos {
-    min-width: 250px;
-  }
-  #Imagem{
-    flex: 1;
-  }
-  
-  #outrosContatos {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: left; /* Alinha à esquerda */
-  }
-  
-  .contatoItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
   .iconeContato {
-    width: 60px;
+    width: 50px;
     height: 50px;
-    border: 2px solid white; /* Borda branca */
-    border-radius: 4px;
-    display: flex;           /* Flexbox para centralizar */
-    align-items: center;     /* Centraliza verticalmente */
-    justify-content: center; /* Centraliza horizontalmente */
-    background-color: transparent; /* Opcional: fundo transparente */
   }
   
   .iconeContato img {
-    width:32px;
-    height: 32px;
-
-  }
-  
-  .textoContato {
-    display: flex;
-    flex-direction: column;
+    width: 25px;
+    height: 25px;
   }
   
   .tituloContato {
-    font-weight: bold;
+    font-size: 1.1rem;
   }
   
   .infoContato {
-    font-size: 0.95rem;
-    color: #333;
+    font-size: 1rem;
   }
-  
-  .tituloContato,
-  .infoContato {
-    text-align: left;
-  }
-  
+}

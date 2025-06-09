@@ -29,7 +29,7 @@ const AppRoutes = () => {
           <Route path="/publicColetasPage" element={<PublicColetasPage />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/contatos" element={<Contatos />} />
-          <Route path="/noticia/:id" element={<NoticiaDetalhe />} />
+          <Route path="/noticia/:slug" element={<NoticiaDetalhe />} />
           <Route path="/noticiasEventos" element={<NoticiasEventos />} />
         </Route>
 

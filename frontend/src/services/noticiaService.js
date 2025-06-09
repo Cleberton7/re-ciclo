@@ -89,3 +89,13 @@ export const deletarNoticia = async (id) => {
     throw error;
   }
 };
+
+export const buscarNoticiaPorSlug = async (slug) => {
+  try {
+    const res = await axios.get(`${API_URL}/${slug}`);
+    return res.data;
+  } catch (error) {
+    console.error('Erro ao buscar notícia por slug:', error.response?.data || error.message);
+    throw error;
+  }
+};

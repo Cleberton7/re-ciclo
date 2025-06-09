@@ -1,53 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { listarNoticias } from '../services/noticiaService';
+import { buscarNoticiaPorSlug } from '../services/noticiaService';
 import "./styles/containerPrincipal.css";
 import "./styles/noticiaDetalhe.css";
 
 const NoticiaDetalhe = () => {
-  const { id } = useParams();
+  const { slug } = useParams(); // Mude de id para slug
   const [noticia, setNoticia] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-    useEffect(() => {
+  useEffect(() => {
     const buscarNoticia = async () => {
-        setLoading(true);
-        setError('');
-        try {
-        const data = await listarNoticias();
-        const encontrada = data.find(item => item._id === id);
-
-        if (encontrada) {
-            const noticiaFormatada = {
-            ...encontrada,
-            image: encontrada.image 
-                ? encontrada.image.startsWith('http') 
-                ? encontrada.image 
-                : `http://localhost:5000${encontrada.image}`
-                : null
-            };
-            setNoticia(noticiaFormatada);
+      setLoading(true);
+      setError('');
+      try {
+        const noticiaEncontrada = await buscarNoticiaPorSlug(slug);
+        
+        if (noticiaEncontrada) {
+          const noticiaFormatada = {
+            ...noticiaEncontrada,
+            image: noticiaEncontrada.image 
+              ? noticiaEncontrada.image.startsWith('http') 
+                ? noticiaEncontrada.image 
+                : `http://localhost:5000${noticiaEncontrada.image}`
+              : null
+          };
+          setNoticia(noticiaFormatada);
         } else {
-            setError('Notícia não encontrada.');
+          setError('Notícia não encontrada.');
         }
-        } catch (err) {
+      } catch (err) {
         console.error(err);
         setError('Erro ao carregar a notícia.');
-        } finally {
+      } finally {
         setLoading(false);
-        }
+      }
     };
 
     buscarNoticia();
-    }, [id]);
+  }, [slug]); 
 
-  if (loading) return <p>Carregando...</p>;
-  if (error) return <p className="error-message">{error}</p>;
+  if (loading) return (
+    <div className="noticia-detalhe-container" id='containerPrincipal'>
+      <div className="loading-message">Carregando notícia...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="noticia-detalhe-container" id='containerPrincipal'>
+      <div className="error-message">{error}</div>
+      <Link to="/noticiasEventos" className="back-link">← Voltar para Notícias</Link>
+    </div>
+  );
 
   return (
     <div className="noticia-detalhe-container" id='containerPrincipal'>
-      <Link to="/noticiasEventos">← Voltar para Notícias</Link>
+      <Link to="/noticiasEventos" className="back-link">← Voltar para Notícias</Link>
 
       {noticia && (
         <>

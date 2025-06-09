@@ -103,12 +103,11 @@ const Empresas = () => {
                 className="cardEmpresa"
                 style={{ 
                   backgroundImage: empresa.imagemUrl 
-                    ? `url(${empresa.imagemUrl})`
+                    ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
                     : 'none',
                   backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
                 }}
               >
-                <div className="card-overlay"></div>
                 <div className="card-content">
                   <h3>{empresa.nomeExibido}</h3>
                   <div className="info-item">

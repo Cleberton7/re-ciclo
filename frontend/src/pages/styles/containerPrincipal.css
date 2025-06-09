@@ -1,7 +1,9 @@
-#containerPrincipal{
-
-    max-width: 1400px; /* Garante que não fique muito largo */
-    margin: 100px auto 0 auto; /* top com espaço para o header, centralizado horizontalmente */
-    flex: 1;
-        
+#containerPrincipal {
+  max-width: 1800px;
+  margin: 100px auto 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 6px;
+  padding: 20px; /* Adicionado padding consistente */
 }
+

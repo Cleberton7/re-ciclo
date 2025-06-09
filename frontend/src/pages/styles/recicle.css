@@ -1,15 +1,113 @@
-h3{
-    font-size: 40px;
+/* recicle.css - Versão Atualizada */
+.containerRecicle {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: #009951;
+  color: white;
+  line-height: 1.6;
 }
-.containerRecicle{
-    background-color: #009951;
-    color: rgb(0, 0, 0);
-    
+
+.containerRecicle h3 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 40px;
+  color: white;
 }
+
+.containerRecicle h2 {
+  font-size: 1.8rem;
+  margin: 30px 0 20px;
+  color: #c9ffe1;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 10px;
+}
+
+.containerRecicle h1 {
+  font-size: 1.5rem;
+  margin: 25px 0 15px;
+  color: white;
+}
+
+.containerRecicle p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
 #imagemComTexto {
-    width: 300px;
-    margin-right: 20px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+  width: 300px;
+  height: auto;
+  margin-right: 30px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  float: left;
+  shape-outside: margin-box;
+}
+
+.content-section {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .containerRecicle {
+    padding: 25px;
   }
   
+  .containerRecicle h3 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .containerRecicle {
+    padding: 20px;
+  }
+  
+  .containerRecicle h3 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+  
+  .containerRecicle h2 {
+    font-size: 1.5rem;
+  }
+  
+  #imagemComTexto {
+    width: 100%;
+    float: none;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .containerRecicle p {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .containerRecicle h3 {
+    font-size: 1.5rem;
+  }
+  
+  .containerRecicle h2 {
+    font-size: 1.3rem;
+  }
+  
+  .containerRecicle h1 {
+    font-size: 1.2rem;
+  }
+  
+  .containerRecicle p {
+    font-size: 1rem;
+  }
+}

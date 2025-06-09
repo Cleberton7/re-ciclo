@@ -1,182 +1,116 @@
+
 .containerEmpresas {
-    position: relative;
-    min-height: 100vh;
-    padding: 40px 20px;
-    margin-top: 80px;
-    background-color:#009951;
+  max-width: 1800px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background-color: #009951;
 }
 
 .content-wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
 }
 
 .secao {
-    margin-bottom: 50px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-h2 {
-    font-size: 28px;
-    color: #2c3e50;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.section-icon {
-    color:white;
+.secao h2 {
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .cardsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 .cardEmpresa {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    min-height: 300px; /* Aumente conforme necessário */
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end; /* Alinha o conteúdo na parte inferior */
-}
-.card-content {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 20px;
-    width: 100%;
-    height: 77.66%; /* Ocupa 2/3 do card */
-    border-radius: 10px 10px 0 0;
-    transform: translateY(33.33%); /* Começa mostrando 1/3 da imagem */
-    transition: transform 0.3s ease;
-    position: relative;
-    z-index: 2;
+  position: relative;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s ease;
 }
 
-/*.card-content {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 20px;
-    position: relative;
-    z-index: 2;
-    margin-top: auto;
-    border-radius: 0 0 10px 10px;
+.cardEmpresa:hover {
+  transform: translateY(-5px);
 }
-*/
 
 .card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0, 153, 81, 0.7) 0%, transparent 50%);
-    z-index: 1;
-}
-.cardEmpresa:hover .card-content {
-    transform: translateY(0); /* Mostra todo o conteúdo no hover */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.cardEmpresa h3 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-weight: 600;
+.card-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.card-content h3 {
+  margin-bottom: 15px;
+  font-size: 1.3rem;
 }
 
 .info-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    color: #34495e;
-}
-
-.info-icon {
-    color: #009951;
-    min-width: 20px;
-}
-
-/* Estilos para loading e error */
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 20px;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #009951;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 20px;
-    text-align: center;
-    padding: 20px;
-}
-
-.error-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    font-weight: bold;
-}
-
-.reload-button {
-    padding: 10px 20px;
-    background-color: #009951;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.reload-button:hover {
-    background-color: #008040;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
 /* Responsividade */
+@media (max-width: 1200px) {
+  .cardsContainer {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
-    .cardsContainer {
-        grid-template-columns: 1fr;
-    }
-    
-    .secao {
-        padding: 15px;
-    }
-    
-    h2 {
-        font-size: 24px;
-    }
+  .containerEmpresas {
+    padding: 15px;
+  }
+  
+  .secao {
+    padding: 15px;
+  }
+  
+  .cardsContainer {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .cardEmpresa {
+    height: 250px;
+  }
 }

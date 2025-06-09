@@ -4,7 +4,6 @@
   display: flex;
   color: rgb(0, 0, 0);
   gap: 8px; /* Espaço entre os containers */
-  padding: 8px;
 }
 
 .containerRanked, .containerGraphic, .containerMaps {
@@ -93,6 +92,13 @@
   background-color: #e6f7ff;
 }
 
+/* Estilo para mensagens de carregamento */
+#rankedEmpresa p, #graphic p {
+  color: white;
+  text-align: center;
+  margin-top: 50%;
+  transform: translateY(-50%);
+}
 /* Responsividade */
 @media (max-width: 1200px) {
   .content {
@@ -106,12 +112,4 @@
   #rankedEmpresa, #graphic, #maps {
     height: 300px;
   }
-}
-
-/* Estilo para mensagens de carregamento */
-#rankedEmpresa p, #graphic p {
-  color: white;
-  text-align: center;
-  margin-top: 50%;
-  transform: translateY(-50%);
 }

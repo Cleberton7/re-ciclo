@@ -74,17 +74,19 @@ const PublicColetasPage = () => {
       <section className="public-stats-section">
         <div className="stats-grid">
           <div className="stats-card total-coletas">
-            <h3>Total de Coletas</h3>
-            <p>{estatisticas.totalColetado.toLocaleString()} kg</p>
-            <small>Equivalente a {estatisticas.impactoAmbiental} árvores preservadas</small>
+            <h3>Total Coletado</h3>
+            <p>{estatisticas.totalColetado.toLocaleString()}</p>
+            <small>kg de materiais recicláveis</small>
           </div>
           <div className="stats-card empresas-ativas">
             <h3>Empresas Participantes</h3>
             <p>{estatisticas.empresasAtivas}</p>
+            <small>contribuindo com a reciclagem</small>
           </div>
           <div className="stats-card materiais-reciclados">
             <h3>Tipos de Materiais</h3>
             <p>{distribuicao.length}</p>
+            <small>diferentes categorias</small>
           </div>
         </div>
       </section>
@@ -110,10 +112,10 @@ const PublicColetasPage = () => {
       <section className="public-coletas-list">
         <h2>Últimas Coletas Registradas</h2>
         {loading ? (
-          <div className="loading-message">Carregando dados...</div>
+          <div className="loading-message">Carregando dados de coletas...</div>
         ) : coletas.length === 0 ? (
           <div className="nenhuma-coleta">
-            <p>Nenhuma coleta encontrada com os filtros selecionados.</p>
+            <p>Nenhuma coleta encontrada com os filtros selecionados</p>
           </div>
         ) : (
           <div className="coletas-public-grid">

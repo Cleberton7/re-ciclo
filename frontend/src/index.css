@@ -19,12 +19,13 @@ html, body, #root {
 }
 
 .main-content {
-  flex: 1;
-  width: 100%;           /* O conteúdo pode ocupar até 100% da largura */
-  min-height: 60vh;      /* Garante que tenha uma altura mínima */
-  box-sizing: border-box;
-}
 
+  flex: 1;
+  width: 100%;
+  min-height: 60vh;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Previne vazamento horizontal */
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

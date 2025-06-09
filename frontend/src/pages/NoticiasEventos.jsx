@@ -6,52 +6,54 @@ import "./styles/eventosNoticias.css";
 
 const NoticiasEventos = () => {
   const [noticias, setNoticias] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const carregarNoticias = async () => {
+      try {
+        const data = await listarNoticias();
+        const noticiasFormatadas = data.map(noticia => ({
+          ...noticia,
+          image: noticia.image 
+            ? noticia.image.startsWith('http') 
+              ? noticia.image 
+              : `http://localhost:5000${noticia.image}`
+            : null,
+          slug: noticia.slug || noticia._id
+        }));
+        setNoticias(noticiasFormatadas);
+      } catch (err) {
+        console.error('Erro ao carregar notícias:', err);
+        setError('Erro ao carregar notícias. Tente recarregar a página.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     carregarNoticias();
   }, []);
 
-  const carregarNoticias = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const data = await listarNoticias();
-      // Verifica e corrige URLs de imagem se necessário
-      const noticiasFormatadas = data.map(noticia => ({
-        ...noticia,
-        image: noticia.image 
-          ? noticia.image.startsWith('http') 
-            ? noticia.image 
-            : `http://localhost:5000${noticia.image}`
-          : null
-      }));
-      setNoticias(noticiasFormatadas);
-    } catch (err) {
-      console.error('Erro ao carregar notícias:', err);
-      setError('Erro ao carregar notícias. Tente recarregar a página.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="noticias-publicas-container" id='containerPrincipal'>
-      <h1>Eventos</h1>
-
-      {loading && <p>Carregando notícias...</p>}
-      {error && <p className="error-message">{error}</p>}
-
-      {!loading && noticias.length === 0 && (
-        <p>Nenhuma notícia disponível no momento.</p>
-      )}
+      <h1>Eventos e Notícias</h1>
 
       <div className="lista-noticias">
-        {noticias.map(noticia => (
+        {loading && (
+          <div className="loading-message">Carregando notícias...</div>
+        )}
+
+        {error && (
+          <div className="error-message">{error}</div>
+        )}
+
+        {!loading && noticias.length === 0 && (
+          <div className="empty-message">Nenhuma notícia disponível no momento.</div>
+        )}
+
+        {!loading && noticias.map(noticia => (
           <article key={noticia._id} className="noticia-item">
-        <Link to={`/noticia/${noticia.slug}`}>
-              <h2>{noticia.title}</h2>
+            <Link to={`/noticia/${noticia.slug}`}>
               <div className="imagem-noticia-container">
                 <img 
                   src={noticia.image || '/imagem-padrao.jpg'}
@@ -63,7 +65,8 @@ const NoticiasEventos = () => {
                   }}
                 />
               </div>
-            <p>{noticia.content}</p>
+              <h2>{noticia.title}</h2>
+              <p>{noticia.content.substring(0, 150)}...</p>
             </Link>
             {noticia.tags && noticia.tags.length > 0 && (
               <p className="tags">

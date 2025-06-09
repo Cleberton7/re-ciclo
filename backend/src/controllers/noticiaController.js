@@ -20,12 +20,20 @@ const parseTags = (tags) => {
     return tags.split(',').map(tag => tag.trim());
   }
 };
-
+// Função para gerar slugs consistentes
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .trim();
+};
 // Criar notícia
 export const criarNoticia = async (req, res) => {
   try {
     const { title, content, tags } = req.body;
-    const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    const slug = generateSlug(title);
     const tagsParsed = parseTags(tags);
 
     let imagePath = null;
@@ -58,10 +66,15 @@ export const listarNoticias = async (req, res) => {
   }
 };
 
-// Buscar notícia por slug
 export const buscarNoticiaPorSlug = async (req, res) => {
   try {
-    const noticia = await Noticia.findOne({ slug: req.params.slug });
+    // Normaliza o slug removendo caracteres especiais e espaços
+    const normalizedSlug = req.params.slug
+      .toLowerCase()
+      .replace(/[^\w-]+/g, '');
+    
+    const noticia = await Noticia.findOne({ slug: normalizedSlug });
+    
     if (!noticia) {
       return res.status(404).json({ message: 'Notícia não encontrada' });
     }
@@ -84,7 +97,7 @@ export const atualizarNoticia = async (req, res) => {
 
     if (title) {
       noticia.title = title;
-      noticia.slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+      noticia.slug = generateSlug(title);
     }
     if (content) noticia.content = content;
     if (tags) noticia.tags = tagsParsed;

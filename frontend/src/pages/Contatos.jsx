@@ -10,7 +10,9 @@ import logoX from "../assets/twitter.png";
 import logoEmail from "../assets/o-email.png";
 import logoTelefone from "../assets/celular.png";
 import logoEndereço from "../assets/endereco-residencial.png";
-
+import recicleImagem from "../image/cotato-imagem.png";
+//import  contatoImagem from "../image/contato-imagem.png";
+import  contatoImagem from "../image/contat.png"; 
 
 const Contatos = () => {
   const [uf, setUf] = useState("");
@@ -19,7 +21,6 @@ const Contatos = () => {
   const [cidades, setCidades] = useState([]);
 
   useEffect(() => {
-    // Buscar estados no carregamento inicial
     axios
       .get("https://servicodados.ibge.gov.br/api/v1/localidades/estados")
       .then((response) => {
@@ -35,7 +36,6 @@ const Contatos = () => {
 
   useEffect(() => {
     if (uf) {
-      // Buscar cidades ao selecionar estado
       axios
         .get(
           `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`
@@ -53,19 +53,32 @@ const Contatos = () => {
       setCidades([]);
     }
   }, [uf]);
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Lógica para enviar o formulário
+  };
   return (
     <div className="container" id="containerPrincipal">
-      <h3>Fale Conosco</h3>
+      <h3>Dê um destino correto ao seu lixo eletrônico! Entre em contato conosco e faça parte da mudança para um planeta mais sustentável.</h3>
 
       <div className="containerContatos">
         <div className="tituloCompartilhe">Compartilhe</div>
         <div className="iconesRedes">
-          <img src={logoFacebook} alt="Logo do Facebook" className="imagemComTexto" />
-          <img src={logoInstagram} alt="Logo do Instagram" className="imagemComTexto" />
-          <img src={logoWhatsapp} alt="Logo do Whatsapp" className="imagemComTexto" />
-          <img src={logoLinkedin} alt="Logo do LinkedIn" className="imagemComTexto" />
-          <img src={logoX} alt="Logo do X" className="imagemComTexto" />
+          <a href="#" aria-label="Facebook">
+            <img src={logoFacebook} alt="Facebook" className="imagemComTexto" />
+          </a>
+          <a href="#" aria-label="Instagram">
+            <img src={logoInstagram} alt="Instagram" className="imagemComTexto" />
+          </a>
+          <a href="#" aria-label="WhatsApp">
+            <img src={logoWhatsapp} alt="WhatsApp" className="imagemComTexto" />
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <img src={logoLinkedin} alt="LinkedIn" className="imagemComTexto" />
+          </a>
+          <a href="#" aria-label="Twitter">
+            <img src={logoX} alt="Twitter" className="imagemComTexto" />
+          </a>
         </div>
       </div>
 
@@ -74,16 +87,20 @@ const Contatos = () => {
           <h4>Utilize o formulário para contato</h4>
           <h1>Em breve retornaremos</h1>
 
-          <form className="formularioContato">
-            <input type="text" placeholder="Nome" />
-            <input type="email" placeholder="Email" />
-            <input type="tel" placeholder="Telefone/Celular" />
+          <form className="formularioContato" onSubmit={handleSubmit}>
+            <input type="text" placeholder="Nome" required />
+            <input type="email" placeholder="Email" required />
+            <input type="tel" placeholder="Telefone/Celular" required />
 
             <div className="selectContainer">
-              <select value={uf} onChange={(e) => setUf(e.target.value)}>
+              <select 
+                value={uf} 
+                onChange={(e) => setUf(e.target.value)}
+                required
+              >
                 <option value="">Selecione o estado (UF)</option>
                 {estados.map((estado) => (
-                  <option key={estado.id} value={estado.id}>
+                  <option key={estado.id} value={estado.sigla}>
                     {estado.nome} ({estado.sigla})
                   </option>
                 ))}
@@ -93,6 +110,7 @@ const Contatos = () => {
                 value={cidade}
                 onChange={(e) => setCidade(e.target.value)}
                 disabled={!uf}
+                required
               >
                 <option value="">Selecione a cidade</option>
                 {cidades.map((cidade) => (
@@ -103,16 +121,16 @@ const Contatos = () => {
               </select>
             </div>
 
-            <input type="text" placeholder="Assunto" />
-            <textarea placeholder="Mensagem"></textarea>
-            <button type="submit">Enviar</button>
+            <input type="text" placeholder="Assunto" required />
+            <textarea placeholder="Mensagem" required></textarea>
+            <button type="submit">Enviar Mensagem</button>
           </form>
         </div>
 
         <div className="imagemFormularioContainer">
           <img
-            src="/caminho/para/sua-imagem.jpg"
-            alt="Imagem decorativa"
+            src={recicleImagem}
+            alt="Pessoas reciclando"
             className="imagemFormulario"
           />
         </div>
@@ -120,7 +138,7 @@ const Contatos = () => {
 
       <div className="containerOutrosContatos">
         <div id="Imagem">
-          <img src="/caminho/para/imagem-grande.jpg" alt="Imagem decorativa" />
+          <img src={contatoImagem} alt="Localização da empresa" />
         </div>
 
         <div id="outrosContatos">
@@ -143,13 +161,14 @@ const Contatos = () => {
               <div className="infoContato">re-cicletucurui@recicle.org.br</div>
             </div>
           </div>
+
           <div className="contatoItem">
             <div className="iconeContato">
               <img src={logoEndereço} alt="Ícone de endereço" />
             </div>
             <div className="textoContato">
               <div className="tituloContato">Endereço</div>
-              <div className="infoContato"> numemo, bairro , cidade</div>
+              <div className="infoContato">Rua Exemplo, 123 - Centro, Tucuruí - PA</div>
             </div>
           </div>
         </div>
