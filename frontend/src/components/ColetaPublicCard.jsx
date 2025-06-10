@@ -4,7 +4,12 @@ import "../pages/styles/ColetaPublicCards.css"
 
 
 const ColetaPublicCard = ({ coleta }) => {
-  // Verifica se há dados da coleta
+  if (!coleta || !coleta._id) {
+    console.warn('Coleta inválida:', coleta);
+    return null;
+  }
+  // Debug: Verifique a estrutura do objeto coleta
+  console.log('Dados da coleta:', coleta);
   if (!coleta) return null;
 
   return (
@@ -53,6 +58,7 @@ const ColetaPublicCard = ({ coleta }) => {
         </div>
       </div>
     </div>
+    
   );
 };
 

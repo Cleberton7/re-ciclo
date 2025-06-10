@@ -6,15 +6,18 @@ const api = axios.create({
 });
 
 // Intercepta e adiciona o token automaticamente
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, error => Promise.reject(error));
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
 
-// Login
+// Funções auxiliares (se quiser manter aqui, ok)
 export const loginUser = async (credentials) => {
   const response = await api.post('/auth/login', credentials);
   
@@ -28,20 +31,15 @@ export const loginUser = async (credentials) => {
   };
 };
 
-// Registro
 export const registerUser = async (userData) => {
   const response = await api.post('/auth/register', userData);
   return response.data;
 };
 
-// Dados do usuário autenticado
 export const getUserData = async () => {
   const response = await api.get('/usuario/pessoal');
   return response.data;
 };
 
-export default {
-  loginUser,
-  registerUser,
-  getUserData
-};
+// ✅ Aqui exporta a instância do axios corretamente
+export default api;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './authService'; 
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -86,3 +87,51 @@ export const deletarSolicitacaoColeta = async (id) => {
     throw new Error(errorMessage);
   }
 };
+
+export const aceitarColeta = async (idSolicitacao) => {
+  try {
+    const { data } = await axios.put(
+      `${API_BASE}/coletas/${idSolicitacao}/aceitar`, 
+      {},
+      { headers: getAuthHeader() }
+    );
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Erro ao aceitar coleta');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Erro ao aceitar coleta:', error);
+    throw new Error(
+      error.response?.data?.message || 
+      error.response?.data?.error || 
+      'Erro ao aceitar coleta'
+    );
+  }
+};
+export const concluirColeta = async (idSolicitacao) => {
+  console.log("Tentando concluir coleta ID:", idSolicitacao);
+  try {
+    const { data } = await api.put(`/coletas/${idSolicitacao}/concluir`);
+
+    if (!data.success) {
+      throw new Error(data.message || "Falha ao concluir coleta");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Erro completo ao concluir coleta:", {
+      mensagem: error.message,
+      status: error.response?.status,
+      dados: error.response?.data,
+      endpoint: `/coletas/${idSolicitacao}/concluir`,
+    });
+
+    throw new Error(
+      error.response?.data?.message || "Erro ao processar conclusão da coleta. Tente novamente."
+    );
+  }
+};
+
+

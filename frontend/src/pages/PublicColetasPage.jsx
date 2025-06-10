@@ -8,7 +8,7 @@ import {
 import RankingEmpresas from "../components/RankingEmpresas";
 import GraficoColetas from "../components/GraficoColetas";
 import ColetaPublicCard from "../components/ColetaPublicCard";
-import FilterBarPublic from "../components/FilterBarPublic";
+import FilterBar from "../components/FilterBarPublic";
 import "./styles/PublicColetasPage.css";
 
 const PublicColetasPage = () => {
@@ -25,29 +25,56 @@ const PublicColetasPage = () => {
     periodo: "mensal"
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [
-          coletasData, 
-          rankingData, 
+        setError(null);
+        
+        // Debug: Verifique os filtros antes da requisição
+        console.log('Filtros atuais:', filters);
+        
+        const [coletasData, rankingData, estatisticasData, distribuicaoData] = 
+          await Promise.all([
+            getDadosPublicosColetas(filters).catch(e => {
+              console.error('Erro em coletas:', e);
+              return [];
+            }),
+            getRankingEmpresas(filters.periodo).catch(e => {
+              console.error('Erro em ranking:', e);
+              return [];
+            }),
+            getEstatisticasPublicas().catch(e => {
+              console.error('Erro em estatísticas:', e);
+              return {
+                totalColetado: 0,
+                empresasAtivas: 0,
+                impactoAmbiental: 0
+              };
+            }),
+            getDistribuicaoMateriais().catch(e => {
+              console.error('Erro em distribuição:', e);
+              return [];
+            })
+          ]);
+        
+        // Debug: Verifique os dados recebidos
+        console.log('Dados carregados:', {
+          coletasData,
+          rankingData,
           estatisticasData,
           distribuicaoData
-        ] = await Promise.all([
-          getDadosPublicosColetas(filters),
-          getRankingEmpresas(filters.periodo),
-          getEstatisticasPublicas(),
-          getDistribuicaoMateriais()
-        ]);
+        });
         
         setColetas(coletasData);
         setRanking(rankingData);
         setEstatisticas(estatisticasData);
         setDistribuicao(distribuicaoData);
-      } catch (error) {
-        console.error("Erro ao carregar dados públicos:", error);
+      } catch (err) {
+        console.error("Erro completo:", err);
+        setError(err.message || "Erro ao carregar dados");
       } finally {
         setLoading(false);
       }
@@ -56,18 +83,31 @@ const PublicColetasPage = () => {
     loadData();
   }, [filters]);
 
+
+  const formatImpactoAmbiental = (kg) => {
+    const toneladas = kg / 1000;
+    return `${toneladas.toLocaleString('pt-BR')} toneladas de CO₂ evitadas`;
+  };
+
   return (
-    <div className="public-coletas-container" id="containerPrincipal">
+    <div className="public-coletas-container">
       <header className="public-coletas-header">
         <h1>Dados Públicos de Coleta Seletiva</h1>
         <p>Visualize as coletas realizadas e o impacto ambiental positivo</p>
       </header>
 
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Tentar novamente</button>
+        </div>
+      )}
+
       <section className="public-filters-section">
-        <FilterBarPublic 
+        <FilterBar 
           filters={filters}
           onChange={setFilters}
-          disabled={loading}
+          role="public"
         />
       </section>
 
@@ -75,7 +115,7 @@ const PublicColetasPage = () => {
         <div className="stats-grid">
           <div className="stats-card total-coletas">
             <h3>Total Coletado</h3>
-            <p>{estatisticas.totalColetado.toLocaleString()}</p>
+            <p>{estatisticas.totalColetado.toLocaleString('pt-BR')}</p>
             <small>kg de materiais recicláveis</small>
           </div>
           <div className="stats-card empresas-ativas">
@@ -83,10 +123,9 @@ const PublicColetasPage = () => {
             <p>{estatisticas.empresasAtivas}</p>
             <small>contribuindo com a reciclagem</small>
           </div>
-          <div className="stats-card materiais-reciclados">
-            <h3>Tipos de Materiais</h3>
-            <p>{distribuicao.length}</p>
-            <small>diferentes categorias</small>
+          <div className="stats-card impacto-ambiental">
+            <h3>Impacto Ambiental</h3>
+            <p>{formatImpactoAmbiental(estatisticas.impactoAmbiental)}</p>
           </div>
         </div>
       </section>
@@ -95,8 +134,10 @@ const PublicColetasPage = () => {
         <h2>Distribuição por Tipo de Material</h2>
         {loading ? (
           <div className="graph-placeholder">Carregando gráfico...</div>
-        ) : (
+        ) : distribuicao.length > 0 ? (
           <GraficoColetas dados={distribuicao} />
+        ) : (
+          <div className="nenhum-dado">Nenhum dado disponível</div>
         )}
       </section>
 
@@ -104,8 +145,10 @@ const PublicColetasPage = () => {
         <h2>Ranking de Empresas Mais Sustentáveis</h2>
         {loading ? (
           <div className="ranking-placeholder">Carregando ranking...</div>
-        ) : (
+        ) : ranking.length > 0 ? (
           <RankingEmpresas ranking={ranking} />
+        ) : (
+          <div className="nenhum-dado">Nenhum ranking disponível</div>
         )}
       </section>
 
@@ -119,7 +162,7 @@ const PublicColetasPage = () => {
           </div>
         ) : (
           <div className="coletas-public-grid">
-            {coletas.slice(0, 6).map((coleta) => (
+            {coletas.map((coleta) => (
               <ColetaPublicCard
                 key={coleta._id}
                 coleta={coleta}
