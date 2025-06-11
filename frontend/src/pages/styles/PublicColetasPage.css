@@ -2,6 +2,7 @@
   
   max-width: 1800px;
   background-color: #009951;
+  padding: 20px;
   margin: 0 auto;
   box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -99,7 +100,11 @@
   
   border-top: 5px solid #e67e22;
 }
-
+.background-color-grafico{
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+}
 .public-graph-section, 
 .public-ranking-section, 
 .public-coletas-list {

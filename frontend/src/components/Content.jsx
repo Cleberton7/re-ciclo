@@ -4,7 +4,6 @@ import axios from "axios";
 import GraficoColetas from './GraficoColetas';
 import RankingEmpresas from './RankingEmpresas';
 import "../pages/styles/content.css";
-import "../pages/styles/containerPrincipal.css";
 
 const center = { lat: -3.7657, lng: -49.6725 };
 
@@ -45,8 +44,14 @@ const Content = () => {
         ].filter(p => p.lat && p.lng);
 
         setMarcadores(pontos);
-        setDadosGrafico(graficoRes.data?.data || []);
+        
+        // Processar dados do gráfico
+        const dadosGrafico = graficoRes.data?.data || [];
+        setDadosGrafico(dadosGrafico);
+        
         setRankingEmpresas(rankingRes.data?.data || []);
+        
+        console.log('Dados processados para gráfico:', dadosGrafico);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
       } finally {
@@ -62,24 +67,36 @@ const Content = () => {
       {/* Ranking de Empresas */}
       <div className='containerRanked'>
         <div id='textRanked'>Ranking das empresas</div>
-        <div id='rankedEmpresa'>
+        <div className='ranking-wrapper'>
           {loading ? (
             <p>Carregando ranking...</p>
           ) : (
-            <RankingEmpresas ranking={rankingEmpresas} />
+            <RankingEmpresas 
+              ranking={rankingEmpresas} 
+              compactMode={true}
+              hideTitle={true}
+            />
           )}
         </div>
       </div>
 
       {/* Gráfico de Coletas */}
       <div className='containerGraphic'>
-        <div id='textGraph'>Gráfico de coletas</div>
-        <div id='graphic'>
+        <div id='textGraph'>Distribuição por Material</div>
+        <div className='grafico-wrapper' style={{
+          height: '400px', // Altura fixa
+          overflow: 'hidden' // Previne "cair infinitamente"
+        }}>
           {loading ? (
-            <p>Carregando gráfico...</p>
+            <div className="loading-message">Carregando gráfico...</div>
+          ) : dadosGrafico.length > 0 ? (
+            <GraficoColetas 
+              dados={dadosGrafico} 
+              compactMode={true}
+            />
           ) : (
-            <div style={{ height: '300px' }}>
-              <GraficoColetas dados={dadosGrafico} />
+            <div className="no-data-message">
+              Nenhum dado disponível para exibir
             </div>
           )}
         </div>

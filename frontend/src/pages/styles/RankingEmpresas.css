@@ -64,8 +64,45 @@
   content: "🥉";
   margin-right: 0.5rem;
 }
+.ranking-container.compact {
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+.ranking-container.compact th {
+  padding: 8px 12px;
+  font-size: 0.75rem; /* Tamanho menor apenas no content */
+  text-transform: none; /* Remove uppercase se desejar */
+  letter-spacing: normal;
+  background-color: #009951; /* Mantém a cor do tema */
+}
+.ranking-container.compact td {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+/* Mantém os estilos de hover */
+.ranking-container.compact tbody tr:hover {
+  background-color: #f0f0f0;
+}
 
+/* Mantém as medalhas para o top 3 */
+.ranking-container.compact tbody tr:nth-child(1) td:first-child::before {
+  content: "🥇";
+  margin-right: 0.3rem;
+  font-size: 0.9em;
+}
 
+.ranking-container.compact tbody tr:nth-child(2) td:first-child::before {
+  content: "🥈";
+  margin-right: 0.3rem;
+  font-size: 0.9em;
+}
+
+.ranking-container.compact tbody tr:nth-child(3) td:first-child::before {
+  content: "🥉";
+  margin-right: 0.3rem;
+  font-size: 0.9em;
+}
 /* Responsividade */
 @media (max-width: 768px) {
   .ranking-container {

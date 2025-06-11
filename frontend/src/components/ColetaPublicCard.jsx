@@ -8,9 +8,7 @@ const ColetaPublicCard = ({ coleta }) => {
     console.warn('Coleta inválida:', coleta);
     return null;
   }
-  // Debug: Verifique a estrutura do objeto coleta
-  console.log('Dados da coleta:', coleta);
-  if (!coleta) return null;
+
 
   return (
     <div className="coleta-public-card">

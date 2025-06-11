@@ -32,9 +32,7 @@ const PublicColetasPage = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Debug: Verifique os filtros antes da requisição
-        console.log('Filtros atuais:', filters);
+
         
         const [coletasData, rankingData, estatisticasData, distribuicaoData] = 
           await Promise.all([
@@ -59,14 +57,6 @@ const PublicColetasPage = () => {
               return [];
             })
           ]);
-        
-        // Debug: Verifique os dados recebidos
-        console.log('Dados carregados:', {
-          coletasData,
-          rankingData,
-          estatisticasData,
-          distribuicaoData
-        });
         
         setColetas(coletasData);
         setRanking(rankingData);
@@ -135,7 +125,10 @@ const PublicColetasPage = () => {
         {loading ? (
           <div className="graph-placeholder">Carregando gráfico...</div>
         ) : distribuicao.length > 0 ? (
-          <GraficoColetas dados={distribuicao} />
+          <div className="background-color-grafico" >
+            <GraficoColetas dados={distribuicao} />
+          </div>
+          
         ) : (
           <div className="nenhum-dado">Nenhum dado disponível</div>
         )}

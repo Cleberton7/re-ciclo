@@ -1,9 +1,10 @@
-/* content.css - Versão Atualizada */
+/* content.css - Versão Atualizada para os componentes reutilizados */
 .content {
   background-color: #009951;
   display: flex;
   color: rgb(0, 0, 0);
-  gap: 8px; /* Espaço entre os containers */
+  gap: 8px;
+  padding: 8px;
 }
 
 .containerRanked, .containerGraphic, .containerMaps {
@@ -12,18 +13,127 @@
   padding: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .containerMaps {
   flex: 3;
 }
 
+/* Containers internos para os componentes reutilizados */
+.ranking-wrapper{
+  flex: 1;
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  overflow: auto;
+}
+/* content.css - Apenas a parte do gráfico */
+.grafico-wrapper {
+  flex: 1;
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 300px;
+  position: relative;
+}
+/* Container principal do gráfico */
+.containerGraphic {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container do gráfico */
+.grafico-wrapper {
+  width: 100%;
+  height: 400px; /* Altura fixa */
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden; /* Essencial para conter o gráfico */
+}
+
+#textGraph {
+  background-color: antiquewhite;
+  border-radius: 5px;
+  height: 30px;
+  margin-bottom: 10px;
+  padding: 3px 12px;
+  width: fit-content;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.grafico-wrapper > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.grafico-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+/* Mensagens */
+.loading-message, .no-data-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  text-align: center;
+  color: #666;
+}
+.ranking-wrapper table {
+  width: 100%;
+}
+
+.ranking-wrapper th {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.ranking-wrapper td {
+  padding: 8px 12px;
+}
+
+/* Ajustes específicos para o ranking no content */
+.ranking-wrapper .ranking-container.compact {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.ranking-wrapper .ranking-container.compact table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+}
+
+.ranking-wrapper .ranking-container.compact thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ranking-wrapper .ranking-container.compact tbody tr {
+  background: white;
+  margin-bottom: 4px;
+}
 #maps {
   height: 500px;
   border-radius: 6px;
   overflow: hidden;
 }
-
 .mapa {
   width: 100%;
   height: 100%;
@@ -31,7 +141,6 @@
 }
 
 #rankedEmpresa, #graphic {
-  background-color: rgb(64, 114, 158);
   height: 500px;
   padding: 12px;
   margin: 2px;

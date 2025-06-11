@@ -4,54 +4,59 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// Cores padrão atualizadas para incluir variações
 const CORES_PADRAO = {
   'eletrônicos': '#FF9F40',
-  'eletronicos': '#FF9F40', // versão sem acento
+  'eletronicos': '#FF9F40',
   'plástico': '#FF6384',
-  'plásticos': '#FF6384', // plural
-  'plastico': '#FF6384', // sem acento
-  'plasticos': '#FF6384', // plural sem acento
+  'plásticos': '#FF6384',
+  'plastico': '#FF6384',
+  'plasticos': '#FF6384',
   'metal': '#4BC0C0',
   'outros': '#8A2BE2'
 };
 
-const GraficoColetas = ({ dados = [] }) => {
-  // Verificação segura dos dados
-  if (!Array.isArray(dados)) {
+const GraficoColetas = ({ dados = [], compactMode = false }) => {
+  // Processamento universal dos dados
+  const dadosProcessados = dados.map(item => ({
+    tipoMaterial: item.tipoMaterial || 'Outros',
+    total: item.quantidade || item.total || 0
+  }));
+
+  const dadosValidos = dadosProcessados.length > 0 && dadosProcessados.some(item => item.total > 0);
+
+  if (!dadosValidos) {
     return (
-      <div className="grafico-placeholder">
-        <p>Dados inválidos para exibir o gráfico</p>
+      <div style={{
+        height: compactMode ? '250px' : '400px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#666',
+        fontStyle: 'italic'
+      }}>
+        Nenhum dado disponível
       </div>
     );
   }
 
-  if (dados.length === 0) {
-    return (
-      <div className="grafico-placeholder">
-        <p>Não há dados suficientes para exibir o gráfico</p>
-      </div>
-    );
-  }
+  // Agrupa por tipoMaterial
+  const dadosAgrupados = dadosProcessados.reduce((acc, item) => {
+    const existente = acc.find(i => i.tipoMaterial === item.tipoMaterial);
+    if (existente) {
+      existente.total += item.total;
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
 
-  // Função para normalizar o tipo de material
-  const normalizarTipo = (tipo) => {
-    if (!tipo) return 'outros';
-    
-    return tipo.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
-      .replace(/s$/, ''); // remove plural
-  };
-
-  // Processamento dos dados
   const chartData = {
-    labels: dados.map(item => item.tipoMaterial || 'Outros'),
+    labels: dadosAgrupados.map(item => item.tipoMaterial),
     datasets: [{
-      data: dados.map(item => item.total || 0),
-      backgroundColor: dados.map(item => {
-        const tipoNormalizado = normalizarTipo(item.tipoMaterial);
-        return CORES_PADRAO[tipoNormalizado] || '#CCCCCC'; // cinza como fallback
-      }),
+      data: dadosAgrupados.map(item => item.total),
+      backgroundColor: dadosAgrupados.map(item => 
+        CORES_PADRAO[item.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || '#CCCCCC'
+      ),
       borderWidth: 1
     }]
   };
@@ -61,16 +66,19 @@ const GraficoColetas = ({ dados = [] }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right',
+        position: compactMode ? 'bottom' : 'right',
+        labels: {
+          boxWidth: 20,
+          padding: 20,
+          font: {
+            size: 14
+          }
+        }
       },
       tooltip: {
         callbacks: {
           label: (context) => {
-            const label = context.label || 'Outros';
-            const value = context.raw || 0;
-            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-            return `${label}: ${value}kg (${percentage}%)`;
+            return `${context.label}: ${context.raw}kg`;
           }
         }
       }
@@ -78,7 +86,13 @@ const GraficoColetas = ({ dados = [] }) => {
   };
 
   return (
-    <div style={{ height: '400px', margin: '20px 0', position: 'relative' }}>
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: compactMode ? '250px' : '400px',
+      margin: '0 auto',
+      
+    }}>
       <Pie 
         data={chartData} 
         options={options}

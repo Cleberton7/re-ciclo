@@ -10,10 +10,8 @@ export const getDadosPublicosColetas = async (filters = {}) => {
       periodo: filters.periodo || 'mensal',
       limit: 6
     };
-        console.log('Parâmetros enviados:', params); // Debug
     const { data } = await axios.get(`${API_BASE}/public/coletas`, { params });
-        console.log('Dados recebidos:', data); // Debug
-            
+     
     if (!data.data) {
       console.warn('Resposta da API não contém data.data:', data);
       return [];
