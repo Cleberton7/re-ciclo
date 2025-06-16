@@ -82,7 +82,7 @@ export const userController = {
           if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
           break;
         
-        case "coletor":
+        case "centro":
           if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
           if (veiculo) updateFields.veiculo = veiculo;
           if (capacidadeColeta) updateFields.capacidadeColeta = capacidadeColeta;

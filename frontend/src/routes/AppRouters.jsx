@@ -15,6 +15,10 @@ import NoticiasEventos from '../pages/NoticiasEventos';
 import NoticiaDetalhe from '../pages/NoticiaDetalhe';
 import Layout from "../components/Layout";
 import ProtectedRoute from "./ProtectedRoute";
+import EmailVerificationPage from '../pages/EmailVerificationPage';
+import PasswordResetPage from '../pages/PasswordResetPage';
+import UnauthorizedPage from '../pages/UnauthorizedPage'; // Crie esta página
+import EmailNotVerifiedPage from '../pages/EmailNotVerifiedPage'; // Crie esta página
 
 const AppRoutes = () => {
   return (
@@ -31,34 +35,70 @@ const AppRoutes = () => {
           <Route path="/contatos" element={<Contatos />} />
           <Route path="/noticia/:slug" element={<NoticiaDetalhe />} />
           <Route path="/noticiasEventos" element={<NoticiasEventos />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="/email-not-verified" element={<EmailNotVerifiedPage />} />
         </Route>
 
         {/* Rotas SEM layout */}
         <Route
           path="/painelEmpresa"
-          element={<ProtectedRoute element={<PainelEmpresa />} role="empresa" />}
+          element={
+            <ProtectedRoute 
+              element={<PainelEmpresa />} 
+              requiredRole="empresa" 
+              redirectPath="/unauthorized"
+            />
+          }
         />
         <Route
           path="/painelReciclador"
-          element={<ProtectedRoute element={<PainelReciclador />} role="coletor" />}
+          element={
+            <ProtectedRoute 
+              element={<PainelReciclador />} 
+              requiredRole="centro" 
+              redirectPath="/unauthorized"
+            />
+          }
         />
         <Route
           path="/painelPessoa"
-          element={<ProtectedRoute element={<PainelPessoa />} role="pessoa" />}
+          element={
+            <ProtectedRoute 
+              element={<PainelPessoa />} 
+              requiredRole="pessoa" 
+              redirectPath="/unauthorized"
+            />
+          }
         />
         <Route
           path="/painelAdmin"
-          element={<ProtectedRoute element={<PainelAdm />} role="adminGeral" />}
+          element={
+            <ProtectedRoute 
+              element={<PainelAdm />} 
+              requiredRole="adminGeral" 
+              redirectPath="/unauthorized"
+            />
+          }
         />
         <Route
           path="/painelNoticias"
-          element={<ProtectedRoute element={<PainelNoticias />} role="adminGeral" />}
+          element={
+            <ProtectedRoute 
+              element={<PainelNoticias />} 
+              requiredRole="adminGeral" 
+              redirectPath="/unauthorized"
+            />
+          }
         />
+        
+        {/* Rotas de autenticação */}
+        <Route path="/verificar-email" element={<EmailVerificationPage />} />
+        <Route path="/recuperar-senha" element={<PasswordResetPage />} />
 
         {/* Redirecionamentos */}
-        <Route path="/login" element={<Navigate to="/" />} />
-        <Route path="/register" element={<Navigate to="/" />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/register" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

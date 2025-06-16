@@ -10,7 +10,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import centroRoutes from './src/routes/centroRoutes.js';
-import coletorRoutes from './src/routes/coletorRoutes.js'; 
+//import coletorRoutes from './src/routes/coletorRoutes.js'; 
 import coletasRoutes from './src/routes/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
@@ -48,7 +48,7 @@ async function main() {
     app.use("/api/usuario", userRoutes); 
     app.use("/api/empresas", empresaRoutes);
     app.use("/api/centros-reciclagem", centroRoutes);
-    app.use("/api/coletor", coletorRoutes); 
+    //app.use("/api/coletor", coletorRoutes); 
     app.use("/api/coletas", coletasRoutes);
     app.use("/api/noticias", noticiaRoutes);  
     app.use("/api/public", publicRoutes);

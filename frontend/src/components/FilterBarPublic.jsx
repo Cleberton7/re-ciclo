@@ -45,7 +45,7 @@ const FilterBar = ({ filters, onChange, role }) => {
         </>
       )}
       {/* Filtros para Coletores */}
-      {role === 'coletor' && (
+      {role === 'centro' && (
         <>
           <div className="filter-group">
             <label htmlFor="tipoMaterial">Tipo de Material:</label>

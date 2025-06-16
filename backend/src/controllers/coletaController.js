@@ -39,9 +39,9 @@ export const getSolicitacoes = async (req, res) => {
 
     const filter = {};
     
-    if (userType === 'coletor') {
+    if (userType === 'centro') {
       filter.$or = [
-        { coletor: userId },
+        { centro: userId },
         { status: 'pendente' }
       ];
     } else {
@@ -53,7 +53,7 @@ export const getSolicitacoes = async (req, res) => {
 
     const solicitacoes = await Coleta.find(filter)
       .populate('solicitante', 'nome email telefone')
-      .populate('coletor', 'nome email telefone')
+      .populate('centro', 'nome email telefone')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -80,7 +80,7 @@ export const aceitarColeta = async (req, res) => {
       id,
       { 
         status: 'aceita',
-        coletor: coletorId
+        centro: coletorId
       },
       { new: true }
     ).populate('solicitante', 'nome endereco');
@@ -154,7 +154,7 @@ export const deletarColeta = async (req, res) => {
       _id: id,
       $or: [
         { solicitante: userId },
-        { coletor: userId }
+        { centro: userId }
       ]
     });
 

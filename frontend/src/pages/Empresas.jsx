@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { getEmpresasPublicas, getColetoresPublicos } from '../services/publicDataServices.js';
+import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
 import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle } from 'react-icons/fa';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
 
 const Empresas = () => {
   const [empresas, setEmpresas] = useState([]);
-  const [coletores, setColetores] = useState([]);
+  const [centrosReciclagem, setCentrosReciclagem] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empresasData, coletoresData] = await Promise.all([
+        const [empresasData, centrosReciclagemData] = await Promise.all([
           getEmpresasPublicas(),
-          getColetoresPublicos()
+          getCentrosReciclagemPublicos()
         ]);
 
         // Formatação dos dados das empresas
@@ -32,20 +32,20 @@ const Empresas = () => {
         }));
 
         // Formatação dos dados dos coletores
-        const coletoresFormatados = coletoresData.map(coletor => ({
-          id: coletor._id,
-          nomeExibido: coletor.nomeFantasia || coletor.nome || "Coletor",
-          email: coletor.email || "Não informado",
-          telefone: coletor.telefone ? formatarTelefone(coletor.telefone) : "Não informado",
-          cnpj: coletor.cnpj ? formatarCNPJ(coletor.cnpj) : "Não informado",
-          endereco: coletor.endereco || "Endereço não informado",
-          imagemUrl: coletor.imagemPerfil 
-            ? `http://localhost:5000/uploads/${coletor.imagemPerfil}`
+        const centrosReciclagemFormatados = centrosReciclagemData.map(centroReciclagem => ({
+          id: centroReciclagem._id,
+          nomeExibido: centroReciclagem.nomeFantasia || centroReciclagem.nome || "Centro de Reciclagem",
+          email: centroReciclagem.email || "Não informado",
+          telefone: centroReciclagem.telefone ? formatarTelefone(centroReciclagem.telefone) : "Não informado",
+          cnpj: centroReciclagem.cnpj ? formatarCNPJ(centroReciclagem.cnpj) : "Não informado",
+          endereco: centroReciclagem.endereco || "Endereço não informado",
+          imagemUrl: centroReciclagem.imagemPerfil 
+            ? `http://localhost:5000/uploads/${centroReciclagem.imagemPerfil}`
             : null
         }));
 
         setEmpresas(empresasFormatadas);
-        setColetores(coletoresFormatados);
+        setCentrosReciclagem(centrosReciclagemFormatados);
       } catch (err) {
         setError(err.message);
         console.error("Erro ao buscar dados públicos", err);
@@ -135,35 +135,35 @@ const Empresas = () => {
         <div className="secao">
           <h2><FaRecycle className="section-icon" /> Centros de Coleta</h2>
           <div className="cardsContainer">
-            {coletores.map(coletor => (
+            {centrosReciclagem.map(centrosReciclagem => (
               <div 
-                key={coletor.id} 
+                key={centrosReciclagem.id} 
                 className="cardEmpresa"
                 style={{ 
-                  backgroundImage: coletor.imagemUrl 
-                    ? `url(${coletor.imagemUrl})`
+                  backgroundImage: centrosReciclagem.imagemUrl 
+                    ? `url(${centrosReciclagem.imagemUrl})`
                     : 'none',
-                  backgroundColor: !coletor.imagemUrl ? '#009951' : 'transparent'
+                  backgroundColor: !centrosReciclagem.imagemUrl ? '#009951' : 'transparent'
                 }}
               >
                 <div className="card-overlay"></div>
                 <div className="card-content">
-                  <h3>{coletor.nomeExibido}</h3>
+                  <h3>{centrosReciclagem.nomeExibido}</h3>
                   <div className="info-item">
                     <FaEnvelope className="info-icon" />
-                    <span>{coletor.email}</span>
+                    <span>{centrosReciclagem.email}</span>
                   </div>
                   <div className="info-item">
                     <FaPhone className="info-icon" />
-                    <span>{coletor.telefone}</span>
+                    <span>{centrosReciclagem.telefone}</span>
                   </div>
                   <div className="info-item">
                     <FaMapMarkerAlt className="info-icon" />
-                    <span>{coletor.endereco}</span>
+                    <span>{centrosReciclagem.endereco}</span>
                   </div>
                   <div className="info-item">
                     <FaIdCard className="info-icon" />
-                    <span>{coletor.cnpj}</span>
+                    <span>{centrosReciclagem.cnpj}</span>
                   </div>
                 </div>
               </div>

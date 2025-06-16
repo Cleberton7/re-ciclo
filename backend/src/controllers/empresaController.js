@@ -1,4 +1,4 @@
-// controllers/empresaController.js
+
 
 export const getEmpresasParceiras = async (req, res) => {
   try {

@@ -1,0 +1,122 @@
+import express from 'express';
+import { 
+  verifyToken, 
+  requireAuth,
+  requireRole 
+} from '../middlewares/authMiddleware.js';
+import User from '../models/User.js';
+import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
+import { rateLimiter } from '../middlewares/rateLimiter.js';
+
+const router = express.Router();
+
+// Middleware específico para coletores
+const requireColetor = requireRole(['coletor']);
+
+// Configuração do upload para coletores (CORREÇÃO: usar createUploader em vez de uploadMiddleware)
+const uploadColetor = createUploader({
+  subfolder: 'coletores',
+  fieldName: 'imagemPerfil',
+  allowedTypes: ['image/jpeg', 'image/png'],
+  maxFileSize: 2 * 1024 * 1024 // 2MB
+});
+
+// GET dados do coletor logado
+router.get('/dados', verifyToken, requireColetor, async (req, res) => {
+  try {
+    const coletor = await User.findById(req.user.id)
+      .select('-senha -__v -createdAt -updatedAt -emailVerificationToken');
+
+    if (!coletor) {
+      return res.status(404).json({ 
+        success: false,
+        code: 'COLETOR_NOT_FOUND',
+        message: 'Coletor não encontrado' 
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...coletor._doc,
+        nomeCompleto: coletor.nome || coletor.razaoSocial,
+        documento: coletor.cnpj || coletor.cpf
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      code: 'SERVER_ERROR',
+      message: 'Erro ao buscar dados do coletor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// PUT atualizar dados do coletor
+router.put(
+  '/atualizar',
+  verifyToken,
+  requireColetor,
+  uploadColetor,
+  uploadErrorHandler,
+  async (req, res) => {
+    try {
+      const allowedUpdates = ['nome', 'telefone', 'veiculo', 'capacidadeColeta'];
+      const updates = Object.keys(req.body)
+        .filter(key => allowedUpdates.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = req.body[key];
+          return obj;
+        }, {});
+
+      if (req.file) {
+        updates.imagemPerfil = `/uploads/coletores/${req.file.filename}`;
+      }
+
+      const coletor = await User.findByIdAndUpdate(
+        req.user.id,
+        { $set: updates },
+        { new: true, runValidators: true }
+      ).select('-senha -__v -emailVerificationToken');
+
+      res.json({ 
+        success: true,
+        message: 'Dados atualizados com sucesso',
+        data: coletor 
+      });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: 'Erro ao atualizar dados',
+        details: error.message 
+      });
+    }
+  }
+);
+
+// Rotas públicas (com rate limiting)
+router.get('/publicos', rateLimiter(30, 60), async (req, res) => {
+  try {
+    const coletores = await User.find({ 
+      tipoUsuario: 'coletor',
+      emailVerificado: true 
+    })
+    .select('nome email endereco cnpj telefone nomeFantasia veiculo capacidadeColeta imagemPerfil')
+    .lean();
+      
+    res.json({ 
+      success: true,
+      data: coletores 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      code: 'SERVER_ERROR',
+      message: 'Erro ao buscar coletores' 
+    });
+  }
+});
+
+export default router;

@@ -92,7 +92,7 @@ const PainelReciclador = () => {
 
   return (
     <div id="containerPrincipal">
-      <PainelGenerico tipoUsuario="coletor" />
+      <PainelGenerico tipoUsuario="centro" />
 
       <div className="dashboard-container">
         {notificacao.show && (

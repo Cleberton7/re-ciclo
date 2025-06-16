@@ -9,10 +9,7 @@ export const formatDate = (dateString) => {
 export const getMaterialIcon = (material) => {
   const icons = {
     plástico: '♻️',
-    papel: '📄',
-    vidro: '🍶',
     metal: '🔩',
-    orgânico: '🍂',
     eletrônicos: '💻',
     outros: '🗑️'
   };

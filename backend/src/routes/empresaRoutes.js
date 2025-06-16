@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyToken, checkUserType } from '../middlewares/authMiddleware.js';
+import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 import User from '../models/User.js';
 import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
 
@@ -13,7 +13,7 @@ const uploadEmpresa = createUploader({
   allowedTypes: ['IMAGE'],
   maxFileSize: 2 * 1024 * 1024 // 2MB
 });
-router.get('/dados', verifyToken, checkUserType(['empresa']), async (req, res) => {
+router.get('/dados', verifyToken, requireRole(['empresa']), async (req, res) => {
   try {
     const empresa = await User.findById(req.user.id).select('-senha -__v -createdAt -updatedAt');
     if (!empresa) {
@@ -36,10 +36,10 @@ router.get('/dados', verifyToken, checkUserType(['empresa']), async (req, res) =
   }
 });
 
-router.get('/coletores-disponiveis', verifyToken, checkUserType(['empresa']), async (req, res) => {
+router.get('/coletores-disponiveis', verifyToken, requireRole(['empresa']), async (req, res) => {
   try {
     const coletores = await User.find({
-      tipoUsuario: 'coletor',
+      tipoUsuario: 'centro',
       endereco: req.user.endereco
     }).select('nome email telefone veiculo capacidadeColeta');
     res.json({ success: true, data: coletores });
@@ -49,7 +49,7 @@ router.get('/coletores-disponiveis', verifyToken, checkUserType(['empresa']), as
 });
 
 
-router.put('/atualizar-localizacao', verifyToken, checkUserType(['empresa']), async (req, res) => {
+router.put('/atualizar-localizacao',verifyToken, requireRole(['empresa']), async (req, res) => {
   try {
     const { lat, lng } = req.body.localizacao;
     if (typeof lat !== 'number' || typeof lng !== 'number') {
@@ -96,8 +96,8 @@ router.get('/publicas', async (req, res) => {
 
 router.put(
   '/atualizar',
-  verifyToken,
-  checkUserType(['empresa']),
+  verifyToken, 
+  requireRole(['empresa']),
   uploadEmpresa,
   uploadErrorHandler,
   async (req, res) => {

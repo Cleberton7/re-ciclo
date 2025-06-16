@@ -6,7 +6,7 @@ import Register from "../pages/Register";
 import "../pages/styles/navHeader.css";
 import { FiMenu, FiX } from "react-icons/fi";
 import LogoCapa from "../assets/logoCapa.png";
-import useAuth from "../contexts/authFunctions";
+import useAuth from "../hooks/useAuth";
 
 const NavHeader = () => {
   const location = useLocation();
@@ -40,7 +40,7 @@ const NavHeader = () => {
       case "empresa":
         navigate("/painelEmpresa");
         break;
-      case "coletor":
+      case "centro":
         navigate("/painelReciclador");
         break;
       case "adminGeral":
@@ -61,7 +61,6 @@ const NavHeader = () => {
     { path: "/", label: "Home" },
     { path: "/empresas", label: "Empresas Parceiras" },
     { path: "/recicle", label: "Recicle" },
-    //{ path: "/coletas", label: "Coletas" },
     { path: "/publicColetasPage", label: "Coletas" },
     { path: "/eventos", label: "Eventos" },
     { path: "/contatos", label: "Contatos" }

@@ -6,9 +6,8 @@ import {
   atualizarNoticia,
   deletarNoticia
 } from '../controllers/noticiaController.js';
-import { verifyToken, requireLogin, checkUserType } from '../middlewares/authMiddleware.js';
+import { verifyToken, requireAuth, requireRole, requireAdmin } from '../middlewares/authMiddleware.js';
 import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
-
 
 const router = express.Router();
 
@@ -19,7 +18,9 @@ const noticiaUpload = createUploader({
   allowedTypes: ['IMAGE']
 });
 
-const apenasAdmGeral = [verifyToken, requireLogin, checkUserType(['adminGeral'])];
+const apenasAdmGeral = [verifyToken, requireAuth, requireRole(['adminGeral'])];
+// OU usando o middleware pré-definido:
+// const apenasAdmGeral = [verifyToken, requireAdmin];
 
 // Rotas públicas
 router.get('/', listarNoticias);

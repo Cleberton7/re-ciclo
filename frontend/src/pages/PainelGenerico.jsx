@@ -43,7 +43,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       const endpoint = {
         empresa: 'api/empresas/dados',
         pessoa: 'api/usuarios/pessoal',
-        coletor: 'api/coletor/dados',
+        centro: 'api/centros-reciclagem/dados',
         admGeral: 'api/admin/dados'
       }[tipoUsuario];
 
@@ -59,13 +59,13 @@ const PainelGenerico = ({ tipoUsuario }) => {
         });
 
         const dadosRecebidos = response.data.data || response.data;
-        const documento = tipoUsuario === "empresa" || tipoUsuario === "coletor"
+        const documento = tipoUsuario === "empresa" || tipoUsuario === "centro"
           ? dadosRecebidos.cnpj || 'Não informado'
           : dadosRecebidos.cpf || 'Não informado';
 
         const nomeExibido = tipoUsuario === "empresa"
           ? dadosRecebidos.razaoSocial
-          : tipoUsuario === "coletor"
+          : tipoUsuario === "centro"
           ? dadosRecebidos.nomeFantasia
           : dadosRecebidos.nome;
 
@@ -144,7 +144,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
         formData.append('nomeFantasia', tempDados.nomeFantasia || '');
       } else if (tipoUsuario === "pessoa") {
         formData.append('nome', tempDados.nome || '');
-      } else if (tipoUsuario === "coletor") {
+      } else if (tipoUsuario === "centro") {
         formData.append('nomeFantasia', tempDados.nomeFantasia || '');
         formData.append('veiculo', tempDados.veiculo || '');
         formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
@@ -192,12 +192,12 @@ const PainelGenerico = ({ tipoUsuario }) => {
       setDados(prev => ({
         ...prev, // Mantém todos os dados anteriores
         ...novosDados, // Adiciona os novos dados
-        documento: tipoUsuario === "empresa" || tipoUsuario === "coletor" 
+        documento: tipoUsuario === "empresa" || tipoUsuario === "centro" 
           ? novosDados.cnpj || prev.documento 
           : novosDados.cpf || prev.documento,
         nomeExibido: tipoUsuario === "empresa"
           ? novosDados.razaoSocial || prev.nomeExibido
-          : tipoUsuario === "coletor"
+          : tipoUsuario === "centro"
           ? novosDados.nomeFantasia || prev.nomeExibido
           : novosDados.nome || prev.nomeExibido,
         imagemPerfil: updatedImageUrl // Atualiza a URL da imagem
@@ -281,7 +281,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       const token = localStorage.getItem("token");
       const endpoint = {
         empresa: 'api/empresas/atualizar-localizacao',
-        coletor: 'api/coletor/atualizar-localizacao'
+        centro: 'api/centros-reciclagem/atualizar-localizacao'
       }[tipoUsuario];
 
       if (!endpoint) {
@@ -413,7 +413,7 @@ if (loading) return (
   return (
     <div className="painel-container" id="containerPrincipal">
       <div className="painel-header">
-        <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'coletor' ? 'Coletor' : 'Usuário'}</h2>
+        <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'centro' ? 'Centro de Reciclagem' : 'Usuário'}</h2>
         {tipoUsuario !== 'admGeral' && (
           <div className="action-buttons">
             {!editing ? (
@@ -513,7 +513,7 @@ if (loading) return (
           </div>
 
           <div className="dados-section">
-            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : tipoUsuario === 'coletor' ? 'do Coletor' : 'Pessoais'}</h3>
+            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : tipoUsuario === 'centro' ? 'do Centro de Reciclagem' : 'Pessoais'}</h3>
             
             <div className="info-row">
               <span>Email:</span>
@@ -521,19 +521,19 @@ if (loading) return (
             </div>
 
             <div className="info-row">
-              <span>{tipoUsuario === "empresa" || tipoUsuario === "coletor" ? "CNPJ" : "CPF"}:</span>
+              <span>{tipoUsuario === "empresa" || tipoUsuario === "centro" ? "CNPJ" : "CPF"}:</span>
               <strong>{dados.documento}</strong>
             </div>
 
             <div className="info-row">
-              <span>{tipoUsuario === "empresa" ? "Razão Social" : tipoUsuario === "coletor" ? "Nome Fantasia" : "Nome"}:</span>
+              <span>{tipoUsuario === "empresa" ? "Razão Social" : tipoUsuario === "centro" ? "Nome Fantasia" : "Nome"}:</span>
               {editing ? (
                 <input
                   type="text"
-                  value={tempDados[tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"] || ''}
+                  value={tempDados[tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"] || ''}
                   onChange={(e) => setTempDados(prev => ({
                     ...prev,
-                    [tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "coletor" ? "nomeFantasia" : "nome"]: e.target.value
+                    [tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"]: e.target.value
                   }))}
                 />
               ) : (
@@ -558,7 +558,7 @@ if (loading) return (
               )}
             </div>
 
-            {tipoUsuario === "coletor" && (
+            {tipoUsuario === "centro" && (
               <>
                 <div className="info-row">
                   <span>Veículo:</span>
@@ -590,7 +590,7 @@ if (loading) return (
             )}
           </div>
         </div>
-        {(tipoUsuario === "empresa" || tipoUsuario === "coletor") && (
+        {(tipoUsuario === "empresa" || tipoUsuario === "centro") && (
           <div className="localizacao-section">
             <h3>Localização</h3>
             <div className="info-row">

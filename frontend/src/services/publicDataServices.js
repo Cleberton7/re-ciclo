@@ -16,16 +16,16 @@ export const getEmpresasPublicas = async () => {
   }
 };
 
-export const getColetoresPublicos = async () => {
+export const getCentrosReciclagemPublicos = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/coletor/publicos`);
-    return response.data.data.map(coletor => ({
-      ...coletor,
+    const response = await axios.get(`${API_BASE}/centros-reciclagem/publicos`);
+    return response.data.data.map(centroReciclagem => ({
+      ...centroReciclagem,
     
-      imagemPerfil: coletor.imagemPerfil || null
+      imagemPerfil: centroReciclagem.imagemPerfil || null
     }));
   } catch (error) {
-    console.error('Erro ao buscar coletores públicos:', error);
+    console.error('Erro ao buscar centro de reciclagem públicos:', error);
     throw error;
   }
 };

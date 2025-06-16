@@ -7,7 +7,9 @@ const AuthProvider = ({ children }) => {
     isLoggedIn: false,
     userName: '',
     role: '',
-    userData: null
+    userData: null,
+    emailVerified: false,
+    loading: true // Adicionando estado de loading
   });
 
   // Verifica autenticação ao carregar
@@ -19,39 +21,28 @@ const AuthProvider = ({ children }) => {
       if (token && storedUser) {
         try {
           const userData = JSON.parse(storedUser);
+          
+          // Verifica se o token ainda é válido e atualiza os dados do usuário
+          const updatedUser = await authService.getUserData();
+          const normalizedUser = normalizeUserData(updatedUser || userData);
+
+          localStorage.setItem("userData", JSON.stringify(normalizedUser));
+
           setAuthState({
             isLoggedIn: true,
-            userName: userData.displayName,
-            role: userData.tipoUsuario,
-            userData: userData
+            userName: normalizedUser.displayName,
+            role: normalizedUser.tipoUsuario,
+            userData: normalizedUser,
+            emailVerified: normalizedUser.emailVerificado || false,
+            loading: false
           });
-          
-          // Verifica se o token ainda é válido
-          await authService.getUserData();
-          return;
         } catch (error) {
-          console.log("Token inválido ou expirado, fazendo logout...",error);
+          console.log("Token inválido ou expirado, fazendo logout...", error);
           logout();
+          setAuthState(prev => ({ ...prev, loading: false }));
         }
-      }
-
-      if (!token) return;
-
-      try {
-        const user = await authService.getUserData();
-        const userData = normalizeUserData(user);
-
-        localStorage.setItem("userData", JSON.stringify(userData));
-
-        setAuthState({
-          isLoggedIn: true,
-          userName: userData.displayName,
-          role: userData.tipoUsuario,
-          userData: userData
-        });
-      } catch (error) {
-        console.error("Falha ao verificar autenticação:", error);
-        logout();
+      } else {
+        setAuthState(prev => ({ ...prev, loading: false }));
       }
     };
 
@@ -65,13 +56,12 @@ const AuthProvider = ({ children }) => {
     const userObj = user?.toObject ? user.toObject() : { ...user };
     
     // Remove campos vazios ou undefined
-  const cleanUser = Object.entries(userObj).reduce((acc, [key, value]) => {
-    // Remove campos vazios, null ou undefined, mas mantém string vazia ('')
-    if (value !== null && value !== undefined) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
+    const cleanUser = Object.entries(userObj).reduce((acc, [key, value]) => {
+      if (value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
 
     // Lógica robusta para displayName
     let displayName = '';
@@ -79,7 +69,7 @@ const AuthProvider = ({ children }) => {
       case 'empresa':
         displayName = cleanUser.razaoSocial || cleanUser.nome || cleanUser.email;
         break;
-      case 'coletor':
+      case 'centro':
         displayName = cleanUser.nomeFantasia || cleanUser.nome || cleanUser.email;
         break;
       case 'adminGeral':
@@ -95,7 +85,8 @@ const AuthProvider = ({ children }) => {
       ...cleanUser,
       displayName,
       tipoUsuario: cleanUser.tipoUsuario || 'pessoa',
-      id: cleanUser.id || cleanUser._id?.toString()
+      id: cleanUser.id || cleanUser._id?.toString(),
+      emailVerificado: cleanUser.emailVerificado || false
     };
   };
 
@@ -109,7 +100,9 @@ const AuthProvider = ({ children }) => {
       isLoggedIn: true,
       userName: normalizedUser.displayName,
       role: normalizedUser.tipoUsuario,
-      userData: normalizedUser
+      userData: normalizedUser,
+      emailVerified: normalizedUser.emailVerificado || false,
+      loading: false
     });
   };
 
@@ -120,8 +113,42 @@ const AuthProvider = ({ children }) => {
       isLoggedIn: false,
       userName: '',
       role: '',
-      userData: null
+      userData: null,
+      emailVerified: false,
+      loading: false
     });
+  };
+
+  // Função para atualizar os dados do usuário após verificação de e-mail
+  const verifyEmail = async () => {
+    try {
+      const updatedUser = await authService.getUserData();
+      const normalizedUser = normalizeUserData(updatedUser);
+
+      localStorage.setItem("userData", JSON.stringify(normalizedUser));
+
+      setAuthState(prev => ({
+        ...prev,
+        userData: normalizedUser,
+        emailVerified: true
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error("Erro ao verificar e-mail:", error);
+      return false;
+    }
+  };
+
+  // Função para reenviar e-mail de verificação
+  const resendVerificationEmail = async () => {
+    try {
+      await authService.resendVerificationEmail();
+      return true;
+    } catch (error) {
+      console.error("Erro ao reenviar e-mail de verificação:", error);
+      return false;
+    }
   };
 
   return (
@@ -129,7 +156,9 @@ const AuthProvider = ({ children }) => {
       ...authState,
       login,
       logout,
-      // Adiciona função para atualizar dados do usuário
+      verifyEmail,
+      resendVerificationEmail,
+    
       updateUserData: (newData) => {
         const updatedUser = normalizeUserData({
           ...authState.userData,
@@ -141,7 +170,9 @@ const AuthProvider = ({ children }) => {
         setAuthState(prev => ({
           ...prev,
           userData: updatedUser,
-          userName: updatedUser.displayName
+          userName: updatedUser.displayName,
+          role: updatedUser.tipoUsuario, // Garante que role é atualizado
+          emailVerified: updatedUser.emailVerificado || false
         }));
       }
     }}>

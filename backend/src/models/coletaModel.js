@@ -28,7 +28,7 @@ const coletaSchema = new mongoose.Schema({
   dataColeta: {
     type: Date
   },
-  coletor: {
+  centro: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
@@ -65,7 +65,7 @@ const coletaSchema = new mongoose.Schema({
 
 // Índices atualizados
 coletaSchema.index({ solicitante: 1 });
-coletaSchema.index({ coletor: 1 });
+coletaSchema.index({ centro: 1 });
 coletaSchema.index({ status: 1 });
 coletaSchema.index({ tipoMaterial: 1 });
 coletaSchema.index({ privacidade: 1 });  // NOVO ÍNDICE

@@ -19,7 +19,7 @@ const Content = () => {
         const [localizacoesRes, graficoRes, rankingRes] = await Promise.all([
           axios.all([
             axios.get('http://localhost:5000/api/empresas/localizacoes'),
-            axios.get('http://localhost:5000/api/coletor/localizacoes')
+            axios.get('http://localhost:5000/api/centros-reciclagem/localizacoes')
           ]),
           axios.get('http://localhost:5000/api/public/coletas'),
           axios.get('http://localhost:5000/api/public/ranking')
@@ -38,7 +38,7 @@ const Content = () => {
           })),
           ...coletores.map(c => ({ 
             ...c.localizacao, 
-            tipo: 'coletor', 
+            tipo: 'centro', 
             nome: c.nome 
           }))
         ].filter(p => p.lat && p.lng);
@@ -50,8 +50,7 @@ const Content = () => {
         setDadosGrafico(dadosGrafico);
         
         setRankingEmpresas(rankingRes.data?.data || []);
-        
-        console.log('Dados processados para gráfico:', dadosGrafico);
+
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
       } finally {

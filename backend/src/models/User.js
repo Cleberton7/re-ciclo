@@ -75,7 +75,7 @@ const UserSchema = new mongoose.Schema({
   },
   nomeFantasia: {
     type: String,
-    required: function() { return this.tipoUsuario === 'coletor'; },
+    required: function() { return this.tipoUsuario === 'centro'; },
   },
   nome: { 
     type: String, 
@@ -91,6 +91,14 @@ const UserSchema = new mongoose.Schema({
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'],
     lowercase: true,
   },
+    emailVerificado: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: String,
+  emailVerificationExpires: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   senha: { 
     type: String, 
     required: true,
@@ -118,7 +126,7 @@ const UserSchema = new mongoose.Schema({
   tipoUsuario: { 
     type: String, 
     required: true,
-    enum: ['pessoa', 'empresa', 'coletor', 'adminGeral'],
+    enum: ['pessoa', 'empresa', 'centro', 'adminGeral'],
     default: 'pessoa'
   },
   cpf: {
@@ -132,18 +140,12 @@ const UserSchema = new mongoose.Schema({
   cnpj: {
     type: String,
     required: function() {
-      return this.tipoUsuario === 'empresa' || this.tipoUsuario === 'coletor';
+      return this.tipoUsuario === 'empresa' || this.tipoUsuario === 'centro';
     },
     validate: {
       validator: validarCNPJ,
       message: props => `${props.value} não é um CNPJ válido`
     }
-  },
-  veiculo: { type: String },
-  capacidadeColeta: { 
-    type: Number,
-    default: 0,
-    required: function(){ return this.tipoUsuario === 'coletor'}
   },
   dataCadastro: { 
     type: Date, 

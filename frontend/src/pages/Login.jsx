@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
-import { loginUser } from "../services/authService";
-import useAuth from "../contexts/authFunctions";
+import { loginUser, requestPasswordReset } from "../services/authService";
+import useAuth from "../hooks/useAuth";
 
 const Login = ({ onLoginSuccess, onRegisterClick }) => {
   const [showRecoverModal, setShowRecoverModal] = useState(false);
+  const [recoverEmail, setRecoverEmail] = useState("");
+  const [recoverMessage, setRecoverMessage] = useState("");
+  const [recoverError, setRecoverError] = useState("");
+  const [recoverLoading, setRecoverLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
@@ -26,30 +30,42 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
     try {
       const response = await loginUser({ email, senha });
-      console.log('Resposta completa da API:', response);
-      console.log('Dados do usuário recebidos:', response.usuario);
-
 
       if (!response?.token || !response?.usuario) {
         throw new Error("Resposta do servidor incompleta");
       }
 
-  
+      // Verifica se o e-mail está verificado
+      if (!response.usuario.emailVerificado) {
+        throw new Error("E-mail não verificado. Por favor, verifique sua caixa de entrada.");
+      }
 
-      // Chama o contexto para atualizar o estado global
       login(response.usuario, response.token);
-      // Callback de sucesso
       onLoginSuccess();
-
     } catch (err) {
       console.error("Erro no login:", err);
       setError(err.message || "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
-    
   };
-  
+
+  const handleRecoverPassword = async (e) => {
+    e.preventDefault();
+    setRecoverError("");
+    setRecoverMessage("");
+    setRecoverLoading(true);
+
+    try {
+      await requestPasswordReset(recoverEmail);
+      setRecoverMessage("E-mail de recuperação enviado. Verifique sua caixa de entrada.");
+      setRecoverEmail("");
+    } catch (err) {
+      setRecoverError(err.response?.data?.mensagem || "Erro ao solicitar recuperação");
+    } finally {
+      setRecoverLoading(false);
+    }
+  };
 
   return (
     <div className="login-modal-content">
@@ -120,14 +136,24 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
             </button>
             <h3>Recuperar Senha</h3>
             <p>Digite seu e-mail para receber o link de recuperação</p>
-            <input 
-              type="email" 
-              placeholder="Digite seu e-mail" 
-              required
-            />
-            <div className="modal-buttons">
-              <button>Enviar</button>
-            </div>
+            
+            {recoverMessage && <div className="success-message">{recoverMessage}</div>}
+            {recoverError && <div className="error-message">{recoverError}</div>}
+            
+            <form onSubmit={handleRecoverPassword}>
+              <input 
+                type="email" 
+                placeholder="Digite seu e-mail" 
+                value={recoverEmail}
+                onChange={(e) => setRecoverEmail(e.target.value)}
+                required
+              />
+              <div className="modal-buttons">
+                <button type="submit" disabled={recoverLoading}>
+                  {recoverLoading ? 'Enviando...' : 'Enviar'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
