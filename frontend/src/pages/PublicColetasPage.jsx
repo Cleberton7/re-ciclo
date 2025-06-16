@@ -80,7 +80,7 @@ const PublicColetasPage = () => {
   };
 
   return (
-    <div className="public-coletas-container">
+    <div className="public-coletas-container" id="containerPrincipal">
       <header className="public-coletas-header">
         <h1>Dados Públicos de Coleta Seletiva</h1>
         <p>Visualize as coletas realizadas e o impacto ambiental positivo</p>

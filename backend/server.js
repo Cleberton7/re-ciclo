@@ -45,7 +45,7 @@ async function main() {
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
     // Rotas
     app.use("/api/auth", authRoutes);
-    app.use("/api/usuario", userRoutes); 
+    app.use("/api/usuarios", userRoutes); 
     app.use("/api/empresas", empresaRoutes);
     app.use("/api/centros-reciclagem", centroRoutes);
     //app.use("/api/coletor", coletorRoutes); 

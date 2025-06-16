@@ -50,7 +50,7 @@ export const registerUser = async (userData) => {
 };
 
 export const getUserData = async () => {
-  const response = await api.get('/usuario/pessoal');
+  const response = await api.get('/usuarios/pessoal');
   return response.data;
 };
 export const requestPasswordReset = async (email) => {

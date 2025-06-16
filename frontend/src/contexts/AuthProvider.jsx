@@ -20,34 +20,38 @@ const AuthProvider = ({ children }) => {
       if (token && storedUser) {
         try {
           const userData = JSON.parse(storedUser);
+          let normalizedUser = normalizeUserData(userData);
+          
           try {
             const updatedUser = await authService.getUserData();
-            const normalizedUser = normalizeUserData(updatedUser || userData);
-
-            localStorage.setItem("userData", JSON.stringify(normalizedUser));
-
-            setAuthState({
-              isLoggedIn: true,
-              userName: normalizedUser.displayName,
-              role: normalizedUser.tipoUsuario,
-              userData: normalizedUser,
-              emailVerified: normalizedUser.emailVerificado || false,
-              loading: false
+            normalizedUser = normalizeUserData({
+              ...normalizedUser, // Mantém os dados existentes
+              ...updatedUser     // Atualiza com novos dados
             });
           } catch (apiError) {
-            console.log("Falha ao atualizar dados do usuário, usando dados locais...", apiError);
-            const normalizedUser = normalizeUserData(userData);
-            setAuthState({
-              isLoggedIn: true,
-              userName: normalizedUser.displayName,
-              role: normalizedUser.tipoUsuario,
-              userData: normalizedUser,
-              emailVerified: normalizedUser.emailVerificado || false,
-              loading: false
-            });
+            console.log("Usando dados locais...", apiError);
           }
+
+          // Garante que o displayName não seja perdido
+          if (!normalizedUser.displayName) {
+            normalizedUser.displayName = userData.displayName || 
+                                        normalizedUser.nome || 
+                                        normalizedUser.email || 
+                                        'Usuário';
+          }
+
+          localStorage.setItem("userData", JSON.stringify(normalizedUser));
+
+          setAuthState({
+            isLoggedIn: true,
+            userName: normalizedUser.displayName,
+            role: normalizedUser.tipoUsuario,
+            userData: normalizedUser,
+            emailVerified: normalizedUser.emailVerificado || false,
+            loading: false
+          });
         } catch (error) {
-          console.log("Token inválido ou expirado, fazendo logout...", error);
+          console.log("Erro na verificação...", error);
           logout();
           setAuthState(prev => ({ ...prev, loading: false }));
         }
@@ -55,14 +59,16 @@ const AuthProvider = ({ children }) => {
         setAuthState(prev => ({ ...prev, loading: false }));
       }
     };
-
     verifyAuth();
   }, []);
 
   const normalizeUserData = (user) => {
     if (!user) return {};
-
+    
+    // Garante que trabalhamos com um objeto simples
     const userObj = user?.toObject ? user.toObject() : { ...user };
+    
+    // Remove campos nulos/undefined
     const cleanUser = Object.entries(userObj).reduce((acc, [key, value]) => {
       if (value !== null && value !== undefined) {
         acc[key] = value;
@@ -70,26 +76,30 @@ const AuthProvider = ({ children }) => {
       return acc;
     }, {});
 
+    // Lógica aprimorada para displayName
     let displayName = '';
-    switch (cleanUser.tipoUsuario) {
-      case 'empresa':
-        displayName = cleanUser.razaoSocial || cleanUser.nome || cleanUser.email;
-        break;
-      case 'centro':
-        displayName = cleanUser.nomeFantasia || cleanUser.nome || cleanUser.email;
-        break;
-      case 'adminGeral':
-        displayName = (cleanUser.nome && cleanUser.nome.trim() !== '')
-          ? cleanUser.nome
-          : cleanUser.email;
-        break;
-      default:
-        displayName = cleanUser.nome || cleanUser.email;
+    
+    // 1. Primeiro tenta usar o nome armazenado
+    if (cleanUser.displayName) {
+      displayName = cleanUser.displayName;
+    } 
+    // 2. Se não tiver, usa a lógica específica por tipo de usuário
+    else {
+      switch (cleanUser.tipoUsuario) {
+        case 'empresa':
+          displayName = cleanUser.razaoSocial || cleanUser.nomeFantasia || cleanUser.nome || cleanUser.email;
+          break;
+        case 'centro':
+          displayName = cleanUser.nomeFantasia || cleanUser.nome || cleanUser.email;
+          break;
+        default:
+          displayName = cleanUser.nome || cleanUser.email || 'Usuário';
+      }
     }
 
     return {
       ...cleanUser,
-      displayName,
+      displayName, // Garante que sempre terá um valor
       tipoUsuario: cleanUser.tipoUsuario || 'pessoa',
       id: cleanUser.id || cleanUser._id?.toString(),
       emailVerificado: cleanUser.emailVerificado || false

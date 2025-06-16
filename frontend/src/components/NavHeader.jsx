@@ -11,7 +11,7 @@ import useAuth from "../hooks/useAuth";
 const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, userName, role, userData, logout } = useAuth();
+  const { isLoggedIn, userName, role, userData, logout,loading } = useAuth();
 
   const [activeModal, setActiveModal] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -106,7 +106,11 @@ const NavHeader = () => {
                   style={{ cursor: "pointer" }}
                   title={userData?.email}
                 >
-                  Olá, {userName || userData?.email || 'Usuário'}
+                  {loading ? (
+                    'Carregando...'
+                  ) : (
+                    `Olá, ${userName || userData?.nome || userData?.email || 'Usuário'}`
+                  )}
                 </div>
                 <div 
                   id="loggout" 
