@@ -89,7 +89,7 @@ export const sendPasswordResetEmail = async (user, token) => {
 
   return await sendEmail(
     user.email,
-    'Redefinição de Senha - ReciclaTech',
+    'Redefinição de Senha - Recicle',
     html
   );
 };
