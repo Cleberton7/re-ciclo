@@ -17,7 +17,19 @@ api.interceptors.request.use(
   },
   error => Promise.reject(error)
 );
-
+// No seu arquivo authService.js
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Token inválido ou expirado
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      window.location.href = '/login'; // Ou use seu sistema de roteamento
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const loginUser = async (credentials) => {
   const response = await api.post('/auth/login', credentials);
@@ -60,5 +72,15 @@ export const resendVerificationEmail = async (email) => {
   const response = await api.post('/auth/resend-verification', { email });
   return response.data;
 };
-// ✅ Aqui exporta a instância do axios corretamente
-export default api;
+
+const authService = {
+  loginUser,
+  registerUser,
+  getUserData,
+  requestPasswordReset,
+  resetPassword,
+  verifyEmail,
+  resendVerificationEmail
+};
+
+export default authService;

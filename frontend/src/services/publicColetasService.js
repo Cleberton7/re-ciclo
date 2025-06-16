@@ -1,5 +1,5 @@
 import axios from 'axios';
-import api from './authService'; 
+import  authService  from '../services/authService'; // ✅ Corrigido aqui
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -11,14 +11,14 @@ export const getDadosPublicosColetas = async (filters = {}) => {
       limit: 6
     };
     const { data } = await axios.get(`${API_BASE}/public/coletas`, { params });
-     
+
     if (!data.data) {
       console.warn('Resposta da API não contém data.data:', data);
       return [];
     }
     return data.data || [];
   } catch (error) {
-console.error('Erro detalhado:', {
+    console.error('Erro detalhado:', {
       message: error.message,
       response: error.response?.data,
       config: error.config
@@ -66,9 +66,9 @@ export const getDistribuicaoMateriais = async () => {
 export const concluirColeta = async (idSolicitacao) => {
   try {
     console.log(`Tentando concluir coleta ID: ${idSolicitacao}`);
-    
-    const { data } = await api.put(`/coletas/${idSolicitacao}/concluir`);
-    
+
+    const { data } = await authService.put(`/coletas/${idSolicitacao}/concluir`); // ✅ Corrigido aqui
+
     if (!data.success) {
       console.error('Erro no backend:', {
         mensagem: data.message,
@@ -76,10 +76,10 @@ export const concluirColeta = async (idSolicitacao) => {
       });
       throw new Error(data.message || 'Falha ao concluir coleta');
     }
-    
+
     console.log('Coleta concluída com sucesso:', data);
     return data;
-    
+
   } catch (error) {
     const errorDetails = {
       mensagem: error.message,
@@ -87,11 +87,11 @@ export const concluirColeta = async (idSolicitacao) => {
       dados: error.response?.data,
       endpoint: error.config?.url
     };
-    
+
     console.error('Erro completo ao concluir coleta:', errorDetails);
-    
+
     throw new Error(
-      error.response?.data?.message || 
+      error.response?.data?.message ||
       'Erro ao processar conclusão da coleta. Tente novamente.'
     );
   }

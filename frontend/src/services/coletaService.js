@@ -1,5 +1,5 @@
 import axios from 'axios';
-import api from './authService'; 
+import  authService  from './authService'; // ✅ Corrigido aqui
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -13,17 +13,17 @@ export const getSolicitacoesColeta = async (filters = {}) => {
     const params = new URLSearchParams();
     if (filters.tipoMaterial) params.append('tipoMaterial', filters.tipoMaterial);
     if (filters.status) params.append('status', filters.status);
-    
+
     const { data } = await axios.get(`${API_BASE}/coletas?${params.toString()}`, {
       headers: getAuthHeader()
     });
 
     if (!data.success) throw new Error(data.message || 'Erro ao buscar coletas');
-    
+
     return data.data.map(coleta => ({
       ...coleta,
-      imagem: coleta.imagem?.startsWith('http') 
-        ? coleta.imagem 
+      imagem: coleta.imagem?.startsWith('http')
+        ? coleta.imagem
         : `${API_BASE}${coleta.imagem}`
     }));
   } catch (error) {
@@ -76,14 +76,14 @@ export const deletarSolicitacaoColeta = async (id) => {
     return data;
   } catch (error) {
     console.error('Erro ao deletar solicitação:', error);
-    
+
     let errorMessage = 'Erro ao deletar solicitação';
     if (error.response) {
-      errorMessage = error.response.data.message || 
-                    error.response.data.error || 
-                    errorMessage;
+      errorMessage = error.response.data.message ||
+        error.response.data.error ||
+        errorMessage;
     }
-    
+
     throw new Error(errorMessage);
   }
 };
@@ -91,29 +91,30 @@ export const deletarSolicitacaoColeta = async (id) => {
 export const aceitarColeta = async (idSolicitacao) => {
   try {
     const { data } = await axios.put(
-      `${API_BASE}/coletas/${idSolicitacao}/aceitar`, 
+      `${API_BASE}/coletas/${idSolicitacao}/aceitar`,
       {},
       { headers: getAuthHeader() }
     );
-    
+
     if (!data.success) {
       throw new Error(data.message || 'Erro ao aceitar coleta');
     }
-    
+
     return data;
   } catch (error) {
     console.error('Erro ao aceitar coleta:', error);
     throw new Error(
-      error.response?.data?.message || 
-      error.response?.data?.error || 
+      error.response?.data?.message ||
+      error.response?.data?.error ||
       'Erro ao aceitar coleta'
     );
   }
 };
+
 export const concluirColeta = async (idSolicitacao) => {
   console.log("Tentando concluir coleta ID:", idSolicitacao);
   try {
-    const { data } = await api.put(`/coletas/${idSolicitacao}/concluir`);
+    const { data } = await authService.put(`/coletas/${idSolicitacao}/concluir`); // ✅ Corrigido aqui
 
     if (!data.success) {
       throw new Error(data.message || "Falha ao concluir coleta");
@@ -133,5 +134,3 @@ export const concluirColeta = async (idSolicitacao) => {
     );
   }
 };
-
-
