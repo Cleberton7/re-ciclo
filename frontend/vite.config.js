@@ -1,10 +1,13 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const isProduction = mode === 'production';
 
   return {
+    base: './',
     plugins: [react()],
     define: {
       'import.meta.env': {
@@ -13,56 +16,16 @@ export default defineConfig(({ mode }) => {
         VITE_GOOGLE_MAPS_MAP_ID: JSON.stringify(env.VITE_GOOGLE_MAPS_MAP_ID)
       }
     },
-    optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'react-imask',
-        'date-fns'
-      ],
-      exclude: [
-        'react-icons',
-        'cookie',
-        'set-cookie-parser'
-      ]
-    },
-    build: {
-      sourcemap: mode === 'development',
-      chunkSizeWarningLimit: 2000,
-      rollupOptions: {
-        external: ['react-icons'],
-        output: {
-          manualChunks: (id) => {
-            // Agrupa bibliotecas principais separadamente
-            if (id.includes('node_modules/react')) return 'react-vendor';
-            if (id.includes('node_modules/react-dom')) return 'react-vendor';
-            if (id.includes('node_modules/react-router-dom')) return 'router-vendor';
-            
-            // Agrupa pacotes pequenos juntos
-            if (id.includes('node_modules/cookie') || 
-                id.includes('node_modules/set-cookie-parser')) {
-              return 'vendor-utils';
-            }
-
-            // Agrupa outros pacotes por nome
-            const packageName = id.match(/node_modules\/([^\/]+)/)?.[1];
-            if (packageName) {
-              return `vendor-${packageName}`;
-            }
-
-            // Código do seu aplicativo
-            if (id.includes('src/')) {
-              return 'app';
-            }
-          },
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
-          entryFileNames: 'assets/[name]-[hash].js'
-        }
-      }
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@components': fileURLToPath(new URL('./src/components', import.meta.url))
+      },
+      extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     server: {
+      port: 5173,
+      strictPort: true,
       proxy: {
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:5000',
@@ -77,6 +40,37 @@ export default defineConfig(({ mode }) => {
       watch: {
         usePolling: true
       }
+    },
+    build: {
+      target: 'esnext',
+      outDir: 'dist',
+      assetsDir: 'assets',
+      emptyOutDir: true,
+      sourcemap: isProduction ? false : true,
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom'],
+            router: ['react-router-dom'],
+            utils: ['axios', 'date-fns'],
+            vendors: ['react-imask', 'chart.js']
+          },
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]'
+        }
+      }
+    },
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom'
+      ],
+      exclude: [
+        'react-icons'
+      ]
     }
   };
 });
