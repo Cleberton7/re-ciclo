@@ -26,13 +26,13 @@ const app = express();
 
 async function main() {
   try {
+// Adicione no início da função main()
+console.log('🛠️  Ambiente:', NODE_ENV);
+console.log('🔗 URL Base:', BASE_URL);
+console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30) + '...');
     await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // 5 segundos para seleção de servidor
-      socketTimeoutMS: 45000, // 45 segundos para timeout de operações
-      retryWrites: true,
-      retryReads: true
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000
     });
     console.log('🔍 String de conexão MongoDB:', MONGO_URI);
     console.log('🔍 Variáveis de ambiente:', {
