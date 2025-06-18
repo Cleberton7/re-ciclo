@@ -11,7 +11,7 @@ export const BASE_URL = process.env.BASE_URL ||
                          ? 'https://re-cicle-production.up.railway.app' 
                          : `http://localhost:${PORT}`);
 
-export const MONGO_URI = process.env.MONGO_URL || // Railway usa MONGO_URL
+export const MONGO_URI = process.env.MONGO_URI || // Railway usa MONGO_URL
                         process.env.MONGODB_URI || 
                         process.env.DATABASE_URL ||
                         'mongodb://localhost:27017/db';

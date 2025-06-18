@@ -23,6 +23,7 @@ if (!BASE_URL || !MONGO_URI) {
   console.error('❌ Variáveis críticas não definidas:', { BASE_URL, MONGO_URI });
   process.exit(1);
 }
+console.log('🟦 MONGO_URI:', MONGO_URI);
 
 async function main() {
   try {
