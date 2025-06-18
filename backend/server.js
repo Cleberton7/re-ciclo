@@ -37,19 +37,23 @@ async function main() {
     });
 
     // Configuração de CORS aprimorada
-  const allowedOrigins = [
-    FRONTEND_URL,
-    BASE_URL,
-    'http://localhost:5173',
-    'https://re-cicle-git-main-clebertons-projects.vercel.app'
-  ].filter(Boolean);
+    const allowedOrigins = [
+      FRONTEND_URL,
+      BASE_URL,
+      'http://localhost:5173',
+      'https://re-cicle-git-main-clebertons-projects.vercel.app',
+      'https://re-cicle.vercel.app'
+    ];
+
+    const isVercelPreview = origin => 
+      origin && origin.endsWith('.vercel.app');
 
     app.use(cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin || allowedOrigins.includes(origin) || isVercelPreview(origin)) {
           callback(null, true);
         } else {
-          console.warn('⚠️  Acesso CORS bloqueado para:', origin);
+          console.warn('⚠️ CORS bloqueado para:', origin);
           callback(new Error('Not allowed by CORS'));
         }
       },
