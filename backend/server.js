@@ -24,6 +24,11 @@ const app = express();
 async function main() {
   try {
     await mongoose.connect(MONGO_URI);
+    console.log('🛠️  Configurações carregadas:', {
+        BASE_URL,
+        NODE_ENV,
+        MONGO_URI: MONGO_URI.replace(/\/\/[^@]+@/, '//***:***@') // Esconde credenciais
+      });
     console.log('🔍 String de conexão MongoDB:', MONGO_URI);
     console.log('🔍 Variáveis de ambiente:', {
       MONGO_URL: process.env.MONGO_URL,
