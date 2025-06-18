@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { PORT, MONGO_URI, NODE_ENV } from './src/config/config.js';
+import { PORT, MONGO_URI, NODE_ENV, BASE_URL } from './src/config/config.js'; // Adicione BASE_URL aqui
+
 
 // Rotas
 import authRoutes from './src/routes/authRoutes.js';
@@ -20,7 +21,11 @@ import { errorHandler } from './src/middlewares/errorMiddleware.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-
+if (!BASE_URL) {
+  console.error('❌ CRÍTICO: BASE_URL não definida! Verifique suas variáveis de ambiente');
+  console.log('Variáveis disponíveis:', Object.keys(process.env));
+  process.exit(1);
+}
 async function main() {
   try {
     await mongoose.connect(MONGO_URI);

@@ -6,8 +6,10 @@ export const PORT = process.env.PORT || 5000;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export const BASE_URL = process.env.BASE_URL || 
-                      process.env.RAILWAY_PUBLIC_DOMAIN || 
-                      `http://localhost:${PORT}`;
+                       process.env.RAILWAY_PUBLIC_DOMAIN || 
+                       (NODE_ENV === 'production' 
+                         ? 'https://re-cicle-production.up.railway.app' 
+                         : `http://localhost:${PORT}`);
 
 // Banco de dados - Conexão otimizada para Railway
 export const MONGO_URI = process.env.MONGO_URL || 
