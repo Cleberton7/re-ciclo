@@ -26,13 +26,13 @@ const app = express();
 
 async function main() {
   try {
-// Adicione no início da função main()
-console.log('🛠️  Ambiente:', NODE_ENV);
-console.log('🔗 URL Base:', BASE_URL);
-console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30) + '...');
+    // Adicione no início da função main()
+    console.log('🛠️  Ambiente:', NODE_ENV);
+    console.log('🔗 URL Base:', BASE_URL);
+    console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30) + '...');
     await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000
+      socketTimeoutMS: 30000
     });
     console.log('🔍 String de conexão MongoDB:', MONGO_URI);
     console.log('🔍 Variáveis de ambiente:', {
@@ -41,7 +41,12 @@ console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30)
       MONGO_URI: process.env.MONGO_URI
     });
     console.log("✅ Conectado ao MongoDB");
-
+    mongoose.connection.on('connected', () => {
+      console.log('✅ Conexão MongoDB estabelecida');
+    });
+    mongoose.connection.on('disconnected', () => {
+      console.log('❌ MongoDB desconectado!');
+    });
     // Configuração completa do CORS
     app.use(cors({
       origin: 'http://localhost:5173',
@@ -80,8 +85,17 @@ console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30)
         ambiente: NODE_ENV
       });
     });
+    // Adicione isto ANTES do app.listen()
+    process.on('SIGTERM', () => {
+      console.log('🛑 Recebido SIGTERM - Encerrando graciosamente');
+      server.close(() => {
+        console.log('🚪 Servidor fechado');
+        process.exit(0);
+      });
+    });
 
-    app.listen(PORT, () => {
+    // Modifique o app.listen para capturar o servidor
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     });
 
