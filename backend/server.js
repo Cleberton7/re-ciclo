@@ -16,24 +16,14 @@ import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
-if (!MONGO_URI.includes('mongodb://') && NODE_ENV === 'production') {
-  console.error('❌ String de conexão MongoDB inválida para produção!');
-  process.exit(1);
-}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 async function main() {
   try {
-    // Adicione no início da função main()
-    console.log('🛠️  Ambiente:', NODE_ENV);
-    console.log('🔗 URL Base:', BASE_URL);
-    console.log('🗄️  String de conexão encurtada:', MONGO_URI.substring(0, 30) + '...');
-    await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 30000
-    });
+    await mongoose.connect(MONGO_URI);
     console.log('🔍 String de conexão MongoDB:', MONGO_URI);
     console.log('🔍 Variáveis de ambiente:', {
       MONGO_URL: process.env.MONGO_URL,
@@ -41,15 +31,10 @@ async function main() {
       MONGO_URI: process.env.MONGO_URI
     });
     console.log("✅ Conectado ao MongoDB");
-    mongoose.connection.on('connected', () => {
-      console.log('✅ Conexão MongoDB estabelecida');
-    });
-    mongoose.connection.on('disconnected', () => {
-      console.log('❌ MongoDB desconectado!');
-    });
+
     // Configuração completa do CORS
     app.use(cors({
-      origin: 'http://localhost:5173',
+      origin: NODE_ENV === 'production' ? BASE_URL : 'http://localhost:5173',
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -85,17 +70,8 @@ async function main() {
         ambiente: NODE_ENV
       });
     });
-    // Adicione isto ANTES do app.listen()
-    process.on('SIGTERM', () => {
-      console.log('🛑 Recebido SIGTERM - Encerrando graciosamente');
-      server.close(() => {
-        console.log('🚪 Servidor fechado');
-        process.exit(0);
-      });
-    });
 
-    // Modifique o app.listen para capturar o servidor
-    const server = app.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     });
 

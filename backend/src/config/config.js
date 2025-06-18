@@ -3,12 +3,16 @@ dotenv.config();
 
 // Configurações básicas do servidor
 export const PORT = process.env.PORT || 5000;
-export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Banco de dados - Corrigido para usar as variáveis do Railway
-// Atualize a configuração do MongoDB para:
-export const MONGO_URI = process.env.MONGO_URL || process.env.DATABASE_URL;
+export const BASE_URL = process.env.BASE_URL || 
+                      process.env.RAILWAY_PUBLIC_DOMAIN || 
+                      `http://localhost:${PORT}`;
+
+// Banco de dados - Conexão otimizada para Railway
+export const MONGO_URI = process.env.MONGO_URL || 
+                        process.env.DATABASE_URL || 
+                        'mongodb://localhost:27017/db';
 // Autenticação JWT
 export const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aleatoria_aqui';
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
@@ -16,11 +20,12 @@ export const JWT_EMAIL_EXPIRES_IN = process.env.JWT_EMAIL_EXPIRES_IN || '1h';
 
 // Configurações de e-mail
 export const EMAIL_CONFIG = {
+  service: process.env.EMAIL_SERVICE || 'gmail',
   host: process.env.EMAIL_HOST || 'smtp.mailtrap.io',
   port: process.env.EMAIL_PORT || 2525,
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
-    user: process.env.EMAIL_USER || 'seu_usuario_smtp',
+    user: process.env.EMAIL_USER || 'recicletucurui@gmail.com',
     pass: process.env.EMAIL_PASS || 'sua_senha_smtp'
   }
 };
