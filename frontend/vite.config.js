@@ -1,27 +1,26 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const isProduction = mode === 'production';
 
   return {
-    base: './',
-    plugins: [react()],
+    plugins: [
+      react(),
+      isProduction && visualizer({
+        open: true,
+        filename: 'dist/bundle-stats.html'
+      })
+    ],
     define: {
-      'import.meta.env': {
-        VITE_API_URL: JSON.stringify(env.VITE_API_URL),
-        VITE_GOOGLE_MAPS_KEY: JSON.stringify(env.VITE_GOOGLE_MAPS_KEY),
-        VITE_GOOGLE_MAPS_MAP_ID: JSON.stringify(env.VITE_GOOGLE_MAPS_MAP_ID)
-      }
-    },
-    resolve: {
-      alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        '@components': fileURLToPath(new URL('./src/components', import.meta.url))
-      },
-      extensions: ['.js', '.jsx', '.ts', '.tsx']
+      'import.meta.env': JSON.stringify({
+        VITE_API_URL: env.VITE_API_URL,
+        VITE_GOOGLE_MAPS_KEY: env.VITE_GOOGLE_MAPS_KEY,
+        VITE_GOOGLE_MAPS_MAP_ID: env.VITE_GOOGLE_MAPS_MAP_ID,
+        MODE: mode
+      })
     },
     server: {
       port: 5173,
@@ -32,45 +31,42 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, ''),
-          headers: {
-            'Access-Control-Allow-Origin': '*'
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              console.error('Proxy error:', err);
+            });
           }
         }
-      },
-      watch: {
-        usePolling: true
       }
     },
     build: {
       target: 'esnext',
-      outDir: 'dist',
-      assetsDir: 'assets',
-      emptyOutDir: true,
-      sourcemap: isProduction ? false : true,
-      chunkSizeWarningLimit: 2000,
+      minify: isProduction ? 'terser' : false,
+      sourcemap: !isProduction,
+      chunkSizeWarningLimit: 2500,
       rollupOptions: {
         output: {
           manualChunks: {
             react: ['react', 'react-dom'],
             router: ['react-router-dom'],
-            utils: ['axios', 'date-fns'],
-            vendors: ['react-imask', 'chart.js']
+            charts: ['chart.js', '@vis.gl/react-google-maps'],
+            utils: ['axios', 'date-fns', 'imask'],
+            vendors: [
+              /node_modules\/@?[a-z0-9-]+/,
+              '!react*',
+              '!react-router*'
+            ]
           },
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]'
         }
+      },
+      terserOptions: {
+        compress: {
+          drop_console: isProduction
+        }
       }
-    },
-    optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-router-dom'
-      ],
-      exclude: [
-        'react-icons'
-      ]
     }
   };
 });
