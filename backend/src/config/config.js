@@ -11,9 +11,9 @@ export const BASE_URL = process.env.BASE_URL ||
                          ? 'https://re-cicle-production.up.railway.app' 
                          : `http://localhost:${PORT}`);
 
-// Banco de dados - Conexão otimizada para Railway
-export const MONGO_URI = process.env.MONGO_URL || 
-                        process.env.DATABASE_URL || 
+export const MONGO_URI = process.env.MONGO_URL || // Railway usa MONGO_URL
+                        process.env.MONGODB_URI || 
+                        process.env.DATABASE_URL ||
                         'mongodb://localhost:27017/db';
 // Autenticação JWT
 export const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aleatoria_aqui';
@@ -28,15 +28,15 @@ export const EMAIL_CONFIG = {
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER || 'recicletucurui@gmail.com',
-    pass: process.env.EMAIL_PASS || 'sua_senha_smtp'
+    pass: process.env.EMAIL_PASS || 'hizn mxib unas ihrc'
   }
 };
 
 export const EMAIL_FROM = process.env.EMAIL_FROM || 
   `"ReciclaTech" <${process.env.EMAIL_USER || 'no-reply@reciclatech.com'}>`;
 
-// URLs do frontend para links em e-mails
-export const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+export const FRONTEND_URL = process.env.FRONTEND_URL || 
+                          'https://re-cicle-git-main-clebertons-projects.vercel.app';
 
 // Validação das variáveis críticas
 const requiredConfigs = ['MONGO_URI', 'JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
