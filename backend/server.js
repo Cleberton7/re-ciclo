@@ -37,11 +37,12 @@ async function main() {
     });
 
     // Configuração de CORS aprimorada
-    const allowedOrigins = [
-      FRONTEND_URL,
-      BASE_URL,
-      'http://localhost:5173'
-    ].filter(Boolean);
+  const allowedOrigins = [
+    FRONTEND_URL,
+    BASE_URL,
+    'http://localhost:5173',
+    'https://re-cicle-git-main-clebertons-projects.vercel.app'
+  ].filter(Boolean);
 
     app.use(cors({
       origin: (origin, callback) => {
