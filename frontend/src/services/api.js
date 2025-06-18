@@ -1,17 +1,15 @@
 import axios from 'axios';
 import * as jwtDecode from 'jwt-decode';
 
-
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL|| 'http://localhost:5000/api',
-  timeout: 30000, // Aumente o timeout para 30 segundos
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  timeout: 30000, // 30 segundos
 });
 
-// Verifica se token está expirado
+// Verifica se token JWT está expirado
 const isTokenExpired = (token) => {
   try {
-  const decoded = jwtDecode(token);
-
+    const decoded = jwtDecode(token);
     return decoded.exp < Date.now() / 1000;
   } catch (e) {
     console.error(e);
@@ -19,7 +17,7 @@ const isTokenExpired = (token) => {
   }
 };
 
-// Intercepta requisições para incluir o token
+// Intercepta requisições para adicionar token no header
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -39,12 +37,12 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-// Intercepta respostas para tratar erros globais
+// Intercepta respostas para tratar erros globais (ex: 401)
 api.interceptors.response.use(
   response => response,
   error => {
     if (error.code === 'ECONNABORTED') {
-      // Tentar novamente uma vez
+      // Tenta novamente uma vez no timeout
       return api.request(error.config);
     }
     if (error.response?.status === 401) {

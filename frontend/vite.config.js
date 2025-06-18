@@ -4,18 +4,12 @@ import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+
   const isProduction = mode === 'production';
 
   return {
     base: './',
     plugins: [react()],
-    define: {
-      'import.meta.env': {
-        VITE_API_URL: JSON.stringify(env.VITE_API_URL),
-        VITE_GOOGLE_MAPS_KEY: JSON.stringify(env.VITE_GOOGLE_MAPS_KEY),
-        VITE_GOOGLE_MAPS_MAP_ID: JSON.stringify(env.VITE_GOOGLE_MAPS_MAP_ID)
-      }
-    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
