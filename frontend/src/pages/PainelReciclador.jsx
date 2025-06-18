@@ -7,7 +7,7 @@ import {
 
 import PainelGenerico from "../pages/PainelGenerico";
 import "./styles/containerPrincipal.css";
-import "./styles/PainelReciclador.css";
+import "./styles/painelReciclador.css";
 
 const PainelReciclador = () => {
   const [solicitacoes, setSolicitacoes] = useState([]);
