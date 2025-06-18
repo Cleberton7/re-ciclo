@@ -24,6 +24,7 @@ const app = express();
 async function main() {
   try {
     await mongoose.connect(MONGO_URI);
+    console.log("MONGO_URL:", process.env.MONGO_URL);
     console.log("✅ Conectado ao MongoDB");
 
     // Configuração completa do CORS
