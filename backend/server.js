@@ -16,15 +16,30 @@ import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
-
+if (!MONGO_URI.includes('mongodb://') && NODE_ENV === 'production') {
+  console.error('❌ String de conexão MongoDB inválida para produção!');
+  process.exit(1);
+}
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 async function main() {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log("MONGO_URL:", process.env.MONGO_URL);
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // 5 segundos para seleção de servidor
+      socketTimeoutMS: 45000, // 45 segundos para timeout de operações
+      retryWrites: true,
+      retryReads: true
+    });
+    console.log('🔍 String de conexão MongoDB:', MONGO_URI);
+    console.log('🔍 Variáveis de ambiente:', {
+      MONGO_URL: process.env.MONGO_URL,
+      DATABASE_URL: process.env.DATABASE_URL,
+      MONGO_URI: process.env.MONGO_URI
+    });
     console.log("✅ Conectado ao MongoDB");
 
     // Configuração completa do CORS

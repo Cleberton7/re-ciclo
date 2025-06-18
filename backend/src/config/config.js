@@ -6,8 +6,11 @@ export const PORT = process.env.PORT || 5000;
 export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Banco de dados
-export const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/db';
+// Banco de dados - Corrigido para usar as variáveis do Railway
+export const MONGO_URI = process.env.MONGO_URL || 
+                        process.env.DATABASE_URL || 
+                        process.env.MONGO_URI || // Mantido para compatibilidade
+                        'mongodb://localhost:27017/db';
 
 // Autenticação JWT
 export const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aleatoria_aqui';
