@@ -4,15 +4,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
-  const isProduction = mode === 'production';
-  const apiTarget = isProduction 
-    ? env.VITE_API_URL 
-    : 'http://localhost:5000';
-
   return {
     plugins: [react()],
     define: {
-      // Padrão mais seguro para Vite
       'import.meta.env': {
         VITE_API_URL: JSON.stringify(env.VITE_API_URL),
         VITE_GOOGLE_MAPS_KEY: JSON.stringify(env.VITE_GOOGLE_MAPS_KEY),
@@ -24,43 +18,56 @@ export default defineConfig(({ mode }) => {
         'react',
         'react-dom',
         'react-router-dom',
-        'react-imask'
+        'react-imask',
+        'date-fns'
       ],
-      exclude: ['react-icons'],
-      // Adicione para resolver conflitos
-      esbuildOptions: {
-        keepNames: true
-      }
+      exclude: [
+        'react-icons',
+        'cookie',
+        'set-cookie-parser'
+      ]
     },
     build: {
-      sourcemap: !isProduction,
-      minify: isProduction ? 'esbuild' : false,
+      sourcemap: mode === 'development',
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         external: ['react-icons'],
         output: {
-          // Configuração mais segura para chunks
           manualChunks: (id) => {
+            // Agrupa bibliotecas principais separadamente
             if (id.includes('node_modules/react')) return 'react-vendor';
             if (id.includes('node_modules/react-dom')) return 'react-vendor';
             if (id.includes('node_modules/react-router-dom')) return 'router-vendor';
             
-            // Agrupa por nome de pacote para evitar conflitos
+            // Agrupa pacotes pequenos juntos
+            if (id.includes('node_modules/cookie') || 
+                id.includes('node_modules/set-cookie-parser')) {
+              return 'vendor-utils';
+            }
+
+            // Agrupa outros pacotes por nome
             const packageName = id.match(/node_modules\/([^\/]+)/)?.[1];
-            return packageName ? `vendor-${packageName}` : undefined;
+            if (packageName) {
+              return `vendor-${packageName}`;
+            }
+
+            // Código do seu aplicativo
+            if (id.includes('src/')) {
+              return 'app';
+            }
           },
-          // Evita minificação de nomes que causam conflitos
-          hoistTransitiveImports: false,
-          preserveModules: false
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          entryFileNames: 'assets/[name]-[hash].js'
         }
       }
     },
     server: {
       proxy: {
         '/api': {
-          target: apiTarget,
+          target: env.VITE_API_URL || 'http://localhost:5000',
           changeOrigin: true,
-          secure: isProduction,
+          secure: false,
           rewrite: (path) => path.replace(/^\/api/, ''),
           headers: {
             'Access-Control-Allow-Origin': '*'
