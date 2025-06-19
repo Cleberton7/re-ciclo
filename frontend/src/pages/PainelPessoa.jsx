@@ -27,7 +27,8 @@ const PainelPessoa = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/usuarios/pessoal', {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/usuarios/pessoal`, {
+
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -88,7 +89,7 @@ const PainelPessoa = () => {
       }
 
       const response = await axios.put(
-        "http://localhost:5000/api/usuarios/dados",
+        `${import.meta.env.VITE_API_URL}/usuarios/dados`,
         { ...userData, tipoUsuario: "pessoa" },
         {
           headers: { 

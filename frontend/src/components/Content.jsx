@@ -7,6 +7,8 @@ import "../pages/styles/content.css";
 
 const center = { lat: -3.7657, lng: -49.6725 };
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Content = () => {
   const [marcadores, setMarcadores] = useState([]);
   const [dadosGrafico, setDadosGrafico] = useState([]);
@@ -18,37 +20,35 @@ const Content = () => {
       try {
         const [localizacoesRes, graficoRes, rankingRes] = await Promise.all([
           axios.all([
-            axios.get('http://localhost:5000/api/empresas/localizacoes'),
-            axios.get('http://localhost:5000/api/centros-reciclagem/localizacoes')
+            axios.get(`${API_URL}/empresas/localizacoes`),
+            axios.get(`${API_URL}/centros-reciclagem/localizacoes`)
           ]),
-          axios.get('http://localhost:5000/api/public/coletas'),
-          axios.get('http://localhost:5000/api/public/ranking')
+          axios.get(`${API_URL}/public/coletas`),
+          axios.get(`${API_URL}/public/ranking`)
         ]);
 
-        // Processar localizações
         const [empresasRes, coletoresRes] = localizacoesRes;
         const empresas = empresasRes.data || [];
         const coletores = coletoresRes.data || [];
 
         const pontos = [
-          ...empresas.map(e => ({ 
-            ...e.localizacao, 
-            tipo: 'empresa', 
-            nome: e.nome 
+          ...empresas.map(e => ({
+            ...e.localizacao,
+            tipo: 'empresa',
+            nome: e.nome
           })),
-          ...coletores.map(c => ({ 
-            ...c.localizacao, 
-            tipo: 'centro', 
-            nome: c.nome 
+          ...coletores.map(c => ({
+            ...c.localizacao,
+            tipo: 'centro',
+            nome: c.nome
           }))
         ].filter(p => p.lat && p.lng);
 
         setMarcadores(pontos);
-        
-        // Processar dados do gráfico
+
         const dadosGrafico = graficoRes.data?.data || [];
         setDadosGrafico(dadosGrafico);
-        
+
         setRankingEmpresas(rankingRes.data?.data || []);
 
       } catch (err) {
@@ -70,8 +70,8 @@ const Content = () => {
           {loading ? (
             <p>Carregando ranking...</p>
           ) : (
-            <RankingEmpresas 
-              ranking={rankingEmpresas} 
+            <RankingEmpresas
+              ranking={rankingEmpresas}
               compactMode={true}
               hideTitle={true}
             />
@@ -83,14 +83,14 @@ const Content = () => {
       <div className='containerGraphic'>
         <div id='textGraph'>Distribuição por Material</div>
         <div className='grafico-wrapper' style={{
-          height: '400px', // Altura fixa
-          overflow: 'hidden' // Previne "cair infinitamente"
+          height: '400px',
+          overflow: 'hidden'
         }}>
           {loading ? (
             <div className="loading-message">Carregando gráfico...</div>
           ) : dadosGrafico.length > 0 ? (
-            <GraficoColetas 
-              dados={dadosGrafico} 
+            <GraficoColetas
+              dados={dadosGrafico}
               compactMode={true}
             />
           ) : (

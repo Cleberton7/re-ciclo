@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/noticias';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/noticias`;
 
 // Pega token do localStorage para enviar no header (com verificação)
 const getAuthHeader = () => {
