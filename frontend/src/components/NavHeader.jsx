@@ -80,9 +80,13 @@ const NavHeader = () => {
             />
           </div>
 
-          <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <FiX size={24} color="white" /> : <FiMenu size={24} color="white" />}
-          </div>
+          <button 
+            className="menu-toggle" 
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Menu"
+          >
+            {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
 
           <div id="nav" className={menuOpen ? "open" : ""}>
             {navLinks.map(({ path, label }) => (
