@@ -98,9 +98,27 @@
 }
 
 .menu-toggle {
-  display: none;
+  display: none; /* Escondido no desktop */
+  background: none;
+  border: none;
   cursor: pointer;
+  padding: 8px;
+  position: fixed; /* Alterado para fixed */
+  right: 15px;
+  top: 15px;
+  z-index: 1001;
+  color: white; /* Cor do ícone */
 }
+.menu-toggle svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+.menu-toggle.active svg {
+  transform: rotate(90deg);
+}
+
+
 /* Estilo do perfil logado */
 .perfil-log {
   display: flex;
@@ -143,14 +161,23 @@
     background-size: cover;
     background-position: center;
   }
-
+  #logo {
+    padding-right: 50px; /* Espaço para o botão */
+  }
   .header {
     flex-direction: column;
     padding: 15px;
     position: relative;
   }
   .menu-toggle {
-    display: block; /* Mostrar apenas no mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3); /* Fundo semitransparente */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    backdrop-filter: blur(2px); /* Efeito de vidro */
   }
   .logo-img {
     width: 250px;
