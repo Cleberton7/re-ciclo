@@ -61,12 +61,32 @@ a:hover {
 
 
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* index.css - Ajustes Globais Mobile */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
   }
+
   .app-container {
-    background-size: cover; /* Força cobertura total em telas pequenas */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 0;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
   }
 }

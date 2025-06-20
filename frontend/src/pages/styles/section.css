@@ -186,42 +186,45 @@
   color: #ffdddd;
   background-color: rgba(211, 47, 47, 0.2);
 }
-
-/* Responsividade */
-@media (max-width: 1200px) {
-  .carousel-item {
-    width: 240px;
-    min-height: 380px;
-  }
+/* section.css - Versão Mobile */
+@media (max-width: 768px) {
   .section {
-    padding: 15px 0;
+    padding: 15px 10px;
+    margin: 15px 0;
   }
-  
+
   #textSection {
-    margin: 10px auto 15px;
-    font-size: 1.1rem;
+    margin: 0 auto 15px;
+    font-size: 1.2rem;
+    padding: 5px 15px;
   }
-  
+
+  .carousel-items-container {
+    gap: 10px;
+    padding: 5px;
+  }
+
   .carousel-item {
-    width: 180px;
-    min-height: 320px;
+    width: 85%;
+    min-height: auto;
+    margin: 0 auto;
   }
-  
+
   .carousel-image-container {
-    height: 120px;
+    height: 150px;
   }
-  
-  .carousel-item h3 {
-    font-size: 1.1rem;
+
+  .carousel-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
   }
-  
-  .carousel-item p {
-    font-size: 0.85rem;
+
+  .prev {
+    left: 5px;
   }
-  
-  .carousel-link {
-    padding: 6px 12px;
-    font-size: 0.9rem;
+
+  .next {
+    right: 5px;
   }
-  
 }

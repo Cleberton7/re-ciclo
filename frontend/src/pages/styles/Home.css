@@ -22,13 +22,17 @@
   }
 }
 
+/* Home.css - Versão Mobile */
 @media (max-width: 768px) {
   .layouHome {
-    padding: 10px;
-    gap: 20px;
+    padding: 0;
+    gap: 10px;
+  }
+
+  #content, #section {
+    padding: 0;
   }
 }
-
 @media (max-width: 576px) {
   .layouHome {
     gap: 15px;

@@ -208,17 +208,34 @@
   margin-top: 50%;
   transform: translateY(-50%);
 }
-/* Responsividade */
-@media (max-width: 1200px) {
+/* content.css - Versão Mobile */
+@media (max-width: 768px) {
   .content {
     flex-direction: column;
+    padding: 10px;
+    gap: 15px;
   }
-  
-  .containerMaps {
-    flex: 1;
+
+  .containerRanked, .containerGraphic, .containerMaps {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
   }
-  
-  #rankedEmpresa, #graphic, #maps {
+
+  #maps {
     height: 300px;
+  }
+
+  .grafico-wrapper {
+    height: 300px;
+  }
+
+  #textRanked, #textGraph, #textLoc {
+    margin: 0 auto 10px;
+    font-size: 1.1rem;
+  }
+
+  .ranking-wrapper, .grafico-wrapper {
+    padding: 8px;
   }
 }

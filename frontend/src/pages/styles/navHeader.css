@@ -135,15 +135,31 @@
   background-color: #c9302c;
 }
 
+/* navHeader.css - Versão Mobile */
 @media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
+  .header-background {
+    padding-top: 20px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .header {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .logo-img {
+    width: 250px;
+    margin-bottom: 15px;
   }
 
   #nav {
-    display: none;
-    flex-direction: column;
+    order: 3;
     width: 100%;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 15px;
+    border-radius: 8px;
     margin-top: 10px;
   }
 
@@ -151,16 +167,50 @@
     display: flex;
   }
 
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-
   .menu {
     width: 100%;
-    text-align: left;
-    padding: 10px 20px;
+    color: white;
+    padding: 12px;
+    margin: 5px 0;
+    text-align: center;
+  }
+
+  .menu.active {
+    background-color: #009951;
+  }
+
+  #loginRegister {
+    width: 100%;
+    margin-top: 15px;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  #entrar, #registrar {
+    width: 45%;
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  .perfil-log {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  #perfil, #loggout {
+    width: 45%;
+    text-align: center;
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .menu-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px;
+    border-radius: 4px;
   }
 }
