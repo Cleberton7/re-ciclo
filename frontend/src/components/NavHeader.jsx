@@ -128,19 +128,6 @@ const NavHeader = () => {
             ))}
           </div>
 
-          <div id="nav" className={menuOpen ? "open" : ""}>
-            {navLinks.map(({ path, label }) => (
-              <Link 
-                key={path} 
-                to={path} 
-                className={`menu ${location.pathname === path ? "active" : ""}`} 
-                onClick={() => setMenuOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-
           <div id="loginRegister">
             {isLoggedIn ? (
               <div className="perfil-log">
