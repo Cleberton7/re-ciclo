@@ -12,7 +12,7 @@ const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoggedIn, userName, role, userData, logout,loading } = useAuth();
-
+  const menuRef = useRef(null);
   const [activeModal, setActiveModal] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -57,14 +57,27 @@ const NavHeader = () => {
     setMenuOpen(false);
   };
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuOpen && !e.target.closest('#nav') && !e.target.closest('.menu-toggle')) {
-        setMenuOpen(false);
+    const handleOutsideClick = (e) => {
+      if (menuOpen && menuRef.current && !menuRef.current.contains(e.target)) {
+        // Verifica se não está clicando no botão do menu
+        const menuButton = document.querySelector('.menu-toggle');
+        if (menuButton && !menuButton.contains(e.target)) {
+          setMenuOpen(false);
+        }
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, [menuOpen]);
   const navLinks = [
     { path: "/", label: "Home" },
@@ -90,12 +103,30 @@ const NavHeader = () => {
           </div>
 
           <button 
-            className="menu-toggle" 
+            className={`menu-toggle ${menuOpen ? 'active' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
             aria-label="Menu"
           >
             {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
+          <div 
+            ref={menuRef}
+            id="nav" 
+            className={menuOpen ? "open" : ""}
+            aria-hidden={!menuOpen}
+          >            {navLinks.map(({ path, label }) => (
+              <Link 
+                key={path} 
+                to={path} 
+                className={`menu ${location.pathname === path ? "active" : ""}`}
+                onClick={() => setMenuOpen(false)}
+                aria-current={location.pathname === path ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
 
           <div id="nav" className={menuOpen ? "open" : ""}>
             {navLinks.map(({ path, label }) => (
@@ -154,6 +185,13 @@ const NavHeader = () => {
           </div>
         </div>
       </div>
+      {menuOpen && (
+        <div 
+          className="menu-overlay"
+          onClick={() => setMenuOpen(false)}
+          role="presentation"
+        />
+      )}
 
       <Modal isOpen={activeModal !== null} onClose={closeModal}>
         {activeModal === 'login' ? (
