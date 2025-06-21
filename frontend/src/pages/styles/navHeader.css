@@ -206,6 +206,9 @@
 
 /* Versão Mobile */
 @media (max-width: 768px) {
+  .menu-toggle {
+    display: flex; /* Só mostra no mobile */
+  }
   .header-background {
     padding-top: 20px;
     background-size: cover;
@@ -290,6 +293,9 @@
 
 /* Ajustes para telas médias */
 @media (min-width: 769px) and (max-width: 1024px) {
+  .menu-toggle {
+    display: flex; /* Só mostra no mobile */
+  }
   .logo-img {
     width: 300px;
   }
