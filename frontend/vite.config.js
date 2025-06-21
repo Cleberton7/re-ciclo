@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       assetsDir: 'assets',
       emptyOutDir: true,
+      manifest: true,
       sourcemap: isProduction ? false : true,
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
