@@ -56,7 +56,16 @@ const NavHeader = () => {
     navigate("/");
     setMenuOpen(false);
   };
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuOpen && !e.target.closest('#nav') && !e.target.closest('.menu-toggle')) {
+        setMenuOpen(false);
+      }
+    };
 
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [menuOpen]);
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/empresas", label: "Empresas Parceiras" },
