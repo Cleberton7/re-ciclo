@@ -33,12 +33,13 @@ export const getSolicitacoesColeta = async (filters = {}) => {
 };
 
 export const criarSolicitacaoColeta = async (formData) => {
-    console.log('Informações do arquivo:', {
-    nome: dados.imagem.name,
-    tipo: dados.imagem.type,
-    tamanho: dados.imagem.size,
-    extensão: dados.imagem.name.split('.').pop()
-  });
+// Substitua o código problemático por:
+console.log('Informações do arquivo:', {
+  nome: formData.imagem?.name || 'Nenhuma imagem',
+  tipo: formData.imagem?.type || 'N/A',
+  tamanho: formData.imagem?.size || 0,
+  extensão: formData.imagem?.name?.split('.').pop() || 'N/A'
+});
 
   try {
     const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
