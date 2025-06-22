@@ -3,6 +3,7 @@ import "../pages/styles/section.css";
 import "../pages/styles/containerPrincipal.css";
 import { Link } from 'react-router-dom';
 import { listarNoticias } from '../services/noticiaService';
+import { BASE_URL } from '../services/config';
 
 const Section = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,24 +12,21 @@ const Section = () => {
   const [error, setError] = useState(null);
   const itemsPerPage = 4;
 
-  // Carrega as notícias do backend
   useEffect(() => {
     const carregarNoticias = async () => {
       try {
         const data = await listarNoticias();
-        //console.log('Dados recebidos da API:', data); // Debug importante
-        
-        // Verifica e corrige URLs de imagem se necessário
+
         const noticiasFormatadas = data.map(noticia => {
           if (noticia.image && !noticia.image.startsWith('http')) {
             return {
               ...noticia,
-              image: `http://localhost:5000${noticia.image}`
+              image: `${BASE_URL}${noticia.image}`
             };
           }
           return noticia;
         });
-        
+
         setNoticias(noticiasFormatadas);
         setLoading(false);
       } catch (err) {
@@ -46,12 +44,11 @@ const Section = () => {
   }, [noticias.length, itemsPerPage]);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       (prevIndex - itemsPerPage + noticias.length) % noticias.length
     );
   }, [noticias.length, itemsPerPage]);
 
-  // Auto-slide
   useEffect(() => {
     if (noticias.length > 0) {
       const interval = setInterval(nextSlide, 5000);
@@ -59,10 +56,8 @@ const Section = () => {
     }
   }, [noticias.length, nextSlide]);
 
-  // Notícias visíveis no slide atual
   const getVisibleNoticias = () => {
     if (noticias.length === 0) return [];
-    
     const endIndex = currentIndex + itemsPerPage;
     if (endIndex <= noticias.length) {
       return noticias.slice(currentIndex, endIndex);
@@ -104,19 +99,19 @@ const Section = () => {
 
   return (
     <section className="section" id="containerPrincipal">
-      <Link to="/NoticiasEventos">  
+      <Link to="/NoticiasEventos">
         <div id="textSection">Notícias e Eventos</div>
       </Link>
       <div id="containerSection" className="carousel-multiple">
         <button className="carousel-btn prev" onClick={prevSlide} aria-label="Notícias anteriores">
           &lt;
         </button>
-        
+
         <div className="carousel-items-container">
           {visibleNoticias.map((noticia) => (
             <div key={noticia._id} className="carousel-item">
               <div className="carousel-image-container">
-                <img 
+                <img
                   src={noticia.image || '/imagem-padrao.jpg'}
                   alt={noticia.title}
                   className="carousel-image"
@@ -129,8 +124,8 @@ const Section = () => {
               <div className="carousel-content">
                 <h3>{noticia.title}</h3>
                 <p>{noticia.content.substring(0, 100)}...</p>
-                <Link 
-                  to={`/noticia/${noticia.slug}`} 
+                <Link
+                  to={`/noticia/${noticia.slug}`}
                   className="carousel-link"
                   aria-label={`Ler mais sobre ${noticia.title}`}
                 >
@@ -140,7 +135,7 @@ const Section = () => {
             </div>
           ))}
         </div>
-        
+
         <button className="carousel-btn next" onClick={nextSlide} aria-label="Próximas notícias">
           &gt;
         </button>
