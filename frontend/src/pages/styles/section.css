@@ -186,45 +186,43 @@
   color: #ffdddd;
   background-color: rgba(211, 47, 47, 0.2);
 }
-/* section.css - Versão Mobile */
+/* Versão Mobile */
 @media (max-width: 768px) {
-  .section {
-    padding: 15px 10px;
-    margin: 15px 0;
+  /* Container principal do carrossel */
+  #containerSection {
+    padding-top: 50px; /* Espaço para o menu */
+    margin-top: 0;
+    position: relative;
   }
 
-  #textSection {
-    margin: 0 auto 15px;
-    font-size: 1.2rem;
-    padding: 5px 15px;
-  }
-
-  .carousel-items-container {
-    gap: 10px;
-    padding: 5px;
-  }
-
-  .carousel-item {
-    width: 85%;
-    min-height: auto;
-    margin: 0 auto;
-  }
-
-  .carousel-image-container {
-    height: 150px;
-  }
-
+  /* Reset dos botões de navegação */
   .carousel-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
+    position: absolute;
+    top: 25px; /* Ajuste para ficar abaixo do menu */
+    transform: translateY(0);
+    z-index: 20; /* Garante que fiquem acima dos itens */
   }
 
   .prev {
-    left: 5px;
+    left: 10px;
   }
 
   .next {
-    right: 5px;
+    right: 10px;
+  }
+
+  /* Ajuste dos itens do carrossel */
+  .carousel-items-container {
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 15px;
+  }
+
+  .carousel-item {
+    scroll-snap-align: start;
+    width: 85vw; /* Largura relativa à viewport */
+    margin: 0 10px;
+    box-sizing: border-box;
   }
 }
