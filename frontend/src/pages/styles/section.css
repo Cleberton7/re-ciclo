@@ -131,7 +131,6 @@
   background-color: #007a40;
   text-decoration: none;
 }
-
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -153,7 +152,6 @@
   transition: all 0.3s ease;
   border: 2px solid white;
 }
-
 .carousel-btn:hover {
   background-color: #007a40;
   transform: translateY(-50%) scale(1.1);
@@ -210,20 +208,22 @@
     height: 150px;
   }
 
-  /* 🔧 Botões na parte inferior no mobile */
   .carousel-btn {
-    position: static;
+    position: absolute;
+    top: unset;
+    bottom: 10px;
     transform: none;
-    margin: 10px 5px;
     width: 35px;
     height: 35px;
     font-size: 16px;
-    border-radius: 50%;
   }
 
-  .prev, .next {
-    left: unset;
-    right: unset;
+  .prev {
+    left: 20px;
+  }
+
+  .next {
+    right: 20px;
   }
 
   /* 🔥 Container dos botões no mobile */
@@ -237,5 +237,15 @@
     justify-content: center;
     gap: 15px;
     margin-top: 10px;
+  }
+  /* Se quiser, pode até trazer eles mais para dentro no mobile */
+  @media (max-width: 500px) {
+    .prev {
+      left: 10px;
+    }
+
+    .next {
+      right: 10px;
+    }
   }
 }
