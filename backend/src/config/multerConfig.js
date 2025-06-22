@@ -7,7 +7,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const MEDIA_TYPES = {
   IMAGE: {
-    mimes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    mimes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/x-png' // Adicione este tipo comum para PNG
+    ],
     extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
   },
   DOCUMENT: {
@@ -31,27 +37,32 @@ const createStorage = (subfolder = 'generic') => {
   });
 };
 
+// Modifique a função createFileFilter para debug
 const createFileFilter = (allowedTypes = ['IMAGE']) => {
   return (req, file, cb) => {
-    const allowedMimes = [];
-    const allowedExtensions = [];
-    
-    allowedTypes.forEach(type => {
-      if (MEDIA_TYPES[type]) {
-        allowedMimes.push(...MEDIA_TYPES[type].mimes);
-        allowedExtensions.push(...MEDIA_TYPES[type].extensions);
-      }
+    console.log('Arquivo recebido:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
     });
-    
-    const isValidMime = allowedMimes.includes(file.mimetype);
-    const isValidExt = allowedExtensions.includes(
-      path.extname(file.originalname).toLowerCase()
+
+    const allowedMimes = allowedTypes.flatMap(type => 
+      MEDIA_TYPES[type]?.mimes || []
     );
-    
+
+    const fileExt = path.extname(file.originalname).toLowerCase();
+    const isValidMime = allowedMimes.includes(file.mimetype);
+    const isValidExt = MEDIA_TYPES.IMAGE.extensions.includes(fileExt);
+
     if (isValidMime && isValidExt) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedTypes.join(', ')}`), false);
+      console.error('Tipo de arquivo rejeitado:', {
+        mimetype: file.mimetype,
+        extensão: fileExt,
+        permitidos: allowedMimes
+      });
+      cb(new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedMimes.join(', ')}`), false);
     }
   };
 };
