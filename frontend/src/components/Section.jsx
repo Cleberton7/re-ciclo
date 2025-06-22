@@ -3,7 +3,7 @@ import "../pages/styles/section.css";
 import "../pages/styles/containerPrincipal.css";
 import { Link } from 'react-router-dom';
 import { listarNoticias } from '../services/noticiaService';
-import { BASE_URL } from '../services/config';
+import { BASE_URL } from '../config/config.js';
 
 const Section = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
