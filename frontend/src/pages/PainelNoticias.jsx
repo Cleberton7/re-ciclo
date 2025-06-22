@@ -8,6 +8,7 @@ import {
 } from '../services/noticiaService';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../contexts/AuthContext';
+import { API_URL, BASE_URL } from '../config/config.js';  // IMPORTANTE: importar as URLs
 
 const PainelNoticias = () => {
   const { userData: user, role } = useContext(AuthContext);
@@ -25,14 +26,16 @@ const PainelNoticias = () => {
     setLoading(true);
     try {
       const data = await listarNoticias();
-      // Garante que todas as imagens tenham URLs completas
+
+      // Garante que todas as imagens tenham URLs completas usando BASE_URL
       const noticiasComImagens = data.map(noticia => ({
         ...noticia,
         image: noticia.image && !noticia.image.startsWith('http') 
-          ? `${ 'http://localhost:5000'}${noticia.image}`
+          ? `${BASE_URL}${noticia.image}`
           : noticia.image
       }));
       setNoticias(noticiasComImagens);
+      setError('');
     } catch (err) {
       console.error('Erro ao carregar notícias:', err);
       setError('Erro ao carregar notícias');
@@ -62,7 +65,7 @@ const PainelNoticias = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
-      
+
       // Criar preview da imagem
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -148,7 +151,7 @@ const PainelNoticias = () => {
       content: noticia.content,
       tags: noticia.tags ? noticia.tags.join(', ') : ''
     });
-    
+
     // Configura a pré-visualização da imagem existente
     setPreviewImage(noticia.image || null);
     setImageFile(null);
