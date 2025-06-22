@@ -14,20 +14,23 @@ const Content = () => {
   const [dadosGrafico, setDadosGrafico] = useState([]);
   const [rankingEmpresas, setRankingEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [localizacoesRes, graficoRes, rankingRes] = await Promise.all([
-          axios.all([
-            axios.get(`${API_URL}/empresas/localizacoes`),
-            axios.get(`${API_URL}/centros-reciclagem/localizacoes`)
-          ]),
+        const [
+          empresasRes, 
+          coletoresRes,
+          graficoRes, 
+          rankingRes
+        ] = await Promise.all([
+          axios.get(`${API_URL}/empresas/localizacoes`),
+          axios.get(`${API_URL}/centros-reciclagem/localizacoes`),
           axios.get(`${API_URL}/public/coletas`),
           axios.get(`${API_URL}/public/ranking`)
         ]);
 
-        const [empresasRes, coletoresRes] = localizacoesRes;
         const empresas = empresasRes.data || [];
         const coletores = coletoresRes.data || [];
 
@@ -35,21 +38,32 @@ const Content = () => {
           ...empresas.map(e => ({
             ...e.localizacao,
             tipo: 'empresa',
-            nome: e.nome
+            nome: e.nome,
+            id: `empresa-${e.id}`
           })),
           ...coletores.map(c => ({
             ...c.localizacao,
             tipo: 'centro',
-            nome: c.nome
+            nome: c.nome,
+            id: `centro-${c.id}`
           }))
-        ].filter(p => p.lat && p.lng);
+        ].filter(p => {
+          const lat = parseFloat(p.lat);
+          const lng = parseFloat(p.lng);
+          return !isNaN(lat) && !isNaN(lng);
+        }).map(p => ({
+          ...p,
+          lat: parseFloat(p.lat),
+          lng: parseFloat(p.lng)
+        }));
 
         setMarcadores(pontos);
         setDadosGrafico(graficoRes.data?.data || []);
         setRankingEmpresas(rankingRes.data?.data || []);
-
+        setError(null);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
+        setError("Erro ao carregar dados. Tente recarregar a página.");
       } finally {
         setLoading(false);
       }
@@ -59,49 +73,56 @@ const Content = () => {
   }, []);
 
   return (
-      <div className='content' id="containerPrincipal">
-        {/* Seção Esquerda (Gráfico e Ranking) */}
-        <div className='left-section'>
-          {/* Ranking de Empresas */}
-          <div className='containerRanked'>
-            <div id='textRanked'>Ranking das empresas</div>
-            <div className='ranking-wrapper'>
-              {loading ? (
-                <p>Carregando ranking...</p>
-              ) : (
-                <RankingEmpresas
-                  ranking={rankingEmpresas}
-                  compactMode={true}
-                  hideTitle={true}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Gráfico de Coletas */}
-          <div className='containerGraphic'>
-            <div id='textGraph'>Distribuição por Material</div>
-            <div className='grafico-wrapper'>
-              {loading ? (
-                <div className="loading-message">Carregando gráfico...</div>
-              ) : dadosGrafico.length > 0 ? (
-                <GraficoColetas
-                  dados={dadosGrafico}
-                  compactMode={true}
-                />
-              ) : (
-                <div className="no-data-message">
-                  Nenhum dado disponível para exibir
-                </div>
-              )}
-            </div>
+    <div className='content' id="containerPrincipal">
+      {/* Seção Esquerda (Gráfico e Ranking) */}
+      <div className='left-section'>
+        {/* Ranking de Empresas */}
+        <div className='containerRanked'>
+          <div className='section-title'>Ranking das empresas</div>
+          <div className='ranking-wrapper'>
+            {error ? (
+              <div className="error-message">{error}</div>
+            ) : loading ? (
+              <p>Carregando ranking...</p>
+            ) : (
+              <RankingEmpresas
+                ranking={rankingEmpresas}
+                compactMode={true}
+                hideTitle={true}
+              />
+            )}
           </div>
         </div>
 
-        {/* Mapa (Seção Direita - Maior) */}
-        <div className='containerMaps'>
-          <div id='textLoc'>Localização das Empresas e Centros</div>
-          <div id='maps'>
+        {/* Gráfico de Coletas */}
+        <div className='containerGraphic'>
+          <div className='section-title'>Distribuição por Material</div>
+          <div className='grafico-wrapper'>
+            {error ? (
+              <div className="error-message">{error}</div>
+            ) : loading ? (
+              <div className="loading-message">Carregando gráfico...</div>
+            ) : dadosGrafico.length > 0 ? (
+              <GraficoColetas
+                dados={dadosGrafico}
+                compactMode={true}
+              />
+            ) : (
+              <div className="no-data-message">
+                Nenhum dado disponível para exibir
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mapa (Seção Direita - Tamanho Fixo) */}
+      <div className='containerMaps'>
+        <div className='section-title'>Localização das Empresas e Centros</div>
+        <div className='map-wrapper'>
+          {error ? (
+            <div className="error-message">{error}</div>
+          ) : (
             <Map
               className="mapa"
               defaultCenter={center}
@@ -109,28 +130,22 @@ const Content = () => {
               mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
               gestureHandling={'greedy'}
             >
-              {marcadores.map((marcador, index) => (
-                <AdvancedMarker key={index} position={{ lat: marcador.lat, lng: marcador.lng }}>
-                  <div style={{
-                    backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: 12
-                  }}>
+              {marcadores.map((marcador) => (
+                <AdvancedMarker 
+                  key={marcador.id} 
+                  position={{ lat: marcador.lat, lng: marcador.lng }}
+                  title={marcador.nome}
+                >
+                  <div className={`marker ${marcador.tipo}`}>
                     {marcador.tipo === 'empresa' ? 'E' : 'C'}
                   </div>
                 </AdvancedMarker>
               ))}
             </Map>
-          </div>
+          )}
         </div>
       </div>
+    </div>
   );
 };
 

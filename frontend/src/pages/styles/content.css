@@ -1,70 +1,122 @@
-
+/* CONTAINER PRINCIPAL */
 .content {
   background-color: #009951;
-  display: flex;
   color: rgb(0, 0, 0);
-  gap: 8px;
-  padding: 8px;
+  display: flex;
+  padding: 10px 0;
+  margin: 30px 0;
+  width: 100%;
+  overflow: hidden;
+  align-items: stretch; /* Faz os filhos esticarem para mesma altura */
 }
 
-.containerRanked, .containerGraphic, .containerMaps {
-  margin: 4px;
+/* SEÇÃO ESQUERDA (GRÁFICO + RANKING) */
+.left-section {
   flex: 1;
-  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* CONTAINERS COMUNS - MESMA ALTURA */
+.containerRanked,
+.containerGraphic {
+  flex: 1;
+  padding: 1rem;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+/* CONTAINER DO MAPA (AJUSTADO PARA ALTURA TOTAL) */
+.containerMaps {
+  width: 60%;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+  margin-left: 1rem;
   display: flex;
   flex-direction: column;
 }
 
-.ranking-wrapper{
-  flex: 1;
-  background: white;
-  border-radius: 6px;
-  padding: 12px;
-  overflow: auto;
-}
-
-
-/* Container do gráfico */
-.grafico-wrapper {
-  background: white;
-  width: 100%;
-  height: 400px; /* Altura fixa */
-  border-radius: 8px;
-  padding: 16px;
-  min-height: 300px;
+/* ELEMENTOS DO MAPA (OCUPANDO 100% DA ALTURA) */
+.map-wrapper {
+  flex: 1; /* Ocupa todo espaço disponível */
+  border-radius: 0.4rem;
+  overflow: hidden;
   position: relative;
-  overflow: hidden; /* Essencial para conter o gráfico */
+  min-height: 400px; /* Altura mínima igual aos outros */
 }
 
-#textGraph {
+.mapa {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.4rem;
+}
+
+/* TÍTULOS DAS SEÇÕES */
+.section-title {
   background-color: antiquewhite;
-  border-radius: 5px;
-  height: 30px;
-  margin-bottom: 10px;
-  padding: 3px 12px;
+  border-radius: 0.3rem;
+  height: 2rem;
+  margin-bottom: 0.6rem;
+  padding: 0.3rem 0.75rem;
   width: fit-content;
-  cursor: pointer;
   display: flex;
   align-items: center;
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }
 
-.grafico-wrapper > div {
-  width: 100% !important;
-  height: 100% !important;
+/* RANKING */
+.ranking-wrapper {
+  flex: 1;
+  background: white;
+  border-radius: 0.4rem;
+  padding: 0.75rem;
+  overflow: auto;
 }
 
-.grafico-wrapper canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block !important;
+/* GRÁFICO */
+.grafico-wrapper {
+  background: white;
+  width: 100%;
+  flex: 1;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Mensagens */
-.loading-message, .no-data-message {
+/* MARCADORES DO MAPA */
+.marker {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.marker.empresa {
+  background-color: #4285F4;
+}
+
+.marker.centro {
+  background-color: #0F9D58;
+}
+
+/* MENSAGENS DE ESTADO */
+.loading-message,
+.no-data-message,
+.error-message {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -72,140 +124,50 @@
   width: 100%;
   text-align: center;
   color: #666;
-}
-.ranking-wrapper table {
-  width: 100%;
+  padding: 1rem;
 }
 
-.ranking-wrapper th {
-  padding: 8px 12px;
-  font-size: 0.8rem;
-}
-
-.ranking-wrapper td {
-  padding: 8px 12px;
-}
-
-/* Ajustes específicos para o ranking no content */
-.ranking-wrapper .ranking-container.compact {
-  padding: 0;
-  margin: 0;
-  background: transparent;
-}
-
-.ranking-wrapper .ranking-container.compact table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 4px;
-}
-
-.ranking-wrapper .ranking-container.compact thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.ranking-wrapper .ranking-container.compact tbody tr {
-  background: white;
-  margin-bottom: 4px;
-}
-#maps {
-  height: 685px;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.mapa {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-}
-
-#textRanked, #textGraph, #textLoc {
-  background-color: antiquewhite;
-  border-radius: 5px;
-  height: 30px;
-  margin-bottom: 10px;
-  padding: 3px 12px;
-  width: fit-content;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilos para os gráficos */
-.chart-container {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 6px;
-  padding: 12px;
-  height: calc(50% - 6px);
-}
-
-/* Tabela de ranking */
-.tabela-ranking {
-  width: 100%;
-  margin-top: 12px;
-  border-collapse: collapse;
+.error-message {
+  color: #d32f2f;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
-  overflow: hidden;
+  border-radius: 0.4rem;
 }
 
-.tabela-ranking th, .tabela-ranking td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+/* RESPONSIVIDADE */
+@media (max-width: 1024px) {
+  .containerMaps {
+    width: 50%;
+  }
 }
 
-.tabela-ranking th {
-  background-color: #2c5282;
-  color: white;
-}
-
-.tabela-ranking tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.tabela-ranking tr:hover {
-  background-color: #e6f7ff;
-}
-
-/* Estilo para mensagens de carregamento */
-#rankedEmpresa p, #graphic p {
-  color: white;
-  text-align: center;
-  margin-top: 50%;
-  transform: translateY(-50%);
-}
-/* content.css - Versão Mobile */
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
-    padding: 10px;
-    gap: 15px;
   }
 
-  .containerRanked, .containerGraphic, .containerMaps {
+  .left-section {
     width: 100%;
-    margin: 0;
-    padding: 10px;
+    margin-bottom: 1rem;
   }
 
-  #maps {
-    height: 300px;
+  .containerMaps {
+    width: 100%;
+    margin-left: 0;
+    min-height: 400px;
   }
 
-  .grafico-wrapper {
-    height: 300px;
+  .map-wrapper {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 0.5rem;
   }
 
-  #textRanked, #textGraph, #textLoc {
-    margin: 0 auto 10px;
-    font-size: 1.1rem;
-  }
-
-  .ranking-wrapper, .grafico-wrapper {
-    padding: 8px;
+  .containerMaps,
+  .map-wrapper {
+    min-height: 350px;
   }
 }
