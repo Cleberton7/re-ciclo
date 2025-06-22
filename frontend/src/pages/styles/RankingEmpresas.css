@@ -110,46 +110,34 @@
   padding: 1.5rem;
   font-style: italic;
 }
+/* Adicione isso ao seu arquivo CSS existente */
 @media (max-width: 768px) {
-  .ranking-container table, 
-  .ranking-container thead, 
-  .ranking-container tbody, 
-  .ranking-container th, 
-  .ranking-container td, 
-  .ranking-container tr { 
-    display: block; 
+  .ranking-container {
+    margin-top: 60px; /* Espaço para o menu */
+    padding-top: 1rem;
   }
-  
-  .ranking-container thead tr { 
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-  
-  .ranking-container tr { 
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-  }
-  
-  .ranking-container td { 
-    border: none;
+
+  /* Remove qualquer sticky header */
+  .ranking-container thead {
     position: relative;
-    padding-left: 50% !important;
-    white-space: normal;
-    text-align: left;
+    top: auto;
   }
-  
-  .ranking-container td:before { 
+
+  /* Garante que a tabela seja rolável horizontalmente */
+  .ranking-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Opcional: adiciona sombra nos lados para indicar que há mais conteúdo */
+  .ranking-container:after {
+    content: "";
     position: absolute;
-    left: 10px;
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-    font-weight: bold;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+    pointer-events: none;
   }
-  
-  .ranking-container td:nth-of-type(1):before { content: "Posição:"; }
-  .ranking-container td:nth-of-type(2):before { content: "Empresa:"; }
-  .ranking-container td:nth-of-type(3):before { content: "Total Coletado:"; }
-  .ranking-container td:nth-of-type(4):before { content: "Coletas Concluídas:"; }
 }
