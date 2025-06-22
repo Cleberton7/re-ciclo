@@ -3,7 +3,13 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { PORT, MONGO_URI, NODE_ENV, BASE_URL, FRONTEND_URL } from './src/config/config.js';
+import { 
+  PORT, 
+  MONGO_URI, 
+  NODE_ENV, 
+  BASE_URL, 
+  FRONTEND_URL 
+} from './src/config/config.js';
 
 // Rotas
 import authRoutes from './src/routes/authRoutes.js';
@@ -17,6 +23,9 @@ import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+// 🔥 Corrige problemas de proxy e IP no Railway, Vercel, Render
+app.set('trust proxy', 1);
 
 // Validação crítica de variáveis
 if (!BASE_URL || !MONGO_URI) {
@@ -36,7 +45,7 @@ async function main() {
       MONGO_URI: MONGO_URI.replace(/\/\/[^@]+@/, '//***:***@')
     });
 
-    // Configuração de CORS aprimorada
+    // 🟦 Configuração de CORS aprimorada
     const allowedOrigins = [
       FRONTEND_URL,
       BASE_URL,
@@ -47,27 +56,30 @@ async function main() {
 
     const isVercelPreview = origin => 
       origin && origin.endsWith('.vercel.app');
-      app.use(cors({
-        origin: (origin, callback) => {
-          if (!origin || allowedOrigins.includes(origin) || isVercelPreview(origin)) {
-            callback(null, true);
-          } else {
-            console.warn('⚠️ CORS bloqueado para:', origin);
-            callback(new Error('Not allowed by CORS'));
-          }
-        },
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        maxAge: 86400
-      }));
+
+    app.use(cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || isVercelPreview(origin)) {
+          callback(null, true);
+        } else {
+          console.warn('⚠️ CORS bloqueado para:', origin);
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      maxAge: 86400
+    }));
 
     app.options('*', cors());
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Rotas
+    // 🔗 Arquivos estáticos (imagens)
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+    // 🌐 Rotas
     app.use("/api/auth", authRoutes);
     app.use("/api/usuarios", userRoutes);
     app.use("/api/empresas", empresaRoutes);
@@ -76,10 +88,12 @@ async function main() {
     app.use("/api/noticias", noticiaRoutes);
     app.use("/api/public", publicRoutes);
 
-    // Health Check
+    // 🔥 Health Check
     app.get('/api/health', (req, res) => {
       res.status(200).json({ status: 'healthy' });
     });
+
+    // 🔥 Configuração pública
     app.get('/api/config', (req, res) => {
       res.json({
         nodeEnv: NODE_ENV,
@@ -88,6 +102,8 @@ async function main() {
         corsAllowed: allowedOrigins
       });
     });
+
+    // 🛑 Middleware de erros
     app.use(errorHandler);
 
     app.listen(PORT, () => {
