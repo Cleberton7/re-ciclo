@@ -33,7 +33,13 @@ export const getSolicitacoesColeta = async (filters = {}) => {
 };
 
 export const criarSolicitacaoColeta = async (formData) => {
-  console.log('[DEBUG] Dados sendo enviados:', formData); // <-- ADICIONE ESTA LINHA
+    console.log('Informações do arquivo:', {
+    nome: dados.imagem.name,
+    tipo: dados.imagem.type,
+    tamanho: dados.imagem.size,
+    extensão: dados.imagem.name.split('.').pop()
+  });
+
   try {
     const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
       headers: {
