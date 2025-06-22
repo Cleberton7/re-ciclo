@@ -110,32 +110,33 @@
   padding: 1.5rem;
   font-style: italic;
 }
-/* Adicione isso ao seu arquivo CSS existente */
 @media (max-width: 768px) {
-  .ranking-container {
-    margin-top: 60px; /* Espaço para o menu */
-    padding-top: 1rem;
+  /* 1. Reset completo do thead */
+  .ranking-container thead {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    z-index: auto !important;
   }
 
-  .ranking-container thead {
-    position: relative !important; 
-    top: auto !important;
-  }
-  /* Garante que a tabela seja rolável horizontalmente */
+  /* 2. Isola a tabela em um contexto novo */
   .ranking-container {
+    contain: layout;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    margin-top: 0 !important;
   }
 
-  /* Opcional: adiciona sombra nos lados para indicar que há mais conteúdo */
-  .ranking-container:after {
-    content: "";
-    position: absolute;
-    right: 0;
+  /* 3. Espaço reservado para o menu */
+  body {
+    padding-top: 60px; /* Ajuste para a altura do seu menu */
+  }
+
+  /* 4. Garante que o menu fique acima de tudo */
+  .seu-menu-mobile {
+    z-index: 1000 !important;
+    position: fixed;
     top: 0;
-    width: 30px;
-    height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
-    pointer-events: none;
+    width: 100%;
   }
 }
