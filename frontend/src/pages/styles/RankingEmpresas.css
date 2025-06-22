@@ -117,12 +117,10 @@
     padding-top: 1rem;
   }
 
-  /* Remove qualquer sticky header */
   .ranking-container thead {
-    position: relative;
-    top: auto;
+    position: relative !important; 
+    top: auto !important;
   }
-
   /* Garante que a tabela seja rolável horizontalmente */
   .ranking-container {
     overflow-x: auto;
