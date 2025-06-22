@@ -33,6 +33,7 @@ export const getSolicitacoesColeta = async (filters = {}) => {
 };
 
 export const criarSolicitacaoColeta = async (formData) => {
+  console.log('[DEBUG] Dados sendo enviados:', formData); // <-- ADICIONE ESTA LINHA
   try {
     const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
       headers: {
@@ -42,6 +43,11 @@ export const criarSolicitacaoColeta = async (formData) => {
     });
     return data;
   } catch (error) {
+        console.error('[DEBUG] Erro completo:', { // <-- LOG DETALHADO
+      message: error.message,
+      response: error.response?.data,
+      config: error.config
+    });
     console.error('Erro ao criar solicitação:', error);
     throw new Error(error.response?.data?.error || 'Erro ao criar solicitação');
   }
