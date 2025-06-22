@@ -47,21 +47,20 @@ async function main() {
 
     const isVercelPreview = origin => 
       origin && origin.endsWith('.vercel.app');
-
-    app.use(cors({
-      origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || isVercelPreview(origin)) {
-          callback(null, true);
-        } else {
-          console.warn('⚠️ CORS bloqueado para:', origin);
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      maxAge: 86400
-    }));
+      app.use(cors({
+        origin: (origin, callback) => {
+          if (!origin || allowedOrigins.includes(origin) || isVercelPreview(origin)) {
+            callback(null, true);
+          } else {
+            console.warn('⚠️ CORS bloqueado para:', origin);
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        maxAge: 86400
+      }));
 
     app.options('*', cors());
     app.use(express.json({ limit: '10mb' }));

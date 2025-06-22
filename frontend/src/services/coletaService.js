@@ -1,5 +1,5 @@
 import axios from 'axios';
-import  authService  from './authService'; 
+import  authService  from './authService'; // ✅ Corrigido aqui
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -66,7 +66,7 @@ export const deletarSolicitacaoColeta = async (id) => {
   try {
     const { data } = await axios.delete(`${API_BASE}/coletas/${id}`, {
       headers: getAuthHeader(),
-      validateStatus: (status) => status < 500 
+      validateStatus: (status) => status < 500 // Para capturar erros 400 e 404 como respostas normais
     });
 
     if (!data.success) {
