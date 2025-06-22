@@ -226,7 +226,6 @@
     right: 20px;
   }
 
-  /* 🔥 Container dos botões no mobile */
   .carousel-multiple {
     flex-direction: column;
     align-items: center;
@@ -238,7 +237,6 @@
     gap: 15px;
     margin-top: 10px;
   }
-  /* Se quiser, pode até trazer eles mais para dentro no mobile */
   @media (max-width: 500px) {
     .prev {
       left: 10px;

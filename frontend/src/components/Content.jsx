@@ -45,10 +45,7 @@ const Content = () => {
         ].filter(p => p.lat && p.lng);
 
         setMarcadores(pontos);
-
-        const dadosGrafico = graficoRes.data?.data || [];
-        setDadosGrafico(dadosGrafico);
-
+        setDadosGrafico(graficoRes.data?.data || []);
         setRankingEmpresas(rankingRes.data?.data || []);
 
       } catch (err) {
@@ -62,77 +59,78 @@ const Content = () => {
   }, []);
 
   return (
-    <div className='content' id="containerPrincipal">
-      {/* Ranking de Empresas */}
-      <div className='containerRanked'>
-        <div id='textRanked'>Ranking das empresas</div>
-        <div className='ranking-wrapper'>
-          {loading ? (
-            <p>Carregando ranking...</p>
-          ) : (
-            <RankingEmpresas
-              ranking={rankingEmpresas}
-              compactMode={true}
-              hideTitle={true}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Gráfico de Coletas */}
-      <div className='containerGraphic'>
-        <div id='textGraph'>Distribuição por Material</div>
-        <div className='grafico-wrapper' style={{
-          height: '400px',
-          overflow: 'hidden'
-        }}>
-          {loading ? (
-            <div className="loading-message">Carregando gráfico...</div>
-          ) : dadosGrafico.length > 0 ? (
-            <GraficoColetas
-              dados={dadosGrafico}
-              compactMode={true}
-            />
-          ) : (
-            <div className="no-data-message">
-              Nenhum dado disponível para exibir
+      <div className='content' id="containerPrincipal">
+        {/* Seção Esquerda (Gráfico e Ranking) */}
+        <div className='left-section'>
+          {/* Ranking de Empresas */}
+          <div className='containerRanked'>
+            <div id='textRanked'>Ranking das empresas</div>
+            <div className='ranking-wrapper'>
+              {loading ? (
+                <p>Carregando ranking...</p>
+              ) : (
+                <RankingEmpresas
+                  ranking={rankingEmpresas}
+                  compactMode={true}
+                  hideTitle={true}
+                />
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Mapa */}
-      <div className='containerMaps'>
-        <div id='textLoc'>Localização/empresas</div>
-        <div id='maps'>
-          <Map
-            className="mapa"
-            defaultCenter={center}
-            defaultZoom={12}
-            mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-          >
-            {marcadores.map((marcador, index) => (
-              <AdvancedMarker
-                key={index}
-                position={{ lat: marcador.lat, lng: marcador.lng }}
-                title={`${marcador.tipo}: ${marcador.nome}`}
-              >
-                <div style={{
-                  backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
-                  color: 'white',
-                  padding: '8px',
-                  borderRadius: '50%',
-                  fontSize: '14px',
-                  transform: 'translate(-50%, -50%)'
-                }}>
-                  {marcador.tipo === 'empresa' ? 'E' : 'C'}
+          {/* Gráfico de Coletas */}
+          <div className='containerGraphic'>
+            <div id='textGraph'>Distribuição por Material</div>
+            <div className='grafico-wrapper'>
+              {loading ? (
+                <div className="loading-message">Carregando gráfico...</div>
+              ) : dadosGrafico.length > 0 ? (
+                <GraficoColetas
+                  dados={dadosGrafico}
+                  compactMode={true}
+                />
+              ) : (
+                <div className="no-data-message">
+                  Nenhum dado disponível para exibir
                 </div>
-              </AdvancedMarker>
-            ))}
-          </Map>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mapa (Seção Direita - Maior) */}
+        <div className='containerMaps'>
+          <div id='textLoc'>Localização das Empresas e Centros</div>
+          <div id='maps'>
+            <Map
+              className="mapa"
+              defaultCenter={center}
+              defaultZoom={12}
+              mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
+              gestureHandling={'greedy'}
+            >
+              {marcadores.map((marcador, index) => (
+                <AdvancedMarker key={index} position={{ lat: marcador.lat, lng: marcador.lng }}>
+                  <div style={{
+                    backgroundColor: marcador.tipo === 'empresa' ? '#4285F4' : '#0F9D58',
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: 12
+                  }}>
+                    {marcador.tipo === 'empresa' ? 'E' : 'C'}
+                  </div>
+                </AdvancedMarker>
+              ))}
+            </Map>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

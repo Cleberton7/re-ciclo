@@ -16,7 +16,6 @@ const CORES_PADRAO = {
 };
 
 const GraficoColetas = ({ dados = [], compactMode = false }) => {
-  // Processamento universal dos dados
   const dadosProcessados = dados.map(item => ({
     tipoMaterial: item.tipoMaterial || 'Outros',
     total: item.quantidade || item.total || 0
@@ -27,7 +26,7 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
   if (!dadosValidos) {
     return (
       <div style={{
-        height: compactMode ? '250px' : '400px',
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -39,9 +38,12 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
     );
   }
 
-  // Agrupa por tipoMaterial
   const dadosAgrupados = dadosProcessados.reduce((acc, item) => {
-    const existente = acc.find(i => i.tipoMaterial === item.tipoMaterial);
+    const tipoNormalizado = item.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const existente = acc.find(i => 
+      i.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === tipoNormalizado
+    );
+    
     if (existente) {
       existente.total += item.total;
     } else {
@@ -71,14 +73,18 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
           boxWidth: 20,
           padding: 20,
           font: {
-            size: 14
+            size: compactMode ? 12 : 14
           }
         }
       },
       tooltip: {
         callbacks: {
           label: (context) => {
-            return `${context.label}: ${context.raw}kg`;
+            const label = context.label || '';
+            const value = context.raw || 0;
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = Math.round((value / total) * 100);
+            return `${label}: ${value}kg (${percentage}%)`;
           }
         }
       }
@@ -89,14 +95,12 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
     <div style={{
       position: 'relative',
       width: '100%',
-      height: compactMode ? '250px' : '400px',
-      margin: '0 auto',
-      
+      height: '100%',
+      minHeight: compactMode ? '250px' : '300px'
     }}>
       <Pie 
         data={chartData} 
         options={options}
-        redraw
       />
     </div>
   );
