@@ -1,3 +1,4 @@
+/* ESTILOS GERAIS DO CARROSSEL */
 .section {
   background-color: #009951;
   flex-direction: column;
@@ -17,10 +18,10 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   cursor: pointer;
 }
-#textSection :hover{
+
+#textSection:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-
 }
 
 #containerSection {
@@ -48,6 +49,7 @@
   overflow: hidden;
   padding: 10px;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .carousel-item {
@@ -73,7 +75,7 @@
   height: 180px;
   position: relative;
   overflow: hidden;
-  background-color: #f0f0f0; /* Cor de fallback */
+  background-color: #f0f0f0;
 }
 
 .carousel-image {
@@ -86,16 +88,6 @@
 .carousel-image[src="/imagem-padrao.jpg"] {
   object-fit: contain;
   padding: 10px;
-}
-/* Adicione no CSS */
-.carousel-image {
-  transition: opacity 0.3s ease;
-}
-.carousel-image[src] {
-  opacity: 1;
-}
-.carousel-item:hover .carousel-image {
-  transform: scale(1.05);
 }
 
 .carousel-content {
@@ -134,7 +126,6 @@
 
 .carousel-link:hover {
   background-color: #007a40;
-  text-decoration: none;
 }
 
 .carousel-btn {
@@ -186,21 +177,55 @@
   color: #ffdddd;
   background-color: rgba(211, 47, 47, 0.2);
 }
-/* Versão Mobile */
+
+/* VERSÃO MOBILE - CORREÇÃO PARA SOBREPOSIÇÃO */
 @media (max-width: 768px) {
-  /* Container principal do carrossel */
-  #containerSection {
-    padding-top: 50px; /* Espaço para o menu */
-    margin-top: 0;
-    position: relative;
+  .section {
+    padding: 15px 10px;
+    margin: 15px 0;
   }
 
-  /* Reset dos botões de navegação */
+  #containerSection {
+    padding-top: 60px; /* Espaço para o menu */
+    margin-top: 0;
+  }
+
+  #textSection {
+    margin: 0 auto 15px;
+    font-size: 1.2rem;
+    padding: 5px 15px;
+  }
+
+  .carousel-items-container {
+    gap: 10px;
+    padding: 5px;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+  }
+
+  .carousel-item {
+    width: 85vw;
+    min-height: auto;
+    margin: 0 10px;
+    scroll-snap-align: start;
+    box-sizing: border-box;
+  }
+
+  .carousel-image-container {
+    height: 150px;
+  }
+
   .carousel-btn {
-    position: absolute;
-    top: 25px; /* Ajuste para ficar abaixo do menu */
-    transform: translateY(0);
-    z-index: 20; /* Garante que fiquem acima dos itens */
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+    top: 30px; /* Posição abaixo do menu */
+    transform: none;
+    z-index: 20;
+  }
+
+  .carousel-btn:active {
+    transform: scale(0.95);
   }
 
   .prev {
@@ -210,19 +235,11 @@
   .next {
     right: 10px;
   }
+}
 
-  /* Ajuste dos itens do carrossel */
+/* CORREÇÃO PARA iOS */
+@supports (-webkit-touch-callout: none) {
   .carousel-items-container {
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 15px;
-  }
-
-  .carousel-item {
-    scroll-snap-align: start;
-    width: 85vw; /* Largura relativa à viewport */
-    margin: 0 10px;
-    box-sizing: border-box;
+    padding-bottom: 20px;
   }
 }
