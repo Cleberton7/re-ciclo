@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { buscarNoticiaPorSlug } from '../services/noticiaService';
+import { BASE_URL } from '../config/config.js';
 import "./styles/containerPrincipal.css";
 import "./styles/noticiaDetalhe.css";
 
 const NoticiaDetalhe = () => {
-  const { slug } = useParams(); // Mude de id para slug
+  const { slug } = useParams();
   const [noticia, setNoticia] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,7 +24,7 @@ const NoticiaDetalhe = () => {
             image: noticiaEncontrada.image 
               ? noticiaEncontrada.image.startsWith('http') 
                 ? noticiaEncontrada.image 
-                : `http://localhost:5000${noticiaEncontrada.image}`
+                : `${BASE_URL}${noticiaEncontrada.image}`
               : null
           };
           setNoticia(noticiaFormatada);
@@ -39,7 +40,7 @@ const NoticiaDetalhe = () => {
     };
 
     buscarNoticia();
-  }, [slug]); 
+  }, [slug]);
 
   if (loading) return (
     <div className="noticia-detalhe-container" id='containerPrincipal'>

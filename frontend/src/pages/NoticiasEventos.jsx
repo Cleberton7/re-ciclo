@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { listarNoticias } from '../services/noticiaService';
+import { BASE_URL } from '../config/config.js';
 import "./styles/containerPrincipal.css";
 import "./styles/eventosNoticias.css";
 
@@ -18,7 +19,7 @@ const NoticiasEventos = () => {
           image: noticia.image 
             ? noticia.image.startsWith('http') 
               ? noticia.image 
-              : `http://localhost:5000${noticia.image}`
+              : `${BASE_URL}${noticia.image}`
             : null,
           slug: noticia.slug || noticia._id
         }));
