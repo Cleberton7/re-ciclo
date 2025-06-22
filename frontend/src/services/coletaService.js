@@ -33,29 +33,39 @@ export const getSolicitacoesColeta = async (filters = {}) => {
 };
 
 export const criarSolicitacaoColeta = async (formData) => {
-// Substitua o código problemático por:
-console.log('Informações do arquivo:', {
-  nome: formData.imagem?.name || 'Nenhuma imagem',
-  tipo: formData.imagem?.type || 'N/A',
-  tamanho: formData.imagem?.size || 0,
-  extensão: formData.imagem?.name?.split('.').pop() || 'N/A'
-});
-
   try {
+    // Verificação do tipo de arquivo
+    if (formData.imagem) {
+      const allowedTypes = ['image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(formData.imagem.type)) {
+        throw new Error('Apenas imagens JPEG e PNG são permitidas');
+      }
+    }
+
+    // Debug: verificar conteúdo do FormData
+    const formDataEntries = {};
+    for (const [key, value] of formData.entries()) {
+      formDataEntries[key] = value instanceof File ? 
+        `[File: ${value.name}]` : 
+        value;
+    }
+    console.log('Dados sendo enviados:', formDataEntries);
+
     const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
       headers: {
         ...getAuthHeader(),
         'Content-Type': 'multipart/form-data'
-      }
+      },
+      timeout: 15000
     });
+    
     return data;
   } catch (error) {
-        console.error('[DEBUG] Erro completo:', { // <-- LOG DETALHADO
+    console.error('Erro detalhado:', {
       message: error.message,
       response: error.response?.data,
       config: error.config
     });
-    console.error('Erro ao criar solicitação:', error);
     throw new Error(error.response?.data?.error || 'Erro ao criar solicitação');
   }
 };

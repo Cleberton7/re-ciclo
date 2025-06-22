@@ -48,26 +48,33 @@ const PainelEmpresa = () => {
     carregarResiduos();
   }, []);
 
-  const adicionarResiduo = async () => {
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("tipoMaterial", novoResiduo.tipoMaterial);
-      formData.append("quantidade", novoResiduo.quantidade);
-      formData.append("endereco", novoResiduo.endereco);
-      formData.append("observacoes", novoResiduo.observacoes);
-      if (imagem) formData.append("imagem", imagem);
-
-      await criarSolicitacaoColeta(formData);
-      resetForm();
-      setShowModal(false);
-      await carregarResiduos();
-    } catch (error) {
-      alert(`Erro ao adicionar: ${error.message}`);
-    } finally {
-      setLoading(false);
+const adicionarResiduo = async () => {
+  setLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+    formData.append("quantidade", novoResiduo.quantidade);
+    formData.append("endereco", novoResiduo.endereco);
+    formData.append("observacoes", novoResiduo.observacoes || "");
+    
+    if (imagem) {
+      // Verificação adicional no frontend
+      if (!['image/jpeg', 'image/png'].includes(imagem.type)) {
+        throw new Error('Por favor, selecione uma imagem JPEG ou PNG');
+      }
+      formData.append("imagem", imagem);
     }
-  };
+
+    await criarSolicitacaoColeta(formData);
+    resetForm();
+    setShowModal(false);
+    await carregarResiduos();
+  } catch (error) {
+    alert(`Erro ao adicionar: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const editarResiduo = (residuo) => {
     setEditingId(residuo._id);

@@ -39,32 +39,23 @@ const createStorage = (subfolder = 'generic') => {
 
 const createFileFilter = (allowedTypes = ['IMAGE']) => {
   return (req, file, cb) => {
-        console.log('Arquivo recebido:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size
-    });
     const allowedMimes = allowedTypes.flatMap(type => 
       MEDIA_TYPES[type]?.mimes || []
     );
-    const allowedExtensions = [];
     
-    allowedTypes.forEach(type => {
-      if (MEDIA_TYPES[type]) {
-        allowedMimes.push(...MEDIA_TYPES[type].mimes);
-        allowedExtensions.push(...MEDIA_TYPES[type].extensions);
-      }
-    });
+    // Aceita PNG mesmo se o mimetype estiver incorreto
+    const isPNG = file.originalname.toLowerCase().endsWith('.png');
+    const isValidMime = allowedMimes.includes(file.mimetype) || isPNG;
     
-    const isValidMime = allowedMimes.includes(file.mimetype);
-    const isValidExt = allowedExtensions.includes(
-      path.extname(file.originalname).toLowerCase()
-    );
-    
-    if (isValidMime && isValidExt) {
+    if (isValidMime) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedTypes.join(', ')}`), false);
+      console.error('Tipo de arquivo rejeitado:', {
+        mimetype: file.mimetype,
+        nome: file.originalname,
+        permitidos: allowedMimes
+      });
+      cb(new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedMimes.join(', ')}`), false);
     }
   };
 };
