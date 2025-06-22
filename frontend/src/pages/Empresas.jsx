@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
 import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle } from 'react-icons/fa';
+import { BASE_URL } from '../config/config.js';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
-
-// ✅ URL dinâmica: funciona local e produção
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Empresas = () => {
   const [empresas, setEmpresas] = useState([]);
@@ -21,6 +19,7 @@ const Empresas = () => {
           getCentrosReciclagemPublicos()
         ]);
 
+        // Formatação dos dados das empresas
         const empresasFormatadas = empresasData.map(empresa => ({
           id: empresa._id,
           nomeExibido: empresa.nomeFantasia || empresa.razaoSocial || "Empresa",
@@ -29,19 +28,20 @@ const Empresas = () => {
           cnpj: empresa.cnpj ? formatarCNPJ(empresa.cnpj) : "Não informado",
           endereco: empresa.endereco || "Endereço não informado",
           imagemUrl: empresa.imagemPerfil 
-            ? `${API_URL}/uploads/${empresa.imagemPerfil}`
+            ? `${BASE_URL}/uploads/${empresa.imagemPerfil}`
             : null
         }));
 
-        const centrosReciclagemFormatados = centrosReciclagemData.map(centroReciclagem => ({
-          id: centroReciclagem._id,
-          nomeExibido: centroReciclagem.nomeFantasia || centroReciclagem.nome || "Centro de Reciclagem",
-          email: centroReciclagem.email || "Não informado",
-          telefone: centroReciclagem.telefone ? formatarTelefone(centroReciclagem.telefone) : "Não informado",
-          cnpj: centroReciclagem.cnpj ? formatarCNPJ(centroReciclagem.cnpj) : "Não informado",
-          endereco: centroReciclagem.endereco || "Endereço não informado",
-          imagemUrl: centroReciclagem.imagemPerfil 
-            ? `${API_URL}/uploads/${centroReciclagem.imagemPerfil}`
+        // Formatação dos dados dos centros de reciclagem
+        const centrosReciclagemFormatados = centrosReciclagemData.map(centro => ({
+          id: centro._id,
+          nomeExibido: centro.nomeFantasia || centro.nome || "Centro de Reciclagem",
+          email: centro.email || "Não informado",
+          telefone: centro.telefone ? formatarTelefone(centro.telefone) : "Não informado",
+          cnpj: centro.cnpj ? formatarCNPJ(centro.cnpj) : "Não informado",
+          endereco: centro.endereco || "Endereço não informado",
+          imagemUrl: centro.imagemPerfil 
+            ? `${BASE_URL}/uploads/${centro.imagemPerfil}`
             : null
         }));
 
@@ -58,10 +58,12 @@ const Empresas = () => {
     fetchData();
   }, []);
 
+  // Função para formatar CNPJ
   const formatarCNPJ = (cnpj) => {
     return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
   };
 
+  // Função para formatar telefone
   const formatarTelefone = (telefone) => {
     const cleaned = telefone.replace(/\D/g, '');
     if (cleaned.length === 11) {
@@ -109,10 +111,22 @@ const Empresas = () => {
               >
                 <div className="card-content">
                   <h3>{empresa.nomeExibido}</h3>
-                  <div className="info-item"><FaEnvelope className="info-icon" /><span>{empresa.email}</span></div>
-                  <div className="info-item"><FaPhone className="info-icon" /><span>{empresa.telefone}</span></div>
-                  <div className="info-item"><FaMapMarkerAlt className="info-icon" /><span>{empresa.endereco}</span></div>
-                  <div className="info-item"><FaIdCard className="info-icon" /><span>{empresa.cnpj}</span></div>
+                  <div className="info-item">
+                    <FaEnvelope className="info-icon" />
+                    <span>{empresa.email}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaPhone className="info-icon" />
+                    <span>{empresa.telefone}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaMapMarkerAlt className="info-icon" />
+                    <span>{empresa.endereco}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaIdCard className="info-icon" />
+                    <span>{empresa.cnpj}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -136,10 +150,22 @@ const Empresas = () => {
                 <div className="card-overlay"></div>
                 <div className="card-content">
                   <h3>{centro.nomeExibido}</h3>
-                  <div className="info-item"><FaEnvelope className="info-icon" /><span>{centro.email}</span></div>
-                  <div className="info-item"><FaPhone className="info-icon" /><span>{centro.telefone}</span></div>
-                  <div className="info-item"><FaMapMarkerAlt className="info-icon" /><span>{centro.endereco}</span></div>
-                  <div className="info-item"><FaIdCard className="info-icon" /><span>{centro.cnpj}</span></div>
+                  <div className="info-item">
+                    <FaEnvelope className="info-icon" />
+                    <span>{centro.email}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaPhone className="info-icon" />
+                    <span>{centro.telefone}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaMapMarkerAlt className="info-icon" />
+                    <span>{centro.endereco}</span>
+                  </div>
+                  <div className="info-item">
+                    <FaIdCard className="info-icon" />
+                    <span>{centro.cnpj}</span>
+                  </div>
                 </div>
               </div>
             ))}
