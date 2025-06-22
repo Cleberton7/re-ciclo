@@ -12,15 +12,16 @@
   border-radius: 5px;
   height: 30px;
   margin: 0 0 20px 10px;
-  padding: 3px;
+  padding: 3px 10px;
   width: fit-content;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   cursor: pointer;
+  transition: all 0.3s ease;
 }
-#textSection :hover{
+
+#textSection:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-
 }
 
 #containerSection {
@@ -73,7 +74,7 @@
   height: 180px;
   position: relative;
   overflow: hidden;
-  background-color: #f0f0f0; /* Cor de fallback */
+  background-color: #f0f0f0;
 }
 
 .carousel-image {
@@ -87,13 +88,7 @@
   object-fit: contain;
   padding: 10px;
 }
-/* Adicione no CSS */
-.carousel-image {
-  transition: opacity 0.3s ease;
-}
-.carousel-image[src] {
-  opacity: 1;
-}
+
 .carousel-item:hover .carousel-image {
   transform: scale(1.05);
 }
@@ -148,7 +143,7 @@
   cursor: pointer;
   font-size: 18px;
   border-radius: 50%;
-  z-index: 10;
+  z-index: 2;
   width: 40px;
   height: 40px;
   display: flex;
@@ -186,7 +181,8 @@
   color: #ffdddd;
   background-color: rgba(211, 47, 47, 0.2);
 }
-/* section.css - Versão Mobile */
+
+/* 🔥 Correção para versão Mobile */
 @media (max-width: 768px) {
   .section {
     padding: 15px 10px;
@@ -214,17 +210,32 @@
     height: 150px;
   }
 
+  /* 🔧 Botões na parte inferior no mobile */
   .carousel-btn {
+    position: static;
+    transform: none;
+    margin: 10px 5px;
     width: 35px;
     height: 35px;
     font-size: 16px;
+    border-radius: 50%;
   }
 
-  .prev {
-    left: 5px;
+  .prev, .next {
+    left: unset;
+    right: unset;
   }
 
-  .next {
-    right: 5px;
+  /* 🔥 Container dos botões no mobile */
+  .carousel-multiple {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .carousel-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
   }
 }

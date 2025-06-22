@@ -102,8 +102,13 @@ const Section = () => {
       <Link to="/NoticiasEventos">
         <div id="textSection">Notícias e Eventos</div>
       </Link>
+
       <div id="containerSection" className="carousel-multiple">
-        <button className="carousel-btn prev" onClick={prevSlide} aria-label="Notícias anteriores">
+        <button
+          className="carousel-btn prev"
+          onClick={prevSlide}
+          aria-label="Notícias anteriores"
+        >
           &lt;
         </button>
 
@@ -136,7 +141,11 @@ const Section = () => {
           ))}
         </div>
 
-        <button className="carousel-btn next" onClick={nextSlide} aria-label="Próximas notícias">
+        <button
+          className="carousel-btn next"
+          onClick={nextSlide}
+          aria-label="Próximas notícias"
+        >
           &gt;
         </button>
       </div>
