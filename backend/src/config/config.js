@@ -8,7 +8,7 @@ export const NODE_ENV = process.env.NODE_ENV || 'development';
 export const BASE_URL = process.env.BASE_URL || 
                        process.env.RAILWAY_PUBLIC_DOMAIN || 
                        (NODE_ENV === 'production' 
-                         ? 'https://re-cicle-production.up.railway.app' 
+                         ? 'https://re-cicle-production.up.railway.app/api' 
                          : `http://localhost:${PORT}`);
 
 export const MONGO_URI = process.env.MONGO_URI || // Railway usa MONGO_URL
@@ -33,7 +33,7 @@ export const EMAIL_CONFIG = {
 };
 
 export const EMAIL_FROM = process.env.EMAIL_FROM || 
-  `"ReciclaTech" <${process.env.EMAIL_USER || 'no-reply@reciclatech.com'}>`;
+  `"Recicle" <${process.env.EMAIL_USER || 'no-reply@reciclatech.com'}>`;
 
 export const FRONTEND_URL = process.env.FRONTEND_URL || 
                           'https://re-cicle-git-main-clebertons-projects.vercel.app';

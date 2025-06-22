@@ -81,7 +81,14 @@ async function main() {
     app.get('/api/health', (req, res) => {
       res.status(200).json({ status: 'healthy' });
     });
-
+    app.get('/api/config', (req, res) => {
+      res.json({
+        nodeEnv: NODE_ENV,
+        baseUrl: BASE_URL,
+        frontendUrl: FRONTEND_URL,
+        corsAllowed: allowedOrigins
+      });
+    });
     app.use(errorHandler);
 
     app.listen(PORT, () => {
