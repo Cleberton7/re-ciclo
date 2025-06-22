@@ -133,7 +133,7 @@
   border-radius: 0.4rem;
 }
 
-/* RESPONSIVIDADE */
+/* RESPONSIVIDADE - SOLUÇÃO PARA MOBILE */
 @media (max-width: 1024px) {
   .containerMaps {
     width: 50%;
@@ -145,29 +145,25 @@
     flex-direction: column;
   }
 
-  .left-section {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
   .containerMaps {
-    width: 100%;
-    margin-left: 0;
+    width: 100%; /* Margens seguras */
+    margin: 1rem auto; /* Centralizado */
+    height: 400px;
     min-height: 400px;
+    padding: 1rem;
   }
 
   .map-wrapper {
-    min-height: 400px;
+    height: 100%;
+    min-height: unset;
   }
 }
 
 @media (max-width: 480px) {
-  .content {
-    padding: 0.5rem;
-  }
-
-  .containerMaps,
-  .map-wrapper {
+  .containerMaps {
+    height: 350px;
     min-height: 350px;
+    width: calc(100% - 1rem);
+    padding: 0.5rem;
   }
 }
