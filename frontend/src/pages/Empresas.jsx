@@ -4,6 +4,9 @@ import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle } 
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
 
+// ✅ URL dinâmica: funciona local e produção
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Empresas = () => {
   const [empresas, setEmpresas] = useState([]);
   const [centrosReciclagem, setCentrosReciclagem] = useState([]);
@@ -18,7 +21,6 @@ const Empresas = () => {
           getCentrosReciclagemPublicos()
         ]);
 
-        // Formatação dos dados das empresas
         const empresasFormatadas = empresasData.map(empresa => ({
           id: empresa._id,
           nomeExibido: empresa.nomeFantasia || empresa.razaoSocial || "Empresa",
@@ -27,11 +29,10 @@ const Empresas = () => {
           cnpj: empresa.cnpj ? formatarCNPJ(empresa.cnpj) : "Não informado",
           endereco: empresa.endereco || "Endereço não informado",
           imagemUrl: empresa.imagemPerfil 
-            ? `http://localhost:5000/uploads/${empresa.imagemPerfil}`
+            ? `${API_URL}/uploads/${empresa.imagemPerfil}`
             : null
         }));
 
-        // Formatação dos dados dos coletores
         const centrosReciclagemFormatados = centrosReciclagemData.map(centroReciclagem => ({
           id: centroReciclagem._id,
           nomeExibido: centroReciclagem.nomeFantasia || centroReciclagem.nome || "Centro de Reciclagem",
@@ -40,7 +41,7 @@ const Empresas = () => {
           cnpj: centroReciclagem.cnpj ? formatarCNPJ(centroReciclagem.cnpj) : "Não informado",
           endereco: centroReciclagem.endereco || "Endereço não informado",
           imagemUrl: centroReciclagem.imagemPerfil 
-            ? `http://localhost:5000/uploads/${centroReciclagem.imagemPerfil}`
+            ? `${API_URL}/uploads/${centroReciclagem.imagemPerfil}`
             : null
         }));
 
@@ -57,12 +58,10 @@ const Empresas = () => {
     fetchData();
   }, []);
 
-  // Função para formatar CNPJ
   const formatarCNPJ = (cnpj) => {
     return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
   };
 
-  // Função para formatar telefone
   const formatarTelefone = (telefone) => {
     const cleaned = telefone.replace(/\D/g, '');
     if (cleaned.length === 11) {
@@ -110,22 +109,10 @@ const Empresas = () => {
               >
                 <div className="card-content">
                   <h3>{empresa.nomeExibido}</h3>
-                  <div className="info-item">
-                    <FaEnvelope className="info-icon" />
-                    <span>{empresa.email}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaPhone className="info-icon" />
-                    <span>{empresa.telefone}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaMapMarkerAlt className="info-icon" />
-                    <span>{empresa.endereco}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaIdCard className="info-icon" />
-                    <span>{empresa.cnpj}</span>
-                  </div>
+                  <div className="info-item"><FaEnvelope className="info-icon" /><span>{empresa.email}</span></div>
+                  <div className="info-item"><FaPhone className="info-icon" /><span>{empresa.telefone}</span></div>
+                  <div className="info-item"><FaMapMarkerAlt className="info-icon" /><span>{empresa.endereco}</span></div>
+                  <div className="info-item"><FaIdCard className="info-icon" /><span>{empresa.cnpj}</span></div>
                 </div>
               </div>
             ))}
@@ -135,36 +122,24 @@ const Empresas = () => {
         <div className="secao">
           <h2><FaRecycle className="section-icon" /> Centros de Coleta</h2>
           <div className="cardsContainer">
-            {centrosReciclagem.map(centrosReciclagem => (
+            {centrosReciclagem.map(centro => (
               <div 
-                key={centrosReciclagem.id} 
+                key={centro.id} 
                 className="cardEmpresa"
                 style={{ 
-                  backgroundImage: centrosReciclagem.imagemUrl 
-                    ? `url(${centrosReciclagem.imagemUrl})`
+                  backgroundImage: centro.imagemUrl 
+                    ? `url(${centro.imagemUrl})`
                     : 'none',
-                  backgroundColor: !centrosReciclagem.imagemUrl ? '#009951' : 'transparent'
+                  backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
                 }}
               >
                 <div className="card-overlay"></div>
                 <div className="card-content">
-                  <h3>{centrosReciclagem.nomeExibido}</h3>
-                  <div className="info-item">
-                    <FaEnvelope className="info-icon" />
-                    <span>{centrosReciclagem.email}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaPhone className="info-icon" />
-                    <span>{centrosReciclagem.telefone}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaMapMarkerAlt className="info-icon" />
-                    <span>{centrosReciclagem.endereco}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaIdCard className="info-icon" />
-                    <span>{centrosReciclagem.cnpj}</span>
-                  </div>
+                  <h3>{centro.nomeExibido}</h3>
+                  <div className="info-item"><FaEnvelope className="info-icon" /><span>{centro.email}</span></div>
+                  <div className="info-item"><FaPhone className="info-icon" /><span>{centro.telefone}</span></div>
+                  <div className="info-item"><FaMapMarkerAlt className="info-icon" /><span>{centro.endereco}</span></div>
+                  <div className="info-item"><FaIdCard className="info-icon" /><span>{centro.cnpj}</span></div>
                 </div>
               </div>
             ))}
