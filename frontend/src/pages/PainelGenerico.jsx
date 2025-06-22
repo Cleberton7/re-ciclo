@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import './styles/painelGenerico.css';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { IMaskInput } from 'react-imask';
 import { ClipLoader } from "react-spinners";
+import { API_URL, BASE_URL } from '../config/config.js'; // importando URLs
+import './styles/painelGenerico.css';
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -41,10 +42,10 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
     const fetchData = async () => {
       const endpoint = {
-        empresa: 'api/empresas/dados',
-        pessoa: 'api/usuarios/pessoal',
-        centro: 'api/centros-reciclagem/dados',
-        admGeral: 'api/admin/dados'
+        empresa: 'empresas/dados',
+        pessoa: 'usuarios/pessoal',
+        centro: 'centros-reciclagem/dados',
+        admGeral: 'admin/dados'
       }[tipoUsuario];
 
       if (!endpoint) {
@@ -54,7 +55,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5000/${endpoint}`, {
+        const response = await axios.get(`${API_URL}/${endpoint}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -89,7 +90,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
         }
 
         if (dadosRecebidos.imagemPerfil) {
-          setImagePreview(`http://localhost:5000/uploads/${dadosRecebidos.imagemPerfil}`);
+          setImagePreview(`${BASE_URL}/uploads/${dadosRecebidos.imagemPerfil}`);
         }
 
       } catch (err) {
@@ -120,12 +121,12 @@ const PainelGenerico = ({ tipoUsuario }) => {
   };
 
   const handleCancel = () => {
-      setEditing(false);
-      setTempDados({ ...dados });
-      setImagePreview(dados.imagemPerfil ? `http://localhost:5000/uploads/${dados.imagemPerfil}` : null);
-      setImageFile(null);
-      setRemoveImage(false);
-    };
+    setEditing(false);
+    setTempDados({ ...dados });
+    setImagePreview(dados.imagemPerfil ? `${BASE_URL}/uploads/${dados.imagemPerfil}` : null);
+    setImageFile(null);
+    setRemoveImage(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -157,7 +158,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
 
       const response = await axios.put(
-        `http://localhost:5000/api/usuario/dados`, 
+        `${API_URL}/usuario/dados`, 
         formData, 
         {
           headers: { 
@@ -167,31 +168,26 @@ const PainelGenerico = ({ tipoUsuario }) => {
         }
       );
 
-      // Atualização completa dos dados
       const novosDados = response.data.data || response.data;
       
-      // Construir a URL da imagem corretamente
       let updatedImageUrl = null;
       if (removeImage) {
         updatedImageUrl = null;
       } else if (imageFile) {
-        // Se foi enviada uma nova imagem, usar o preview temporário
         updatedImageUrl = URL.createObjectURL(imageFile);
       } else if (novosDados.imagemPerfil) {
-        // Se não foi alterada a imagem, usar o caminho do servidor
         updatedImageUrl = novosDados.imagemPerfil.includes('http') 
           ? novosDados.imagemPerfil 
-          : `http://localhost:5000/uploads/${novosDados.imagemPerfil}`;
+          : `${BASE_URL}/uploads/${novosDados.imagemPerfil}`;
       } else if (dados.imagemPerfil && !removeImage) {
-        // Manter a imagem existente se não foi removida
         updatedImageUrl = dados.imagemPerfil.includes('http')
           ? dados.imagemPerfil
-          : `http://localhost:5000/uploads/${dados.imagemPerfil}`;
+          : `${BASE_URL}/uploads/${dados.imagemPerfil}`;
       }
 
       setDados(prev => ({
-        ...prev, // Mantém todos os dados anteriores
-        ...novosDados, // Adiciona os novos dados
+        ...prev,
+        ...novosDados,
         documento: tipoUsuario === "empresa" || tipoUsuario === "centro" 
           ? novosDados.cnpj || prev.documento 
           : novosDados.cpf || prev.documento,
@@ -200,7 +196,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
           : tipoUsuario === "centro"
           ? novosDados.nomeFantasia || prev.nomeExibido
           : novosDados.nome || prev.nomeExibido,
-        imagemPerfil: updatedImageUrl // Atualiza a URL da imagem
+        imagemPerfil: updatedImageUrl
       }));
 
       setImagePreview(updatedImageUrl);
@@ -217,6 +213,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       setSaving(false);
     }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setTempDados(prev => ({ ...prev, [name]: value }));
@@ -230,7 +227,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
         return;
       }
       setImageFile(file);
-      setRemoveImage(false); // Se o usuário selecionar nova imagem, cancela a remoção
+      setRemoveImage(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -238,11 +235,13 @@ const PainelGenerico = ({ tipoUsuario }) => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleRemoveImage = () => {
     setImagePreview(null);
     setImageFile(null);
     setRemoveImage(true);
   };
+
   const handleDeleteAccount = async () => {
     const confirmacao = window.confirm(
       'Tem certeza que deseja excluir sua conta permanentemente?\nEsta ação não pode ser desfeita!'
@@ -253,7 +252,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
     setDeletingAccount(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/usuario/conta`, {
+      await axios.delete(`${API_URL}/usuario/conta`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -280,8 +279,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
     try {
       const token = localStorage.getItem("token");
       const endpoint = {
-        empresa: 'api/empresas/atualizar-localizacao',
-        centro: 'api/centros-reciclagem/atualizar-localizacao'
+        empresa: 'empresas/atualizar-localizacao',
+        centro: 'centros-reciclagem/atualizar-localizacao'
       }[tipoUsuario];
 
       if (!endpoint) {
@@ -290,7 +289,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
         return;
       }
 
-      await axios.put(`http://localhost:5000/${endpoint}`, {
+      await axios.put(`${API_URL}/${endpoint}`, {
         localizacao: { lat: parseFloat(lat), lng: parseFloat(lng) }
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -322,8 +321,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
     const accuracy = position.coords.accuracy;
     const newLat = position.coords.latitude;
     const newLng = position.coords.longitude;
-
-    //console.log(`Precisão: ${accuracy}m`, position.coords);
 
     if (accuracy > 1000) {
       alert(`Precisão baixa (${Math.round(accuracy)}m). Posição pode estar aproximada.`);
@@ -370,7 +367,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       handlePositionSuccess,
       (error) => {
         console.warn('Falha GPS (alta precisão):', error.message);
-  
+
         navigator.geolocation.getCurrentPosition(
           handlePositionSuccess,
           (fallbackError) => {
@@ -394,7 +391,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
     setMapCenter({ lat: newLat, lng: newLng });
   };
 
-if (loading) return (
+  if (loading) return (
     <div className="loading-screen">
       <ClipLoader color="#009951" size={50} />
       <p>Carregando seus dados...</p>
@@ -409,7 +406,7 @@ if (loading) return (
   );
 
   if (!dados) return null;
-  
+
   return (
     <div className="painel-container" id="containerPrincipal">
       <div className="painel-header">
@@ -442,7 +439,6 @@ if (loading) return (
         )}
       </div>
 
-      {/* Modal de confirmação de exclusão */}
       {showDeleteModal && (
         <div className="modal-overlay">
           <div className="delete-modal">
@@ -590,6 +586,7 @@ if (loading) return (
             )}
           </div>
         </div>
+
         {(tipoUsuario === "empresa" || tipoUsuario === "centro") && (
           <div className="localizacao-section">
             <h3>Localização</h3>

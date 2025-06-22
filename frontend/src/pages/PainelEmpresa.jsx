@@ -20,7 +20,7 @@ const PainelEmpresa = () => {
   const [editingId, setEditingId] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const API_BASE = 'http://localhost:5000/api';
+
 
   const [novoResiduo, setNovoResiduo] = useState({
     tipoMaterial: "",
