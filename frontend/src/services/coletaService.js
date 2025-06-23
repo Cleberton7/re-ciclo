@@ -1,5 +1,5 @@
 import axios from 'axios';
-import  authService  from './authService'; // ✅ Corrigido aqui
+import authService from './authService';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -7,6 +7,15 @@ const getAuthHeader = () => {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+// Lista de tipos MIME permitidos (usada tanto no front quanto no back)
+export const ALLOWED_FILE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/x-png'
+];
 
 export const getSolicitacoesColeta = async (filters = {}) => {
   try {
@@ -34,22 +43,29 @@ export const getSolicitacoesColeta = async (filters = {}) => {
 
 export const criarSolicitacaoColeta = async (formData) => {
   try {
-    // Verificação do tipo de arquivo
+    // Verificação robusta do tipo de arquivo
     if (formData.imagem) {
-      const allowedTypes = ['image/jpeg', 'image/png'];
-      if (!allowedTypes.includes(formData.imagem.type)) {
-        throw new Error('Apenas imagens JPEG e PNG são permitidas');
+      const file = formData.get('imagem');
+      const fileType = file.type.toLowerCase();
+      const fileName = file.name.toLowerCase();
+      const fileExt = fileName.split('.').pop();
+
+      const isAllowedType = ALLOWED_FILE_TYPES.includes(fileType) || 
+                           ALLOWED_FILE_TYPES.includes(`image/${fileExt}`) ||
+                           (fileExt === 'png' && fileType === 'application/octet-stream');
+
+      if (!isAllowedType) {
+        throw new Error(
+          `Tipo de arquivo não permitido. Tipos aceitos: ${ALLOWED_FILE_TYPES
+            .map(t => t.replace('image/', ''))
+            .join(', ')}`
+        );
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('O arquivo é muito grande. Tamanho máximo: 5MB');
       }
     }
-
-    // Debug: verificar conteúdo do FormData
-    const formDataEntries = {};
-    for (const [key, value] of formData.entries()) {
-      formDataEntries[key] = value instanceof File ? 
-        `[File: ${value.name}]` : 
-        value;
-    }
-    console.log('Dados sendo enviados:', formDataEntries);
 
     const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
       headers: {
@@ -66,7 +82,11 @@ export const criarSolicitacaoColeta = async (formData) => {
       response: error.response?.data,
       config: error.config
     });
-    throw new Error(error.response?.data?.error || 'Erro ao criar solicitação');
+    throw new Error(
+      error.response?.data?.error || 
+      error.message || 
+      'Erro ao criar solicitação'
+    );
   }
 };
 

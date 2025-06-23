@@ -8,7 +8,8 @@ import {
   criarSolicitacaoColeta,
   getSolicitacoesColeta,
   atualizarSolicitacaoColeta,
-  deletarSolicitacaoColeta
+  deletarSolicitacaoColeta,
+  ALLOWED_FILE_TYPES
 } from "../services/coletaService";
 
 const PainelEmpresa = () => {
@@ -47,35 +48,56 @@ const PainelEmpresa = () => {
   useEffect(() => {
     carregarResiduos();
   }, []);
+  const adicionarResiduo = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+      formData.append("quantidade", novoResiduo.quantidade);
+      formData.append("endereco", novoResiduo.endereco);
+      formData.append("observacoes", novoResiduo.observacoes || "");
+      
+      if (imagem) {
+        // Verificação completa no frontend
+        const fileType = imagem.type.toLowerCase();
+        const fileName = imagem.name.toLowerCase();
+        const fileExt = fileName.split('.').pop();
 
-const adicionarResiduo = async () => {
-  setLoading(true);
-  try {
-    const formData = new FormData();
-    formData.append("tipoMaterial", novoResiduo.tipoMaterial);
-    formData.append("quantidade", novoResiduo.quantidade);
-    formData.append("endereco", novoResiduo.endereco);
-    formData.append("observacoes", novoResiduo.observacoes || "");
-    
-    if (imagem) {
-      // Verificação adicional no frontend
-      if (!['image/jpeg', 'image/png'].includes(imagem.type)) {
-        throw new Error('Por favor, selecione uma imagem JPEG ou PNG');
+        const isAllowedType = ALLOWED_FILE_TYPES.includes(fileType) || 
+                            ALLOWED_FILE_TYPES.includes(`image/${fileExt}`) ||
+                            (fileExt === 'png' && fileType === 'application/octet-stream');
+
+        if (!isAllowedType) {
+          throw new Error(
+            `Tipo de arquivo não permitido. Use: ${ALLOWED_FILE_TYPES
+              .map(t => t.replace('image/', ''))
+              .join(', ')}`
+          );
+        }
+
+        if (imagem.size > 5 * 1024 * 1024) {
+          throw new Error('A imagem deve ser menor que 5MB');
+        }
+
+        formData.append("imagem", imagem);
       }
-      formData.append("imagem", imagem);
+
+      await criarSolicitacaoColeta(formData);
+      resetForm();
+      setShowModal(false);
+      await carregarResiduos();
+    } catch (error) {
+      let errorMessage = error.message;
+      if (error.message.includes('Tipo de arquivo')) {
+        errorMessage = `Formato de imagem não suportado. Use: ${ALLOWED_FILE_TYPES
+          .map(t => t.replace('image/', ''))
+          .join(', ')}`;
+      }
+      alert(`Erro ao adicionar: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
-
-    await criarSolicitacaoColeta(formData);
-    resetForm();
-    setShowModal(false);
-    await carregarResiduos();
-  } catch (error) {
-    alert(`Erro ao adicionar: ${error.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
   const editarResiduo = (residuo) => {
     setEditingId(residuo._id);
     setEditMode(true);
@@ -316,21 +338,28 @@ const adicionarResiduo = async () => {
                 disabled={loading}
               />
 
-              <label>Imagem (opcional):</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file && file.size > 5 * 1024 * 1024) {
-                    alert('A imagem deve ser menor que 5MB');
-                    return;
-                  }
-                  setImagem(file);
-                }}
-                name="imagem"
-                disabled={loading}
-              />
+              <div className="file-input-container">
+                <label>Imagem (opcional):</label>
+                <input
+                  type="file"
+                  accept={ALLOWED_FILE_TYPES.join(', ')}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                      alert('A imagem deve ser menor que 5MB');
+                      e.target.value = '';
+                      return;
+                    }
+                    setImagem(file);
+                  }}
+                  disabled={loading}
+                />
+                <small className="file-hint">
+                  Formatos aceitos: {ALLOWED_FILE_TYPES.map(t => t.replace('image/', '')).join(', ')} (max 5MB)
+                </small>
+              </div>
 
               {imagem && (
                 <div className="image-preview">
