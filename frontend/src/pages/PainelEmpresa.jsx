@@ -8,8 +8,7 @@ import {
   criarSolicitacaoColeta,
   getSolicitacoesColeta,
   atualizarSolicitacaoColeta,
-  deletarSolicitacaoColeta,
-  ALLOWED_FILE_TYPES
+  deletarSolicitacaoColeta
 } from "../services/coletaService";
 
 const PainelEmpresa = () => {
@@ -48,6 +47,7 @@ const PainelEmpresa = () => {
   useEffect(() => {
     carregarResiduos();
   }, []);
+
   const adicionarResiduo = async () => {
     setLoading(true);
     try {
@@ -57,47 +57,31 @@ const PainelEmpresa = () => {
       formData.append("endereco", novoResiduo.endereco);
       formData.append("observacoes", novoResiduo.observacoes || "");
       
+      // Adiciona a imagem apenas se existir
       if (imagem) {
-        // Verificação completa no frontend
-        const fileType = imagem.type.toLowerCase();
-        const fileName = imagem.name.toLowerCase();
-        const fileExt = fileName.split('.').pop();
-
-        const isAllowedType = ALLOWED_FILE_TYPES.includes(fileType) || 
-                            ALLOWED_FILE_TYPES.includes(`image/${fileExt}`) ||
-                            (fileExt === 'png' && fileType === 'application/octet-stream');
-
-        if (!isAllowedType) {
-          throw new Error(
-            `Tipo de arquivo não permitido. Use: ${ALLOWED_FILE_TYPES
-              .map(t => t.replace('image/', ''))
-              .join(', ')}`
-          );
-        }
-
-        if (imagem.size > 5 * 1024 * 1024) {
-          throw new Error('A imagem deve ser menor que 5MB');
-        }
-
         formData.append("imagem", imagem);
       }
 
-      await criarSolicitacaoColeta(formData);
-      resetForm();
-      setShowModal(false);
-      await carregarResiduos();
-    } catch (error) {
-      let errorMessage = error.message;
-      if (error.message.includes('Tipo de arquivo')) {
-        errorMessage = `Formato de imagem não suportado. Use: ${ALLOWED_FILE_TYPES
-          .map(t => t.replace('image/', ''))
-          .join(', ')}`;
+      // Adiciona o campo privacidade
+      formData.append("privacidade", "publica");
+
+      const response = await criarSolicitacaoColeta(formData);
+      
+      if (response.success) {
+        resetForm();
+        setShowModal(false);
+        await carregarResiduos();
+      } else {
+        throw new Error(response.message || "Erro ao criar solicitação");
       }
-      alert(`Erro ao adicionar: ${errorMessage}`);
+    } catch (error) {
+      console.error("Erro detalhado:", error);
+      alert(`Erro ao adicionar: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
+
   const editarResiduo = (residuo) => {
     setEditingId(residuo._id);
     setEditMode(true);
@@ -338,28 +322,21 @@ const PainelEmpresa = () => {
                 disabled={loading}
               />
 
-              <div className="file-input-container">
-                <label>Imagem (opcional):</label>
-                <input
-                  type="file"
-                  accept={ALLOWED_FILE_TYPES.join(', ')}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    
-                    if (file.size > 5 * 1024 * 1024) {
-                      alert('A imagem deve ser menor que 5MB');
-                      e.target.value = '';
-                      return;
-                    }
-                    setImagem(file);
-                  }}
-                  disabled={loading}
-                />
-                <small className="file-hint">
-                  Formatos aceitos: {ALLOWED_FILE_TYPES.map(t => t.replace('image/', '')).join(', ')} (max 5MB)
-                </small>
-              </div>
+              <label>Imagem (opcional):</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file && file.size > 5 * 1024 * 1024) {
+                    alert('A imagem deve ser menor que 5MB');
+                    return;
+                  }
+                  setImagem(file);
+                }}
+                name="imagem"
+                disabled={loading}
+              />
 
               {imagem && (
                 <div className="image-preview">

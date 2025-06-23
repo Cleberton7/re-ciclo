@@ -5,25 +5,11 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Tipos de mídia com validação mais robusta
+// Definição dos tipos de mídia suportados
 const MEDIA_TYPES = {
   IMAGE: {
-    mimes: [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'image/x-png',
-      'application/octet-stream' // Para lidar com alguns casos de PNG
-    ],
-    extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-    validate: (file) => {
-      // Verificação adicional para arquivos PNG com mimetype incorreto
-      if (file.originalname.toLowerCase().endsWith('.png')) {
-        return true;
-      }
-      return true;
-    }
+    mimes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
   },
   DOCUMENT: {
     mimes: ['application/pdf'],
@@ -31,16 +17,22 @@ const MEDIA_TYPES = {
   }
 };
 
-// Configuração de storage com tratamento de erros
+// Configuração de storage melhorada
 const createStorage = (subfolder = 'generic') => {
   return multer.diskStorage({
     destination: async (req, file, cb) => {
       try {
         const uploadDir = path.join(__dirname, '../../uploads', subfolder);
+        
+        // Verifica se o diretório existe, se não, cria
         await fs.mkdir(uploadDir, { recursive: true });
+        
+        // Verifica permissões de escrita
+        await fs.access(uploadDir, fs.constants.W_OK);
+        
         cb(null, uploadDir);
       } catch (error) {
-        cb(new Error('Falha ao criar diretório de upload'), null);
+        cb(new Error(`Erro ao configurar diretório de upload: ${error.message}`));
       }
     },
     filename: (req, file, cb) => {
@@ -55,41 +47,32 @@ const createStorage = (subfolder = 'generic') => {
 const createFileFilter = (allowedTypes = ['IMAGE']) => {
   return (req, file, cb) => {
     try {
-      const allowedConfigs = allowedTypes.map(type => MEDIA_TYPES[type]).filter(Boolean);
+      const allowedMimes = [];
+      const allowedExtensions = [];
       
-      // Verifica por mimetype e extensão
-      const isValidFile = allowedConfigs.some(config => {
-        const isMimeValid = config.mimes.includes(file.mimetype);
-        const ext = path.extname(file.originalname).toLowerCase();
-        const isExtValid = config.extensions.includes(ext);
-        
-        // Executa validação adicional se existir
-        const customValidation = config.validate ? config.validate(file) : true;
-        
-        return (isMimeValid || isExtValid) && customValidation;
+      allowedTypes.forEach(type => {
+        if (MEDIA_TYPES[type]) {
+          allowedMimes.push(...MEDIA_TYPES[type].mimes);
+          allowedExtensions.push(...MEDIA_TYPES[type].extensions);
+        }
       });
-
-      if (isValidFile) {
-        cb(null, true);
-      } else {
-        const allowedExtensions = allowedConfigs.flatMap(c => c.extensions);
-        console.warn('Tentativa de upload de arquivo não permitido:', {
-          fileName: file.originalname,
-          mimetype: file.mimetype,
-          allowed: allowedExtensions
-        });
-        cb(new Error(
-          `Tipo de arquivo não permitido. Tipos aceitos: ${allowedExtensions.join(', ')}`
-        ), false);
+      
+      const ext = path.extname(file.originalname).toLowerCase();
+      const isValidMime = allowedMimes.includes(file.mimetype);
+      const isValidExt = allowedExtensions.includes(ext);
+      
+      if (!isValidMime || !isValidExt) {
+        return cb(new Error(`Tipo de arquivo não permitido (${file.mimetype}${ext}). Tipos aceitos: ${allowedTypes.join(', ')}`));
       }
+      
+      cb(null, true);
     } catch (error) {
-      console.error('Erro na validação do arquivo:', error);
-      cb(error, false);
+      cb(error);
     }
   };
 };
 
-// Criador de middleware com opções melhoradas
+// Criação do uploader principal
 const createUploader = (options = {}) => {
   const {
     subfolder = 'generic',
@@ -99,6 +82,7 @@ const createUploader = (options = {}) => {
     maxFiles = 1
   } = options;
 
+  // Configuração do multer
   const upload = multer({
     storage: createStorage(subfolder),
     fileFilter: createFileFilter(allowedTypes),
@@ -108,54 +92,60 @@ const createUploader = (options = {}) => {
     }
   });
 
+  // Middleware principal
   const middleware = (req, res, next) => {
-    req.uploadType = subfolder;
-    
-    const handler = maxFiles > 1 
+    const uploadHandler = maxFiles > 1 
       ? upload.array(fieldName, maxFiles)
       : upload.single(fieldName);
 
-    handler(req, res, (err) => {
+    uploadHandler(req, res, (err) => {
       if (err) {
-        req.uploadError = err;
+        // Tratamento específico para limites de tamanho
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({
+            success: false,
+            error: `Arquivo muito grande. Tamanho máximo: ${maxFileSize / (1024 * 1024)}MB`
+          });
+        }
+        
+        // Outros erros de upload
+        return res.status(400).json({
+          success: false,
+          error: err.message || 'Erro no upload do arquivo'
+        });
       }
+      
+      // Adiciona informações do upload ao request
+      req.uploadInfo = {
+        type: subfolder,
+        field: fieldName,
+        files: req.files || (req.file ? [req.file] : [])
+      };
+      
       next();
     });
   };
 
-  // Expõe a instância do multer para uso direto se necessário
+  // Anexa a instância do multer para uso externo se necessário
   middleware.upload = upload;
+  
   return middleware;
 };
 
-// Handler de erros mais completo
-export const uploadErrorHandler = (err, req, res, next) => {
-  const error = err || req.uploadError;
-  
-  if (error) {
-    console.error('Erro no upload:', error);
-    
-    let message = 'Erro no upload do arquivo';
-    let status = 400;
-    
-    if (error.message.includes('Tipo de arquivo')) {
-      message = error.message;
-    } else if (error.code === 'LIMIT_FILE_SIZE') {
-      message = 'Arquivo muito grande. Tamanho máximo: 5MB';
-    } else if (error.code === 'LIMIT_FILE_COUNT') {
-      message = 'Número máximo de arquivos excedido';
-    } else if (error.message.includes('diretório')) {
-      message = 'Erro interno no servidor ao processar arquivo';
-      status = 500;
-    }
-
-    res.status(status).json({
-      success: false,
-      error: message
-    });
-  } else {
-    next();
-  }
-};
-
 export default createUploader;
+
+// Middleware de tratamento de erros específico para uploads
+export const uploadErrorHandler = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      error: `Erro no upload: ${err.message}`
+    });
+  } else if (err) {
+    return res.status(500).json({
+      success: false,
+      error: `Erro interno: ${err.message}`
+    });
+  }
+  next();
+};

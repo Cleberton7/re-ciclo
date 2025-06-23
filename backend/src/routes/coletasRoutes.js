@@ -18,16 +18,10 @@ import {
 } from '../controllers/coletaController.js';
 import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
 import { rateLimiter } from '../middlewares/rateLimiter.js';
+import { coletaUpload } from '../config/uploadConfig.js';
 
 const router = express.Router();
 
-// Configuração do upload para coletas (CORREÇÃO: usar createUploader)
-const coletaUpload = createUploader({
-  subfolder: 'coletas',
-  fieldName: 'imagem',
-  allowedTypes: ['image/jpeg', 'image/png'],
-  maxFileSize: 5 * 1024 * 1024 // 5MB
-});
 
 // Middlewares específicos
 const requireEmpresa = requireRole(['empresa']);

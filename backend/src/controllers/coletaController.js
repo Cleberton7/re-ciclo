@@ -3,34 +3,51 @@ import { getImagePath, getFullImageUrl } from '../utils/fileHelper.js';
 
 export const criarSolicitacao = async (req, res) => {
   try {
+    // No controller, adicione temporariamente:
+    console.log('Arquivo recebido:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nenhuma imagem foi enviada'
+      });
+    }
+
     const { tipoMaterial, quantidade, endereco, observacoes } = req.body;
     
+    // Cria o caminho completo da imagem
+    const imagemPath = `/uploads/coletas/${req.file.filename}`;
+
     const novaColeta = await Coleta.create({
       solicitante: req.user.id,
       tipoMaterial,
       quantidade,
       endereco,
-      observacoes,
-      imagem: req.file ? getImagePath(req, req.file.filename) : null,
+      observacoes: observacoes || '',
+      imagem: imagemPath,
       status: 'pendente',
-      privacidade:'publica'
+      privacidade: 'publica'
     });
 
     res.status(201).json({
       success: true,
       data: {
         ...novaColeta.toObject(),
-        imagem: getFullImageUrl(req, novaColeta.imagem)
+        imagem: `${req.protocol}://${req.get('host')}${imagemPath}`
       }
     });
   } catch (error) {
+    console.error('Erro detalhado:', error);
     res.status(400).json({
       success: false,
-      error: 'Erro ao criar solicitação'
+      error: error.message || 'Erro ao criar solicitação'
     });
   }
 };
-
 export const getSolicitacoes = async (req, res) => {
   try {
     const { tipoMaterial, status } = req.query;
