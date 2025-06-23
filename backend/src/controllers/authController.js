@@ -252,7 +252,6 @@ export const requestPasswordReset = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    console.log('Solicitação de reset de senha para:', email);
     
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -262,10 +261,7 @@ export const requestPasswordReset = async (req, res) => {
     user.passwordResetToken = token;
     user.passwordResetExpires = Date.now() + 3600000; // 1 hora
     await user.save();
-        console.log('Token gerado:', token);
-        console.log('Tentando enviar e-mail de recuperação...');
     const sent = await sendPasswordResetEmail(user, token);
-    console.log('Envio de e-mail retornou:', sent);
 
     if (!sent) {
       return res.status(500).json({ mensagem: 'Erro ao enviar e-mail de recuperação' });
