@@ -3,13 +3,7 @@ import { getImagePath, getFullImageUrl } from '../utils/fileHelper.js';
 
 export const criarSolicitacao = async (req, res) => {
   try {
-    // No controller, adicione temporariamente:
-    console.log('Arquivo recebido:', {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      path: req.file.path
-    });
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -372,37 +366,50 @@ export const getRankingEmpresas = async (req, res) => {
     res.status(500).json({ success: false, error: 'Erro no servidor' });
   }
 };
+
 export const concluirColeta = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const coleta = await Coleta.findByIdAndUpdate(
+    const userId = req.user.id; // ID do usuário logado
+
+    // Verifica se a coleta existe e foi aceita pelo usuário
+    const coleta = await Coleta.findOne({
+      _id: id,
+      centro: userId,
+      status: 'aceita'
+    });
+
+    if (!coleta) {
+      console.log('Coleta não encontrada ou não autorizada');
+      return res.status(404).json({
+        success: false,
+        error: "Coleta não encontrada ou você não tem permissão"
+      });
+    }
+
+    const coletaAtualizada = await Coleta.findByIdAndUpdate(
       id,
       { 
         status: 'concluída',
-        dataColeta: new Date() 
+        dataConclusao: new Date() 
       },
       { new: true }
     ).populate('solicitante', 'nome email');
 
-    if (!coleta) {
-      return res.status(404).json({
-        success: false,
-        message: "Coleta não encontrada"
-      });
-    }
+    console.log('Coleta concluída:', coletaAtualizada);
 
     res.json({
       success: true,
       data: {
-        ...coleta.toObject(),
-        imagem: getFullImageUrl(req, coleta.imagem)
+        ...coletaAtualizada.toObject(),
+        imagem: getFullImageUrl(req, coletaAtualizada.imagem)
       }
     });
   } catch (error) {
+    console.error('Erro ao concluir coleta:', error);
     res.status(500).json({
       success: false,
-      error: "Erro ao concluir coleta"
+      error: error.message || "Erro interno ao concluir coleta"
     });
   }
 };

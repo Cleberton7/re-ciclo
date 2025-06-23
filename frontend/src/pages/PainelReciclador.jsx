@@ -78,13 +78,17 @@ const PainelReciclador = () => {
     try {
       setConcluindoId(idSolicitacao);
       await concluirColeta(idSolicitacao);
-      setSolicitacoes((prev) =>
-        prev.filter((s) => s._id !== idSolicitacao)
-      );
+      
+      // Atualiza a lista removendo a coleta concluída
+      setSolicitacoes(prev => prev.filter(s => s._id !== idSolicitacao));
+      
       mostrarNotificacao("Coleta concluída com sucesso!", "sucesso");
     } catch (error) {
-      console.error("Erro ao concluir coleta:", error);
-      mostrarNotificacao(error.message || "Erro ao concluir coleta", "erro");
+      console.error("Erro na conclusão:", error);
+      mostrarNotificacao(
+        error.message || "Falha ao concluir coleta. Tente novamente.", 
+        "erro"
+      );
     } finally {
       setConcluindoId(null);
     }

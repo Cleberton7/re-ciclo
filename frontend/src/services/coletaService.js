@@ -114,23 +114,27 @@ export const aceitarColeta = async (idSolicitacao) => {
 export const concluirColeta = async (idSolicitacao) => {
   console.log("Tentando concluir coleta ID:", idSolicitacao);
   try {
-    const { data } = await authService.put(`/coletas/${idSolicitacao}/concluir`); // ✅ Corrigido aqui
+    const { data } = await axios.put(
+      `${API_BASE}/coletas/${idSolicitacao}/concluir`,
+      {}, // Corpo vazio já que só atualizamos status
+      { headers: getAuthHeader() }
+    );
 
     if (!data.success) {
+      console.error("Resposta sem sucesso:", data);
       throw new Error(data.message || "Falha ao concluir coleta");
     }
 
     return data;
   } catch (error) {
-    console.error("Erro completo ao concluir coleta:", {
-      mensagem: error.message,
+    console.error("Detalhes do erro:", {
       status: error.response?.status,
-      dados: error.response?.data,
-      endpoint: `/coletas/${idSolicitacao}/concluir`,
+      data: error.response?.data,
+      message: error.message
     });
-
     throw new Error(
-      error.response?.data?.message || "Erro ao processar conclusão da coleta. Tente novamente."
+      error.response?.data?.error || 
+      "Erro ao concluir coleta. Verifique sua conexão e tente novamente."
     );
   }
 };
