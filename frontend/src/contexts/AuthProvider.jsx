@@ -126,8 +126,14 @@ const AuthProvider = ({ children }) => {
       role: normalizedUser.tipoUsuario,
       userData: normalizedUser,
       emailVerified: normalizedUser.emailVerificado,
-      loading: false
+      loading: false,
+      requiresVerification: !normalizedUser.emailVerificado
     });
+      // Se precisar de verificação, redireciona para a página de verificação
+    if (!normalizedUser.emailVerificado) {
+      // Você pode usar seu sistema de roteamento aqui
+      window.location.href = '/verificar-email';
+    }
   };
 
   const logout = () => {

@@ -138,6 +138,17 @@ export const requireRole = (allowedRoles) => {
     next();
   };
 };
+export const requireVerifiedEmail = (req, res, next) => {
+  if (!req.user.emailVerificado) {
+    return res.status(403).json({
+      success: false,
+      code: 'EMAIL_NOT_VERIFIED',
+      message: "E-mail não verificado",
+      action: "Verifique sua caixa de entrada para completar o cadastro"
+    });
+  }
+  next();
+};
 
 // Middlewares específicos pré-definidos
 export const requireAdmin = requireRole(['adminGeral']);

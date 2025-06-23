@@ -166,7 +166,16 @@ export const login = async (req, res) => {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
-
+    // Se o e-mail não estiver verificado, envie um novo token de verificação
+    if (!user.emailVerificado) {
+      const verificationToken = jwt.sign({ id: user._id }, JWT_SECRET, { 
+        expiresIn: JWT_EMAIL_EXPIRES_IN 
+      });
+      
+      user.emailVerificationToken = verificationToken;
+      await user.save();
+      await sendVerificationEmail(user, verificationToken);
+    }
     res.json({
       mensagem: 'Login bem-sucedido',
       token,
@@ -176,7 +185,9 @@ export const login = async (req, res) => {
         email: user.email,
         tipoUsuario: user.tipoUsuario,
         emailVerificado: user.emailVerificado
-      }
+      },
+      requerVerificacao: !user.emailVerificado
+
     });
 
   } catch (err) {
@@ -363,6 +374,64 @@ export const verifyToken = async (req, res) => {
     res.status(401).json({ 
       success: false,
       error: "Falha na verificação" 
+    });
+  }
+};
+// Adicione esta nova função ao seu authController.js
+export const verifyAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .select('nome razaoSocial nomeFantasia email tipoUsuario emailVerificado');
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        code: 'USER_NOT_FOUND',
+        message: 'Usuário não encontrado' 
+      });
+    }
+
+    // Lógica aprimorada para displayName
+    const displayName = (() => {
+      switch(user.tipoUsuario) {
+        case 'empresa': return user.razaoSocial || user.nomeFantasia || user.email;
+        case 'centro': return user.nomeFantasia || user.email;
+        default: return user.nome || user.email;
+      }
+    })();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        displayName,
+        tipoUsuario: user.tipoUsuario,
+        email: user.email,
+        emailVerificado: user.emailVerificado,
+        // Mantém campos específicos para compatibilidade
+        nome: user.nome,
+        razaoSocial: user.razaoSocial,
+        nomeFantasia: user.nomeFantasia
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro na verificação do token:', error);
+    
+    // Tratamento específico para erros do Mongoose
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        code: 'INVALID_USER_ID',
+        message: 'ID do usuário inválido'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      code: 'SERVER_ERROR',
+      message: 'Erro interno no servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
