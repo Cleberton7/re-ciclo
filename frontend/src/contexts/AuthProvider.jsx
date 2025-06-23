@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AuthContext from "./AuthContext";
-import  authService  from "../services/authService"; // ✅ Ajustado aqui
+import authService from "../services/authService";
+import api from "../services/api.js"; 
 
 const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
@@ -9,7 +10,8 @@ const AuthProvider = ({ children }) => {
     role: '',
     userData: null,
     emailVerified: false,
-    loading: true
+    loading: true,
+    error: null
   });
 
   useEffect(() => {
@@ -17,74 +19,79 @@ const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       const storedUser = localStorage.getItem("userData");
 
-      if (token && storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          let normalizedUser = normalizeUserData(userData);
+      if (!token) {
+        setAuthState(prev => ({ ...prev, loading: false }));
+        return;
+      }
+
+      try {
+        const response = await api.get('/auth/verify', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success) {
+          const userData = normalizeUserData(response.data.user);
           
-          try {
-            const updatedUser = await authService.getUserData();
-            normalizedUser = normalizeUserData({
-              ...normalizedUser, // Mantém os dados existentes
-              ...updatedUser     // Atualiza com novos dados
-            });
-          } catch (apiError) {
-            console.log("Usando dados locais...", apiError);
-          }
-
-          // Garante que o displayName não seja perdido
-          if (!normalizedUser.displayName) {
-            normalizedUser.displayName = userData.displayName || 
-                                        normalizedUser.nome || 
-                                        normalizedUser.email || 
-                                        'Usuário';
-          }
-
-          localStorage.setItem("userData", JSON.stringify(normalizedUser));
-
+          // Armazena os dados de forma consistente
+          localStorage.setItem("userData", JSON.stringify({
+            ...userData,
+            // Garante que o nome não será perdido
+            nome: userData.displayName,
+            displayName: userData.displayName
+          }));
+          
           setAuthState({
             isLoggedIn: true,
-            userName: normalizedUser.displayName,
-            role: normalizedUser.tipoUsuario,
-            userData: normalizedUser,
-            emailVerified: normalizedUser.emailVerificado || false,
-            loading: false
+            userName: userData.displayName, // Usa sempre displayName
+            role: userData.tipoUsuario,
+            userData,
+            emailVerified: userData.emailVerificado,
+            loading: false,
+            error: null
           });
-        } catch (error) {
-          console.log("Erro na verificação...", error);
-          logout();
-          setAuthState(prev => ({ ...prev, loading: false }));
         }
-      } else {
-        setAuthState(prev => ({ ...prev, loading: false }));
+      } catch (error) {
+        console.error("Erro na verificação:", error);
+        
+        // Limpa os dados inválidos
+        if (error.response?.status === 401 || error.response?.status === 500) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+        }
+
+        setAuthState({
+          isLoggedIn: false,
+          loading: false,
+          error: error.response?.data?.code || 'AUTH_ERROR',
+          errorDetails: process.env.NODE_ENV === 'development' ? error.message : null
+        });
       }
     };
+
     verifyAuth();
   }, []);
 
   const normalizeUserData = (user) => {
     if (!user) return {};
     
-    // Garante que trabalhamos com um objeto simples
     const userObj = user?.toObject ? user.toObject() : { ...user };
     
-    // Remove campos nulos/undefined
-    const cleanUser = Object.entries(userObj).reduce((acc, [key, value]) => {
-      if (value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
+    // Garante campos mínimos
+    const cleanUser = {
+      id: userObj.id || userObj._id?.toString(),
+      email: userObj.email || '',
+      tipoUsuario: userObj.tipoUsuario || 'pessoa',
+      emailVerificado: userObj.emailVerificado || false,
+      // Campos de nome específicos
+      nome: userObj.nome || '',
+      razaoSocial: userObj.razaoSocial || '',
+      nomeFantasia: userObj.nomeFantasia || ''
+    };
 
-    // Lógica aprimorada para displayName
-    let displayName = '';
+    // Lógica robusta para displayName
+    let displayName = userObj.displayName || '';
     
-    // 1. Primeiro tenta usar o nome armazenado
-    if (cleanUser.displayName) {
-      displayName = cleanUser.displayName;
-    } 
-    // 2. Se não tiver, usa a lógica específica por tipo de usuário
-    else {
+    if (!displayName) {
       switch (cleanUser.tipoUsuario) {
         case 'empresa':
           displayName = cleanUser.razaoSocial || cleanUser.nomeFantasia || cleanUser.nome || cleanUser.email;
@@ -99,25 +106,26 @@ const AuthProvider = ({ children }) => {
 
     return {
       ...cleanUser,
-      displayName, // Garante que sempre terá um valor
-      tipoUsuario: cleanUser.tipoUsuario || 'pessoa',
-      id: cleanUser.id || cleanUser._id?.toString(),
-      emailVerificado: cleanUser.emailVerificado || false
+      displayName // Garante que sempre terá um valor válido
     };
   };
 
   const login = async (userData, token) => {
     const normalizedUser = normalizeUserData(userData);
 
+    // Armazena todos os dados necessários
     localStorage.setItem("token", token);
-    localStorage.setItem("userData", JSON.stringify(normalizedUser));
+    localStorage.setItem("userData", JSON.stringify({
+      ...normalizedUser,
+      displayName: normalizedUser.displayName
+    }));
 
     setAuthState({
       isLoggedIn: true,
-      userName: normalizedUser.displayName,
+      userName: normalizedUser.displayName, // Sempre usa displayName
       role: normalizedUser.tipoUsuario,
       userData: normalizedUser,
-      emailVerified: normalizedUser.emailVerificado || false,
+      emailVerified: normalizedUser.emailVerificado,
       loading: false
     });
   };

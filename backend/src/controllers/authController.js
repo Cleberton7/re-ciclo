@@ -347,3 +347,23 @@ export const updateUserProfile = async (req, res) => {
     });
   }
 };
+export const verifyToken = async (req, res) => {
+  try {
+    // O middleware já validou o token
+    const user = await User.findById(req.user.id).select('-senha');
+    
+    res.json({ 
+      success: true,
+      user: {
+        id: user._id,
+        tipoUsuario: user.tipoUsuario,
+        email: user.email,
+      }
+    });
+  } catch (error) {
+    res.status(401).json({ 
+      success: false,
+      error: "Falha na verificação" 
+    });
+  }
+};

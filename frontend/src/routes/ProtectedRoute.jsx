@@ -1,34 +1,58 @@
+// routes/ProtectedRoute.js
 import { Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import LoadingScreen from "../components/LoadingScreen";
 
 const normalizeRole = (role) => {
-  if (!role) return '';
-  return role.toString().toLowerCase().trim();
+  const rolesMap = {
+    'admin': 'adminGeral',
+    'adminGeral': 'adminGeral',
+    'centro': 'centro',
+    'empresa': 'empresa',
+    'pessoa': 'pessoa'
+  };
+  return rolesMap[role?.toString().toLowerCase().trim()] || '';
 };
 
 const ProtectedRoute = ({ 
   element, 
-  requiredRoles, // Agora aceita array de roles permitidas
-  redirectPath = "/", 
-  requireVerifiedEmail = true 
+  requiredRoles,
+  redirectPath = "/login",
+  requireVerifiedEmail = true
 }) => {
-  const { isLoggedIn, role, emailVerified, userData } = useAuth();
-  
-  const userRole = normalizeRole(role || userData?.tipoUsuario);
-  const allowedRoles = Array.isArray(requiredRoles) 
-    ? requiredRoles.map(normalizeRole)
-    : [normalizeRole(requiredRoles)];
+  const { 
+    isLoggedIn, 
+    loading, 
+    userData, 
+    emailVerified,
+    error 
+  } = useAuth();
 
-  if (!isLoggedIn) {
-    return <Navigate to={redirectPath} replace />;
+  if (loading) {
+    return <LoadingScreen />;
   }
 
-  if (requiredRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
+  if (!isLoggedIn) {
+    return <Navigate 
+      to={redirectPath} 
+      state={{ error: error || 'AUTH_REQUIRED' }} 
+      replace 
+    />;
   }
 
   if (requireVerifiedEmail && !emailVerified) {
     return <Navigate to="/email-not-verified" replace />;
+  }
+
+  if (requiredRoles) {
+    const userRole = normalizeRole(userData?.tipoUsuario);
+    const allowedRoles = Array.isArray(requiredRoles)
+      ? requiredRoles.map(normalizeRole)
+      : [normalizeRole(requiredRoles)];
+
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
   return element;

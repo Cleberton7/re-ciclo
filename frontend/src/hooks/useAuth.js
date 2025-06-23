@@ -1,3 +1,4 @@
+// hooks/useAuth.js
 import { useContext } from "react";
 import AuthContext from "../contexts/AuthContext";
 
@@ -8,7 +9,6 @@ const useAuth = () => {
     throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   
-
   return {
     isLoggedIn: context.isLoggedIn,
     role: context.role,
@@ -16,6 +16,7 @@ const useAuth = () => {
     userName: context.userName,
     userData: context.userData,
     loading: context.loading,
+    error: context.error,
     login: context.login,
     logout: context.logout,
     verifyEmail: context.verifyEmail,

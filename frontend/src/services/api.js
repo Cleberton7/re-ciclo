@@ -1,55 +1,59 @@
 import axios from 'axios';
-import * as jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; // Importação corrigida
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 30000, // 30 segundos
+  timeout: 30000,
+  withCredentials: true
 });
 
 // Verifica se token JWT está expirado
 const isTokenExpired = (token) => {
   try {
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode(token); // Agora usando a importação nomeada
     return decoded.exp < Date.now() / 1000;
   } catch (e) {
-    console.error(e);
+    console.error('Erro ao decodificar token:', e);
     return true;
   }
 };
 
-// Intercepta requisições para adicionar token no header
+// Interceptor de requisição
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
+  
   if (token) {
     if (isTokenExpired(token)) {
+      console.warn('Token expirado - removendo do storage');
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
-      window.location.href = '/login';
+      window.location.href = '/login?error=token_expired';
       return Promise.reject(new Error('Token expirado'));
     }
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 }, error => {
-  if (error.code === 'ECONNABORTED') {
-    console.error('Timeout na requisição:', error.config.url);
-  }
+  console.error('Erro no interceptor de requisição:', error);
   return Promise.reject(error);
 });
 
-// Intercepta respostas para tratar erros globais (ex: 401)
+// Interceptor de resposta
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.code === 'ECONNABORTED') {
-      // Tenta novamente uma vez no timeout
-      return api.request(error.config);
-    }
     if (error.response?.status === 401) {
+      console.warn('Não autorizado - redirecionando para login');
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
-      window.location.href = '/login';
+      window.location.href = '/login?error=session_expired';
     }
+    
+    if (error.code === 'ECONNABORTED') {
+      console.error('Timeout na requisição:', error.config.url);
+      error.message = 'A requisição demorou muito - tente novamente';
+    }
+    
     return Promise.reject(error);
   }
 );
