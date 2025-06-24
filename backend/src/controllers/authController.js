@@ -311,6 +311,7 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ mensagem: 'Erro no servidor', erro: err.message });
   }
 };
+
 export const getUserProfile = async (req, res) => {
   try {
     // O usuário já está disponível em req.user pelo middleware
@@ -357,6 +358,7 @@ export const updateUserProfile = async (req, res) => {
     });
   }
 };
+
 export const verifyToken = async (req, res) => {
   try {
     // O middleware já validou o token
@@ -377,7 +379,7 @@ export const verifyToken = async (req, res) => {
     });
   }
 };
-// Adicione esta nova função ao seu authController.js
+
 export const verifyAuth = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)

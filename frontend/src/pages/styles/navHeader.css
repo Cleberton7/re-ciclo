@@ -208,6 +208,7 @@
 @media (max-width: 768px) {
   .menu-toggle {
     display: flex; /* Só mostra no mobile */
+    
   }
   .header-background {
     padding-top: 20px;
@@ -252,6 +253,8 @@
   }
 
   .menu {
+      z-index: 1000;
+    position: relative; /* Isso cria um novo contexto de empilhamento */
     width: 100%;
     color: white;
     padding: 15px 20px;

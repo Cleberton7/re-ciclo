@@ -5,6 +5,7 @@
   display: flex;
   padding: 10px 0;
   margin: 30px 0;
+  position: relative;
 }
 
 #textSection {
@@ -131,6 +132,7 @@
   background-color: #007a40;
   text-decoration: none;
 }
+
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -142,7 +144,7 @@
   cursor: pointer;
   font-size: 18px;
   border-radius: 50%;
-  z-index: 2;
+  z-index: 10;
   width: 40px;
   height: 40px;
   display: flex;
@@ -152,6 +154,7 @@
   transition: all 0.3s ease;
   border: 2px solid white;
 }
+
 .carousel-btn:hover {
   background-color: #007a40;
   transform: translateY(-50%) scale(1.1);
@@ -180,70 +183,61 @@
   background-color: rgba(211, 47, 47, 0.2);
 }
 
-/* 🔥 Correção para versão Mobile */
+/* 🔥 SOLUÇÃO DEFINITIVA - SEM SOBREPOSIÇÃO */
+.section {
+  position: relative;
+  z-index: 1; /* Valor baixo, abaixo do menu */
+}
+
+#containerSection {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-btn {
+  position: absolute;
+  z-index: 2; /* Acima do container mas abaixo do menu */
+}
+
 @media (max-width: 768px) {
   .section {
-    padding: 15px 10px;
+    padding: 15px 0;
     margin: 15px 0;
+    z-index: 1; /* Mantém abaixo do menu */
   }
 
-  #textSection {
-    margin: 0 auto 15px;
-    font-size: 1.2rem;
-    padding: 5px 15px;
-  }
-
-  .carousel-items-container {
-    gap: 10px;
-    padding: 5px;
-  }
-
-  .carousel-item {
-    width: 85%;
-    min-height: auto;
-    margin: 0 auto;
-  }
-
-  .carousel-image-container {
-    height: 150px;
+  #containerSection {
+    padding: 0 40px; /* Espaço seguro para os botões */
+    width: 100vw; /* Limita à largura da viewport */
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .carousel-btn {
-    position: absolute;
-    top: unset;
-    bottom: 10px;
-    transform: none;
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 153, 81, 0.95);
+    z-index: 2; /* Importante: menor que o menu */
   }
 
   .prev {
-    left: 20px;
+    left: 5px;
   }
 
   .next {
-    right: 20px;
+    right: 5px;
   }
 
-  .carousel-multiple {
-    flex-direction: column;
-    align-items: center;
+  .carousel-items-container {
+    width: 100%;
+    padding: 0 5px;
+    margin: 0 auto;
   }
-
-  .carousel-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
-  }
-  @media (max-width: 500px) {
-    .prev {
-      left: 10px;
-    }
-
-    .next {
-      right: 10px;
-    }
+  
+  .carousel-item {
+    width: 90%;
+    margin: 0 5%;
   }
 }
