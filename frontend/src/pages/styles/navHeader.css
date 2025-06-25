@@ -207,8 +207,10 @@
 /* Versão Mobile */
 @media (max-width: 768px) {
   .menu-toggle {
-    display: flex; /* Só mostra no mobile */
-    
+    display: flex;
+    right: 15px;
+    top: 15px;
+    background: rgba(0, 77, 38, 0.9); /* Fundo mais visível */
   }
   .header-background {
     padding-top: 20px;
@@ -217,18 +219,24 @@
   }
 
   .header {
-    flex-direction: column;
-    padding: 15px;
+    padding: 15px 10px; /* Reduz o padding lateral */
+    align-items: center; /* Centraliza todos os itens */
   }
 
+
   .logo-img {
-    width: 600px;
-    margin-bottom: 15px;
+    width: 350px; /* Aumenta o tamanho da logo */
+    max-width: 90%; /* Garante que não ultrapasse a tela */
+    height: auto;
+    margin: 0 auto; /* Centraliza a imagem */
+    display: block; /* Importante para margin auto funcionar */
   }
 
   #logo {
     width: 100%;
-    padding-right: 60px; /* Espaço para o botão */
+    padding-right: 0; /* Remove o padding que estava criando espaço para o botão */
+    justify-content: center; /* Centraliza horizontalmente */
+    margin-bottom: 20px; /* Aumenta o espaçamento inferior */
   }
 
   /* Menu Mobile */
