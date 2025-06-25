@@ -222,7 +222,7 @@
   }
 
   .logo-img {
-    width: 250px;
+    width: 300px;
     margin-bottom: 15px;
   }
 
@@ -300,7 +300,7 @@
     display: flex; /* Só mostra no mobile */
   }
   .logo-img {
-    width: 600px;
+    width: 300px;
   }
   
   .menu {
