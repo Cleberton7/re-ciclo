@@ -232,7 +232,7 @@
   }
   #logo {
     width: 100%;
-    padding-right: 60px; /* Espaço para o botão */
+    padding-right: 20px; /* Espaço para o botão */
     justify-content: center;
   }
 
