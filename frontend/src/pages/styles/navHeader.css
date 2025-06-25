@@ -207,7 +207,7 @@
 /* Versão Mobile */
 @media (max-width: 768px) {
   .menu-toggle {
-    display: flex;
+    display: flex; /* Só mostra no mobile */
     right: 15px;
     top: 15px;
     background: rgba(0, 77, 38, 0.9); /* Fundo mais visível */
@@ -219,10 +219,9 @@
   }
 
   .header {
-    padding: 15px 10px; /* Reduz o padding lateral */
-    align-items: center; /* Centraliza todos os itens */
+    flex-direction: column;
+    padding: 15px;
   }
-
 
   .logo-img {
     width: 350px; /* Aumenta o tamanho da logo */
@@ -231,12 +230,9 @@
     margin: 0 auto; /* Centraliza a imagem */
     display: block; /* Importante para margin auto funcionar */
   }
-
   #logo {
     width: 100%;
-    padding-right: 0; /* Remove o padding que estava criando espaço para o botão */
-    justify-content: center; /* Centraliza horizontalmente */
-    margin-bottom: 20px; /* Aumenta o espaçamento inferior */
+    padding-right: 60px; /* Espaço para o botão */
   }
 
   /* Menu Mobile */
@@ -261,7 +257,7 @@
   }
 
   .menu {
-      z-index: 1000;
+    z-index: 1000;
     position: relative; /* Isso cria um novo contexto de empilhamento */
     width: 100%;
     color: white;
