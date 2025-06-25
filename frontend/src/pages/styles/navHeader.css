@@ -213,6 +213,7 @@
     background: rgba(0, 77, 38, 0.9); /* Fundo mais visível */
   }
   .header-background {
+    padding-top: 60px;
     background-size: cover;
     background-position: center;
   }
