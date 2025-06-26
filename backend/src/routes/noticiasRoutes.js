@@ -19,9 +19,6 @@ const noticiaUpload = createUploader({
 });
 
 const apenasAdmGeral = [verifyToken, requireAuth, requireRole(['adminGeral'])];
-// OU usando o middleware pré-definido:
-// const apenasAdmGeral = [verifyToken, requireAdmin];
-
 // Rotas públicas
 router.get('/', listarNoticias);
 router.get('/:slug', buscarNoticiaPorSlug);

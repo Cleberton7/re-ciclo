@@ -27,27 +27,11 @@ const uploadColetor = createUploader({
   maxFileSize: 2 * 1024 * 1024 // 2MB
 });
 
-// 🔹 Endpoints privados (centro logado)
-router.get('/dados', verifyToken, requireCentro, getDadosCentro);
-router.get(
-  '/centros-disponiveis',
-  verifyToken,
-  requireCentro,
-  rateLimiter(15, 5),
-  getCentrosDisponiveis
-);
-router.put('/atualizar-localizacao', verifyToken, requireCentro, atualizarLocalizacao);
-router.put(
-  '/atualizar',
-  verifyToken,
-  requireCentro,
-  uploadColetor,
-  uploadErrorHandler,
-  atualizarDados
-);
-
-// 🔹 Endpoints públicos
-router.get('/publicos', rateLimiter(30, 60), getCentrosPublicos);
-router.get('/localizacoes', getLocalizacoes);
+router.get('/dados',verifyToken,requireCentro,getDadosCentro);
+router.get('/centros-disponiveis',verifyToken,requireCentro,rateLimiter(15, 5),getCentrosDisponiveis);
+router.put('/atualizar-localizacao',verifyToken,requireCentro,atualizarLocalizacao);
+router.put('/atualizar',verifyToken,requireCentro,uploadColetor,uploadErrorHandler,atualizarDados);
+router.get('/publicos',rateLimiter(30, 60),getCentrosPublicos);
+router.get('/localizacoes',getLocalizacoes);
 
 export default router;

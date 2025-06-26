@@ -17,13 +17,7 @@ const uploadProfileImage = createUploader({
 // Rotas do usuário
 router.get('/pessoal', verifyToken, userController.getPersonalData);
 router.put('/localizacao', verifyToken, userController.updateLocation);
-router.put(
-  '/dados',
-  verifyToken,
-  uploadProfileImage,
-  uploadErrorHandler,
-  userController.updateUserData
-);
+router.put('/dados',verifyToken,uploadProfileImage,uploadErrorHandler,userController.updateUserData);
 router.delete('/conta', verifyToken, userController.deleteAccount); // Nova rota
 
 export default router;

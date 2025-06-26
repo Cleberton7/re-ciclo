@@ -25,14 +25,7 @@ const uploadEmpresa = createUploader({
 router.get('/dados', verifyToken, requireRole(['empresa']), getDadosEmpresa);
 router.get('/coletores-disponiveis', verifyToken, requireRole(['empresa']), getColetoresDisponiveis);
 router.put('/atualizar-localizacao', verifyToken, requireRole(['empresa']), atualizarLocalizacao);
-router.put(
-  '/atualizar',
-  verifyToken,
-  requireRole(['empresa']),
-  uploadEmpresa,
-  uploadErrorHandler,
-  atualizarDados
-);
+router.put('/atualizar',verifyToken,requireRole(['empresa']),uploadEmpresa,uploadErrorHandler,atualizarDados);
 
 // 🔹 Endpoints públicos
 router.get('/localizacoes', getLocalizacoes);

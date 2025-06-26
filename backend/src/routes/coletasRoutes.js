@@ -29,27 +29,12 @@ const requireCentro = requireRole(['centro']);
 
 // Rotas autenticadas
 router.get('/', verifyToken, requireAuth, getSolicitacoes);
-router.post(
-  '/', 
-  verifyToken, 
-  requireEmpresa,
-  rateLimiter(10, 60), // 10 requisições por hora
-  coletaUpload, 
-  uploadErrorHandler, 
-  criarSolicitacao
-);
+router.post('/',verifyToken,requireEmpresa,rateLimiter(10, 60),coletaUpload,uploadErrorHandler,criarSolicitacao);
 
 router.put('/:id/aceitar', verifyToken, requireCentro, aceitarColeta);
 router.put('/:id/concluir', verifyToken, requireCentro, concluirColeta);
 
-router.put(
-  '/:id', 
-  verifyToken, 
-  requireAuth,
-  coletaUpload, 
-  uploadErrorHandler, 
-  atualizarColeta
-);
+router.put('/:id',verifyToken,requireAuth,coletaUpload,uploadErrorHandler,atualizarColeta);
 
 router.delete('/:id', verifyToken, requireAuth, deletarColeta);
 
