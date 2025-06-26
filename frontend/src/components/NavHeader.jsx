@@ -66,7 +66,12 @@ const NavHeader = () => {
         }
       }
     };
-
+    if (!menuOpen) {
+        const nav = menuRef.current;
+        if (nav && nav.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+      }
     const handleEscape = (e) => {
       if (e.key === 'Escape') setMenuOpen(false);
     };
@@ -114,7 +119,6 @@ const NavHeader = () => {
             ref={menuRef}
             id="nav" 
             className={menuOpen ? "open" : ""}
-            aria-hidden={!menuOpen}
           >            {navLinks.map(({ path, label }) => (
               <Link 
                 key={path} 

@@ -240,6 +240,7 @@
 
   /* Menu Mobile */
   #nav {
+    pointer-events: none; 
     position: fixed;
     top: 0;
     left: 0;
@@ -256,6 +257,7 @@
   }
 
   #nav.open {
+    pointer-events: auto; 
     transform: translateX(0);
   }
 
