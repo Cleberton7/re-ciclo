@@ -19,8 +19,8 @@ const Content = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Iniciando busca de dados...");
-        
+
+    
         // 1. Buscar dados das APIs
         const [empresasData, centrosData, graficoRes, rankingRes] = await Promise.all([
           getEmpresasPublicas().catch(e => {
@@ -41,10 +41,6 @@ const Content = () => {
           })
         ]);
 
-        console.log("Dados recebidos:", {
-          empresas: empresasData,
-          centros: centrosData
-        });
 
         // 2. Processar os marcadores
         const processarMarcadores = (itens, tipo) => {
@@ -125,8 +121,6 @@ const Content = () => {
         const marcadoresCentros = processarMarcadores(centrosData, 'centro');
         const todosMarcadores = [...marcadoresEmpresas, ...marcadoresCentros];
 
-        console.log("Marcadores processados:", todosMarcadores);
-        console.log(`Total de marcadores válidos: ${todosMarcadores.length}`);
 
         setMarcadores(todosMarcadores);
         setDadosGrafico(graficoRes.data?.data || []);
