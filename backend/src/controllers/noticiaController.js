@@ -1,8 +1,8 @@
 import Noticia from '../models/noticiaModel.js';
 import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
+import { BASE_URL, } from '../config/config.js';
 
-
-const baseUrl = 'http://localhost:5000';
+const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
 
 // Middleware de upload específico para notícias
 export const noticiaUpload = createUploader({
