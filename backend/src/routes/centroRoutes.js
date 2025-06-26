@@ -102,7 +102,7 @@ router.get('/publicos', rateLimiter(30, 60), async (req, res) => {
     const centros = await User.find({ 
       tipoUsuario: 'centro',
     })
-    .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil')
+    .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil localizacao')
     .lean();
       
     res.json({ 

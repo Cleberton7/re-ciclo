@@ -253,7 +253,8 @@
 }
 
 .modal {
-  background-color: white;
+  position: relative;
+  background-color: #009951;
   padding: 30px;
   border-radius: 10px;
   width: 90%;
@@ -264,7 +265,7 @@
 
 .modal h3 {
   margin-top: 0;
-  color: #009951;
+  color: #000000;
   text-align: center;
 }
 

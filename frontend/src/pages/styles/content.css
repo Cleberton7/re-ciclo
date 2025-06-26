@@ -7,7 +7,7 @@
   margin: 30px 0;
   width: 100%;
   overflow: hidden;
-  align-items: stretch; /* Faz os filhos esticarem para mesma altura */
+  align-items: stretch;
 }
 
 /* SEÇÃO ESQUERDA (GRÁFICO + RANKING) */
@@ -45,11 +45,11 @@
 
 /* ELEMENTOS DO MAPA (OCUPANDO 100% DA ALTURA) */
 .map-wrapper {
-  flex: 1; /* Ocupa todo espaço disponível */
+  flex: 1;
   border-radius: 0.4rem;
   overflow: hidden;
   position: relative;
-  min-height: 400px; /* Altura mínima igual aos outros */
+  min-height: 400px;
 }
 
 .mapa {
@@ -92,27 +92,6 @@
   overflow: hidden;
 }
 
-/* MARCADORES DO MAPA */
-.marker {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 0.75rem;
-}
-
-.marker.empresa {
-  background-color: #4285F4;
-}
-
-.marker.centro {
-  background-color: #0F9D58;
-}
-
 /* MENSAGENS DE ESTADO */
 .loading-message,
 .no-data-message,
@@ -146,8 +125,8 @@
   }
 
   .containerMaps {
-    width: 100%; /* Margens seguras */
-    margin: 1rem auto; /* Centralizado */
+    width: 100%;
+    margin: 1rem auto;
     height: 400px;
     min-height: 400px;
     padding: 1rem;

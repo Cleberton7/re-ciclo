@@ -82,7 +82,49 @@
   margin-bottom: 8px;
   font-size: 0.9rem;
 }
+/* Estilos para a barra de busca */
+.search-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
 
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  border-radius: 25px;
+  border: 2px solid #ddd;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #009951;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 153, 81, 0.3);
+}
+
+/* Mensagem quando não há resultados */
+.no-results {
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
 /* Responsividade */
 @media (max-width: 1200px) {
   .cardsContainer {

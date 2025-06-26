@@ -7,6 +7,10 @@
     flex-direction: column;
     align-items: center;
     margin-top: 100px;
+    background-image: url('../../assets/fundoSite2.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
   }
   
   .footer-content {

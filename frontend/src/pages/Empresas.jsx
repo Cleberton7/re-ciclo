@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
-import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle } from 'react-icons/fa';
+import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch } from 'react-icons/fa';
 import { BASE_URL } from '../config/config.js';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
@@ -10,6 +10,7 @@ const Empresas = () => {
   const [centrosReciclagem, setCentrosReciclagem] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,31 +20,35 @@ const Empresas = () => {
           getCentrosReciclagemPublicos()
         ]);
 
-        // Formatação dos dados das empresas
-        const empresasFormatadas = empresasData.map(empresa => ({
-          id: empresa._id,
-          nomeExibido: empresa.nomeFantasia || empresa.razaoSocial || "Empresa",
-          email: empresa.email || "Não informado",
-          telefone: empresa.telefone || "Não informado",
-          cnpj: empresa.cnpj ? formatarCNPJ(empresa.cnpj) : "Não informado",
-          endereco: empresa.endereco || "Endereço não informado",
-          imagemUrl: empresa.imagemPerfil 
-            ? `${BASE_URL}/uploads/${empresa.imagemPerfil}`
-            : null
-        }));
+        // Formatação e ordenação dos dados das empresas
+        const empresasFormatadas = empresasData
+          .map(empresa => ({
+            id: empresa._id,
+            nomeExibido: empresa.nomeFantasia || empresa.razaoSocial || "Empresa",
+            email: empresa.email || "Não informado",
+            telefone: empresa.telefone || "Não informado",
+            cnpj: empresa.cnpj ? formatarCNPJ(empresa.cnpj) : "Não informado",
+            endereco: empresa.endereco || "Endereço não informado",
+            imagemUrl: empresa.imagemPerfil 
+              ? `${BASE_URL}/uploads/${empresa.imagemPerfil}`
+              : null
+          }))
+          .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
-        // Formatação dos dados dos centros de reciclagem
-        const centrosReciclagemFormatados = centrosReciclagemData.map(centro => ({
-          id: centro._id,
-          nomeExibido: centro.nomeFantasia || centro.nome || "Centro de Reciclagem",
-          email: centro.email || "Não informado",
-          telefone: centro.telefone ? formatarTelefone(centro.telefone) : "Não informado",
-          cnpj: centro.cnpj ? formatarCNPJ(centro.cnpj) : "Não informado",
-          endereco: centro.endereco || "Endereço não informado",
-          imagemUrl: centro.imagemPerfil 
-            ? `${BASE_URL}/uploads/${centro.imagemPerfil}`
-            : null
-        }));
+        // Formatação e ordenação dos dados dos centros de reciclagem
+        const centrosReciclagemFormatados = centrosReciclagemData
+          .map(centro => ({
+            id: centro._id,
+            nomeExibido: centro.nomeFantasia || centro.nome || "Centro de Reciclagem",
+            email: centro.email || "Não informado",
+            telefone: centro.telefone ? formatarTelefone(centro.telefone) : "Não informado",
+            cnpj: centro.cnpj ? formatarCNPJ(centro.cnpj) : "Não informado",
+            endereco: centro.endereco || "Endereço não informado",
+            imagemUrl: centro.imagemPerfil 
+              ? `${BASE_URL}/uploads/${centro.imagemPerfil}`
+              : null
+          }))
+          .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
         setEmpresas(empresasFormatadas);
         setCentrosReciclagem(centrosReciclagemFormatados);
@@ -57,6 +62,25 @@ const Empresas = () => {
     
     fetchData();
   }, []);
+
+  // Função para filtrar os dados com base no termo de busca
+  const filteredData = useMemo(() => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    
+    return {
+      empresas: empresas.filter(empresa => 
+        empresa.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
+        empresa.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+        empresa.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
+        empresa.cnpj.toLowerCase().includes(lowerCaseSearchTerm)
+      ),
+      centrosReciclagem: centrosReciclagem.filter(centro => 
+        centro.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
+        centro.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+        centro.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
+        centro.cnpj.toLowerCase().includes(lowerCaseSearchTerm)
+      )
+  }}, [empresas, centrosReciclagem, searchTerm]);
 
   // Função para formatar CNPJ
   const formatarCNPJ = (cnpj) => {
@@ -95,81 +119,103 @@ const Empresas = () => {
   return (
     <div className='containerEmpresas' id="containerPrincipal">
       <div className="content-wrapper">
-        <div className="secao">
-          <h2><FaBuilding className="section-icon" />Empresas Parceiras</h2>
-          <div className="cardsContainer">
-            {empresas.map(empresa => (
-              <div 
-                key={empresa.id} 
-                className="cardEmpresa"
-                style={{ 
-                  backgroundImage: empresa.imagemUrl 
-                    ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
-                    : 'none',
-                  backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
-                }}
-              >
-                <div className="card-content">
-                  <h3>{empresa.nomeExibido}</h3>
-                  <div className="info-item">
-                    <FaEnvelope className="info-icon" />
-                    <span>{empresa.email}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaPhone className="info-icon" />
-                    <span>{empresa.telefone}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaMapMarkerAlt className="info-icon" />
-                    <span>{empresa.endereco}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaIdCard className="info-icon" />
-                    <span>{empresa.cnpj}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {/* Barra de busca */}
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Buscar empresas ou centros de reciclagem..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
           </div>
         </div>
 
         <div className="secao">
-          <h2><FaRecycle className="section-icon" /> Centros de Coleta</h2>
-          <div className="cardsContainer">
-            {centrosReciclagem.map(centro => (
-              <div 
-                key={centro.id} 
-                className="cardEmpresa"
-                style={{ 
-                  backgroundImage: centro.imagemUrl 
-                    ? `url(${centro.imagemUrl})`
-                    : 'none',
-                  backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
-                }}
-              >
-                <div className="card-overlay"></div>
-                <div className="card-content">
-                  <h3>{centro.nomeExibido}</h3>
-                  <div className="info-item">
-                    <FaEnvelope className="info-icon" />
-                    <span>{centro.email}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaPhone className="info-icon" />
-                    <span>{centro.telefone}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaMapMarkerAlt className="info-icon" />
-                    <span>{centro.endereco}</span>
-                  </div>
-                  <div className="info-item">
-                    <FaIdCard className="info-icon" />
-                    <span>{centro.cnpj}</span>
+          <h2><FaBuilding className="section-icon" />Empresas Parceiras</h2>
+          {filteredData.empresas.length === 0 ? (
+            <p className="no-results">Nenhuma empresa encontrada com o termo "{searchTerm}"</p>
+          ) : (
+            <div className="cardsContainer">
+              {filteredData.empresas.map(empresa => (
+                <div 
+                  key={empresa.id} 
+                  className="cardEmpresa"
+                  style={{ 
+                    backgroundImage: empresa.imagemUrl 
+                      ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
+                      : 'none',
+                    backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
+                  }}
+                >
+                  <div className="card-content">
+                    <h3>{empresa.nomeExibido}</h3>
+                    <div className="info-item">
+                      <FaEnvelope className="info-icon" />
+                      <span>{empresa.email}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaPhone className="info-icon" />
+                      <span>{empresa.telefone}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaMapMarkerAlt className="info-icon" />
+                      <span>{empresa.endereco}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaIdCard className="info-icon" />
+                      <span>{empresa.cnpj}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="secao">
+          <h2><FaRecycle className="section-icon" /> Centros de Coleta</h2>
+          {filteredData.centrosReciclagem.length === 0 ? (
+            <p className="no-results">Nenhum centro de reciclagem encontrado com o termo "{searchTerm}"</p>
+          ) : (
+            <div className="cardsContainer">
+              {filteredData.centrosReciclagem.map(centro => (
+                <div 
+                  key={centro.id} 
+                  className="cardEmpresa"
+                  style={{ 
+                    backgroundImage: centro.imagemUrl 
+                      ? `url(${centro.imagemUrl})`
+                      : 'none',
+                    backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
+                  }}
+                >
+                  <div className="card-overlay"></div>
+                  <div className="card-content">
+                    <h3>{centro.nomeExibido}</h3>
+                    <div className="info-item">
+                      <FaEnvelope className="info-icon" />
+                      <span>{centro.email}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaPhone className="info-icon" />
+                      <span>{centro.telefone}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaMapMarkerAlt className="info-icon" />
+                      <span>{centro.endereco}</span>
+                    </div>
+                    <div className="info-item">
+                      <FaIdCard className="info-icon" />
+                      <span>{centro.cnpj}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

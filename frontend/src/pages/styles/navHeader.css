@@ -1,14 +1,14 @@
-/* navHeader.css - CSS Completo Atualizado */
-
 /* Estilos Gerais */
 .header-background {
   width: 100%;
   background-image: url('../../assets/fundoSite2.png');
   background-repeat: no-repeat;
-  background-size: auto 100%;
+  background-size: cover;
+  background-position: center;
   display: flex;
   justify-content: center;
-  padding-top: 100px;
+  padding-top: 60px;
+  padding-bottom: 60px;
 }
 
 .header {
@@ -29,17 +29,21 @@
   align-items: center;
   justify-content: center;
   padding: 10px;
+  position: relative;
 }
 
 .logo-img {
-  width: 400px;
+  width: 450px;
   height: auto;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  object-fit: contain;
+  max-width: 100%;
 }
 
 .logo-img:hover {
-  transform: scale(1.03);
+  transform: scale(1.05);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 /* Navegação Desktop */
@@ -206,33 +210,32 @@
 
 /* Versão Mobile */
 @media (max-width: 768px) {
-  .menu-toggle {
-    display: flex; /* Só mostra no mobile */
-    right: 15px;
-    top: 15px;
-    background: rgba(0, 77, 38, 0.9); /* Fundo mais visível */
-  }
   .header-background {
-    padding-top: 20px;
-    background-size: cover;
-    background-position: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
   }
 
   .header {
     flex-direction: column;
-    padding: 15px;
+    padding: 15px 10px;
   }
 
   .logo-img {
-    width: 350px; /* Aumenta o tamanho da logo */
-    max-width: 90%; /* Garante que não ultrapasse a tela */
-    height: auto;
-    margin: 0 auto; /* Centraliza a imagem */
-    display: block; /* Importante para margin auto funcionar */
+    width: 380px;
+    max-width: 90%;
+    margin: 0 auto 15px;
   }
+
   #logo {
+    padding: 0;
     width: 100%;
-    justify-content: center;
+  }
+
+  .menu-toggle {
+    display: flex;
+    right: 15px;
+    top: 15px;
+    background: rgba(0, 77, 38, 0.9);
   }
 
   /* Menu Mobile */
@@ -258,7 +261,7 @@
 
   .menu {
     z-index: 1000;
-    position: relative; /* Isso cria um novo contexto de empilhamento */
+    position: relative;
     width: 100%;
     color: white;
     padding: 15px 20px;
@@ -298,13 +301,17 @@
   }
 }
 
-/* Ajustes para telas médias */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .menu-toggle {
-    display: flex; /* Só mostra no mobile */
-  }
+/* Ajustes para telas pequenas */
+@media (max-width: 480px) {
   .logo-img {
-    width: 300px;
+    width: 320px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .logo-img {
+    width: 400px;
   }
   
   .menu {

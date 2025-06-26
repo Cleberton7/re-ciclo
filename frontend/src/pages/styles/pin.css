@@ -1,0 +1,132 @@
+.pin-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  transform: translate(-50%, -100%);
+}
+
+.pin-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: white;
+  font-weight: bold;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.pin-icon.empresa {
+  background: linear-gradient(135deg, #4285F4, #34A853);
+}
+
+.pin-icon.centro {
+  background: linear-gradient(135deg, #0F9D58, #FBBC05);
+}
+
+.pin-icon svg {
+  transform: rotate(45deg);
+}
+
+.pin-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  max-width: 90vw;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  animation: fadeIn 0.3s ease;
+}
+
+.tooltip-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.tipo-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.tipo-badge.empresa {
+  background-color: #4285F4;
+  color: white;
+}
+
+.tipo-badge.centro {
+  background-color: #0F9D58;
+  color: white;
+}
+
+.tooltip-content {
+  font-size: 0.85rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  margin: 6px 0;
+}
+
+.info-icon {
+  margin-right: 8px;
+  color: #34A853;
+  min-width: 16px;
+  margin-top: 2px;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid white;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Efeito de pulso para os marcadores */
+@keyframes pulse {
+  0% { transform: rotate(-45deg) scale(1); }
+  50% { transform: rotate(-45deg) scale(1.1); }
+  100% { transform: rotate(-45deg) scale(1); }
+}
+
+.pin-icon {
+  animation: pulse 2s infinite;
+}

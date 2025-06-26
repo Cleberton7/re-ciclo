@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-import axios from "axios";
+import axios from 'axios';
+import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices';
 import GraficoColetas from './GraficoColetas';
 import RankingEmpresas from './RankingEmpresas';
+import Pin from '../components/Pin';
 import "../pages/styles/content.css";
 
 const center = { lat: -3.7657, lng: -49.6725 };
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 const Content = () => {
   const [marcadores, setMarcadores] = useState([]);
@@ -19,48 +19,120 @@ const Content = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          empresasRes, 
-          coletoresRes,
-          graficoRes, 
-          rankingRes
-        ] = await Promise.all([
-          axios.get(`${API_URL}/empresas/localizacoes`),
-          axios.get(`${API_URL}/centros-reciclagem/localizacoes`),
-          axios.get(`${API_URL}/public/coletas`),
-          axios.get(`${API_URL}/public/ranking`)
+        console.log("Iniciando busca de dados...");
+        
+        // 1. Buscar dados das APIs
+        const [empresasData, centrosData, graficoRes, rankingRes] = await Promise.all([
+          getEmpresasPublicas().catch(e => {
+            console.error("Erro ao buscar empresas:", e);
+            return [];
+          }),
+          getCentrosReciclagemPublicos().catch(e => {
+            console.error("Erro ao buscar centros:", e);
+            return [];
+          }),
+          axios.get(`${import.meta.env.VITE_API_URL}/public/coletas`).catch(e => {
+            console.error("Erro ao buscar dados do gráfico:", e);
+            return { data: { data: [] } };
+          }),
+          axios.get(`${import.meta.env.VITE_API_URL}/public/ranking`).catch(e => {
+            console.error("Erro ao buscar ranking:", e);
+            return { data: { data: [] } };
+          })
         ]);
 
-        const empresas = empresasRes.data || [];
-        const coletores = coletoresRes.data || [];
+        console.log("Dados recebidos:", {
+          empresas: empresasData,
+          centros: centrosData
+        });
 
-        const pontos = [
-          ...empresas.map(e => ({
-            ...e.localizacao,
-            tipo: 'empresa',
-            nome: e.nome,
-            id: `empresa-${e.id}`
-          })),
-          ...coletores.map(c => ({
-            ...c.localizacao,
-            tipo: 'centro',
-            nome: c.nome,
-            id: `centro-${c.id}`
-          }))
-        ].filter(p => {
-          const lat = parseFloat(p.lat);
-          const lng = parseFloat(p.lng);
-          return !isNaN(lat) && !isNaN(lng);
-        }).map(p => ({
-          ...p,
-          lat: parseFloat(p.lat),
-          lng: parseFloat(p.lng)
-        }));
+        // 2. Processar os marcadores
+        const processarMarcadores = (itens, tipo) => {
+          if (!Array.isArray(itens)) {
+            console.warn(`Dados de ${tipo} não são um array:`, itens);
+            return [];
+          }
 
-        setMarcadores(pontos);
+          return itens
+            .map(item => {
+              try {
+                // Verificar se o item tem a estrutura mínima necessária
+                if (!item || typeof item !== 'object') {
+                  console.warn(`Item inválido do tipo ${tipo}:`, item);
+                  return null;
+                }
+
+                // Verificar localização
+                if (!item.localizacao || typeof item.localizacao !== 'object') {
+                  console.warn(`Item do tipo ${tipo} sem localização:`, item);
+                  return null;
+                }
+
+                const lat = parseFloat(item.localizacao.lat);
+                const lng = parseFloat(item.localizacao.lng);
+
+                if (isNaN(lat) || isNaN(lng)) {
+                  console.warn(`Coordenadas inválidas para ${tipo} ${item._id}:`, item.localizacao);
+                  return null;
+                }
+
+                // Verificar se as coordenadas estão dentro de limites razoáveis para o Brasil
+                if (lat < -33 || lat > 5 || lng < -74 || lng > -34) {
+                  console.warn(`Coordenadas fora do Brasil para ${tipo} ${item._id}:`, lat, lng);
+                  return null;
+                }
+
+                return {
+                  position: { lat, lng },
+                  tipo,
+                  nome: tipo === 'empresa' 
+                    ? item.nomeFantasia || item.razaoSocial || "Empresa"
+                    : item.nomeFantasia || item.nome || "Centro de Reciclagem",
+                  endereco: item.endereco || "Endereço não informado",
+                  telefone: formatarTelefone(item.telefone),
+                  email: item.email || "Não informado",
+                  cnpj: formatarCNPJ(item.cnpj),
+                  id: `${tipo}-${item._id || Math.random().toString(36).substr(2, 9)}`
+                };
+              } catch (error) {
+                console.error(`Erro ao processar item do tipo ${tipo}:`, error, item);
+                return null;
+              }
+            })
+            .filter(Boolean);
+        };
+
+        // Funções auxiliares de formatação
+        const formatarTelefone = (telefone) => {
+          if (!telefone) return "Não informado";
+          const cleaned = telefone.replace(/\D/g, '');
+          if (cleaned.length === 11) {
+            return cleaned.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+          }
+          if (cleaned.length === 10) {
+            return cleaned.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
+          }
+          return telefone;
+        };
+
+        const formatarCNPJ = (cnpj) => {
+          if (!cnpj) return "Não informado";
+          return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+        };
+
+        // Processar todos os marcadores
+        const marcadoresEmpresas = processarMarcadores(empresasData, 'empresa');
+        const marcadoresCentros = processarMarcadores(centrosData, 'centro');
+        const todosMarcadores = [...marcadoresEmpresas, ...marcadoresCentros];
+
+        console.log("Marcadores processados:", todosMarcadores);
+        console.log(`Total de marcadores válidos: ${todosMarcadores.length}`);
+
+        setMarcadores(todosMarcadores);
         setDadosGrafico(graficoRes.data?.data || []);
         setRankingEmpresas(rankingRes.data?.data || []);
         setError(null);
+
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
         setError("Erro ao carregar dados. Tente recarregar a página.");
@@ -76,14 +148,13 @@ const Content = () => {
     <div className='content' id="containerPrincipal">
       {/* Seção Esquerda (Gráfico e Ranking) */}
       <div className='left-section'>
-        {/* Ranking de Empresas */}
         <div className='containerRanked'>
           <div className='section-title'>Ranking das empresas</div>
           <div className='ranking-wrapper'>
             {error ? (
               <div className="error-message">{error}</div>
             ) : loading ? (
-              <p>Carregando ranking...</p>
+              <div className="loading-message">Carregando ranking...</div>
             ) : (
               <RankingEmpresas
                 ranking={rankingEmpresas}
@@ -94,7 +165,6 @@ const Content = () => {
           </div>
         </div>
 
-        {/* Gráfico de Coletas */}
         <div className='containerGraphic'>
           <div className='section-title'>Distribuição por Material</div>
           <div className='grafico-wrapper'>
@@ -116,12 +186,18 @@ const Content = () => {
         </div>
       </div>
 
-      {/* Mapa (Seção Direita - Tamanho Fixo) */}
+      {/* Mapa (Seção Direita) */}
       <div className='containerMaps'>
         <div className='section-title'>Localização das Empresas e Centros</div>
         <div className='map-wrapper'>
           {error ? (
             <div className="error-message">{error}</div>
+          ) : loading ? (
+            <div className="loading-message">Carregando mapa...</div>
+          ) : marcadores.length === 0 ? (
+            <div className="no-data-message">
+              Nenhuma localização disponível para exibir
+            </div>
           ) : (
             <Map
               className="mapa"
@@ -133,12 +209,16 @@ const Content = () => {
               {marcadores.map((marcador) => (
                 <AdvancedMarker 
                   key={marcador.id} 
-                  position={{ lat: marcador.lat, lng: marcador.lng }}
-                  title={marcador.nome}
+                  position={marcador.position}
                 >
-                  <div className={`marker ${marcador.tipo}`}>
-                    {marcador.tipo === 'empresa' ? 'E' : 'C'}
-                  </div>
+                  <Pin
+                    tipo={marcador.tipo}
+                    nome={marcador.nome}
+                    endereco={marcador.endereco}
+                    telefone={marcador.telefone}
+                    email={marcador.email}
+                    cnpj={marcador.cnpj}
+                  />
                 </AdvancedMarker>
               ))}
             </Map>
