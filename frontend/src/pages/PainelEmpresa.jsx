@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import PainelGenerico from "./PainelGenerico";
-import CloseButton from "../components/CloseButton";
+import Modal from "../components/Modal";
 import "./styles/painelEmpresa.css";
 import "./styles/containerPrincipal.css";
 import {
   criarSolicitacaoColeta,
   getSolicitacoesColeta,
   atualizarSolicitacaoColeta,
-  deletarSolicitacaoColeta
+  deletarSolicitacaoColeta,
 } from "../services/coletaService";
 
 const PainelEmpresa = () => {
@@ -21,7 +21,6 @@ const PainelEmpresa = () => {
   const [editMode, setEditMode] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-
   const [novoResiduo, setNovoResiduo] = useState({
     tipoMaterial: "",
     quantidade: "",
@@ -33,8 +32,8 @@ const PainelEmpresa = () => {
     setGlobalLoading(true);
     try {
       const dados = await getSolicitacoesColeta();
-      const sorted = dados.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
+      const sorted = dados.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setResiduos(sorted);
     } catch (error) {
@@ -56,17 +55,12 @@ const PainelEmpresa = () => {
       formData.append("quantidade", novoResiduo.quantidade);
       formData.append("endereco", novoResiduo.endereco);
       formData.append("observacoes", novoResiduo.observacoes || "");
-      
-      // Adiciona a imagem apenas se existir
       if (imagem) {
         formData.append("imagem", imagem);
       }
-
-      // Adiciona o campo privacidade
       formData.append("privacidade", "publica");
 
       const response = await criarSolicitacaoColeta(formData);
-      
       if (response.success) {
         resetForm();
         setShowModal(false);
@@ -75,7 +69,7 @@ const PainelEmpresa = () => {
         throw new Error(response.message || "Erro ao criar solicitação");
       }
     } catch (error) {
-      console.error("Erro detalhado:", error);
+      console.error("Erro:", error);
       alert(`Erro ao adicionar: ${error.message}`);
     } finally {
       setLoading(false);
@@ -120,26 +114,16 @@ const PainelEmpresa = () => {
 
   const handleDeletarResiduo = async (id) => {
     const confirmacao = window.confirm(
-      'Tem certeza que deseja excluir esta solicitação?\nEsta ação não pode ser desfeita.'
+      "Tem certeza que deseja excluir esta solicitação?"
     );
-    
     if (!confirmacao) return;
-    
+
     setDeletingId(id);
     try {
       await deletarSolicitacaoColeta(id);
       await carregarResiduos();
-      // Adicione um toast/notificação de sucesso se estiver usando
     } catch (error) {
-      console.error('Erro ao deletar:', error);
-      
-      let errorMessage = error.message;
-      if (errorMessage.includes('não encontrada') || 
-          errorMessage.includes('não tem permissão')) {
-        errorMessage = 'Esta solicitação não existe mais ou você não tem permissão';
-      }
-      
-      alert(errorMessage);
+      alert(error.message);
     } finally {
       setDeletingId(null);
     }
@@ -172,7 +156,7 @@ const PainelEmpresa = () => {
       <PainelGenerico tipoUsuario="empresa" />
       <div className="container-container">
         <h2>Resíduos Disponíveis para Coleta</h2>
-        <button 
+        <button
           onClick={() => {
             setEditMode(false);
             setShowModal(true);
@@ -219,7 +203,7 @@ const PainelEmpresa = () => {
                       </span>
                     </td>
                     <td>
-                      {new Date(res.createdAt).toLocaleDateString('pt-BR')}
+                      {new Date(res.createdAt).toLocaleDateString("pt-BR")}
                     </td>
                     <td>
                       <div className="imagem-container">
@@ -228,10 +212,6 @@ const PainelEmpresa = () => {
                             src={res.imagem}
                             alt={`Resíduo de ${res.tipoMaterial}`}
                             className="imagem-residuo"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "/imagem-padrao.jpg";
-                            }}
                           />
                         ) : (
                           <span className="sem-imagem">-</span>
@@ -240,7 +220,7 @@ const PainelEmpresa = () => {
                     </td>
                     <td>
                       <div className="acoes-container">
-                        {res.status === 'pendente' && (
+                        {res.status === "pendente" && (
                           <>
                             <button
                               onClick={() => editarResiduo(res)}
@@ -259,7 +239,7 @@ const PainelEmpresa = () => {
                               {deletingId === res._id ? (
                                 <ClipLoader color="#fff" size={14} />
                               ) : (
-                                'Excluir'
+                                "Excluir"
                               )}
                             </button>
                           </>
@@ -272,104 +252,93 @@ const PainelEmpresa = () => {
             </tbody>
           </table>
         )}
+        <Modal isOpen={showModal} onClose={() => !loading && cancelarEdicao()} size="form-coleta">
+          <div className="form-modal-content">
+            <h3>{editMode ? 'Editar Resíduo' : 'Adicionar Resíduo'}</h3>
 
-        {showModal && (
-          <div className="modal-overlay" onClick={() => !loading && cancelarEdicao()}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <CloseButton 
-                onClose={() => !loading && cancelarEdicao()} 
-                disabled={loading}
-              />
-              <h3>{editMode ? 'Editar Resíduo' : 'Adicionar Resíduo'}</h3>
+            <label>Tipo de Material:</label>
+            <select
+              value={novoResiduo.tipoMaterial}
+              onChange={(e) => setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })}
+              disabled={loading}
+            >
+              <option value="" disabled>Selecione o tipo</option>
+              <option value="eletrônicos">Eletrônicos</option>
+              <option value="metais">Metais</option>
+              <option value="plásticos">Plásticos</option>
+            </select>
 
-              <label>Tipo de Material:</label>
-              <select
-                value={novoResiduo.tipoMaterial}
-                onChange={(e) => setNovoResiduo({...novoResiduo, tipoMaterial: e.target.value})}
-                disabled={loading}
-              >
-                <option value="" disabled>Selecione o tipo</option>
-                <option value="eletrônicos">Eletrônicos</option>
-                <option value="metais">Metais</option>
-                <option value="plásticos">Plásticos</option>
-              </select>
+            <label>Quantidade (kg):</label>
+            <input
+              type="number"
+              placeholder="Quantidade em kg"
+              value={novoResiduo.quantidade}
+              onChange={(e) => setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })}
+              disabled={loading}
+              min="1"
+            />
 
-              <label>Quantidade (kg):</label>
-              <input
-                type="number"
-                placeholder="Quantidade em kg"
-                value={novoResiduo.quantidade}
-                onChange={(e) => setNovoResiduo({...novoResiduo, quantidade: e.target.value})}
-                disabled={loading}
-                min="1"
-              />
+            <label>Endereço:</label>
+            <input
+              type="text"
+              placeholder="Endereço completo"
+              value={novoResiduo.endereco}
+              onChange={(e) => setNovoResiduo({ ...novoResiduo, endereco: e.target.value })}
+              disabled={loading}
+            />
 
-              <label>Endereço:</label>
-              <input
-                type="text"
-                placeholder="Endereço completo"
-                value={novoResiduo.endereco}
-                onChange={(e) => setNovoResiduo({...novoResiduo, endereco: e.target.value})}
-                disabled={loading}
-              />
+            <label>Observações:</label>
+            <textarea
+              placeholder="Detalhes adicionais (opcional)"
+              value={novoResiduo.observacoes}
+              onChange={(e) => setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })}
+              rows={3}
+              disabled={loading}
+            />
 
-              <label>Observações:</label>
-              <textarea
-                placeholder="Detalhes adicionais (opcional)"
-                value={novoResiduo.observacoes}
-                onChange={(e) => setNovoResiduo({...novoResiduo, observacoes: e.target.value})}
-                rows={3}
-                disabled={loading}
-              />
+            <label>Imagem (opcional):</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file && file.size > 5 * 1024 * 1024) {
+                  alert('A imagem deve ser menor que 5MB');
+                  return;
+                }
+                setImagem(file);
+              }}
+              name="imagem"
+              disabled={loading}
+            />
 
-              <label>Imagem (opcional):</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file && file.size > 5 * 1024 * 1024) {
-                    alert('A imagem deve ser menor que 5MB');
-                    return;
-                  }
-                  setImagem(file);
-                }}
-                name="imagem"
-                disabled={loading}
-              />
+            {imagem && (
+              <div className="image-preview">
+                <img
+                  src={imagem instanceof File ? URL.createObjectURL(imagem) : imagem}
+                  alt="Preview"
+                  className="preview-image"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImagem(null)}
+                  disabled={loading}
+                >
+                  Remover
+                </button>
+              </div>
+            )}
 
-              {imagem && (
-                <div className="image-preview">
-                  <img 
-                    src={imagem instanceof File ? URL.createObjectURL(imagem) : imagem} 
-                    alt="Preview" 
-                    className="preview-image"
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setImagem(null)}
-                    disabled={loading}
-                  >
-                    Remover
-                  </button>
-                </div>
-              )}
-
-              <button
-                onClick={editMode ? atualizarResiduo : adicionarResiduo}
-                disabled={formularioInvalido || loading}
-                className="btn-enviar"
-              >
-                {loading ? (
-                  <>
-                    <ClipLoader color="#fff" size={18} />
-                    <span>Enviando...</span>
-                  </>
-                ) : editMode ? "Atualizar Solicitação" : "Solicitar Coleta"}
-              </button>
-            </div>
+            <button
+              onClick={editMode ? atualizarResiduo : adicionarResiduo}
+              disabled={formularioInvalido || loading}
+              className="btn-enviar"
+            >
+              {loading ? 'Enviando...' : (editMode ? "Atualizar Solicitação" : "Solicitar Coleta")}
+            </button>
           </div>
-        )}
+        </Modal>
+
 
         {deletingId && (
           <div className="overlay-loading">

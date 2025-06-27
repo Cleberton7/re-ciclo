@@ -184,7 +184,7 @@ const NavHeader = () => {
         />
       )}
 
-      <Modal isOpen={activeModal !== null} onClose={closeModal}>
+      <Modal isOpen={activeModal !== null} onClose={closeModal} size="medium">
         {activeModal === 'login' ? (
           <Login 
             onLoginSuccess={handleLoginSuccess} 
@@ -194,6 +194,7 @@ const NavHeader = () => {
           <Register onLoginClick={switchToLogin} />
         )}
       </Modal>
+
     </>
   );
 };

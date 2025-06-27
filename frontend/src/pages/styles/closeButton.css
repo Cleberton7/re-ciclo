@@ -1,16 +1,23 @@
 .close-button {
   position: absolute;
-  top: 12px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 28px;
+  right: 10px;
+  background: transparent;  /* sem fundo */
+  border: none;              /* sem borda */
+  font-size: 22px;
   font-weight: bold;
+  color: #333;               /* cor padrão */
   cursor: pointer;
-  color: #009951;
-  transition: color 0.3s ease;
+  padding: 0;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  z-index: 10;
+
+  outline: none; /* evita outline padrão no foco */
 }
 
-.close-button:hover {
-  color: #00491a;
+.close-button:hover,
+.close-button:focus {
+  color: red; /* muda só a cor do X no hover e foco */
+  background: transparent; /* garante fundo transparente no hover */
 }

@@ -1,45 +1,47 @@
+/* Estilos do Modal padrão - Versão Corrigida */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgb(0, 0, 0); /* Fundo escuro semi-transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    padding: 0;
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.486);
-    display: flex; /* permite dividir o conteúdo em dois lados */
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: auto;
-  }
-  
-  .close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: transparent; /* sem fundo */
-    border: none;             /* sem borda */
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;              /* ou qualquer cor que combine com seu layout */
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    width: auto;
-    height: auto;
-  }
-  
-  .close-button:hover {
-    color: red;
-  }
-  
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden; /* Impede scroll na overlay */
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #009952, #004d26);
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.486);
+  max-height: 90vh;
+  overflow-y: auto; /* Só scroll vertical se necessário */
+  margin: 20px; /* Espaço para não colar nas bordas */
+  width: calc(100% - 40px); /* Ajuste para o margin */
+}
+
+/* Tamanhos de Modal - Versão Corrigida */
+.modal-small {
+  max-width: 400px;
+}
+
+.modal-medium {
+  max-width: 900px;
+}
+
+.modal-large {
+  max-width: 1200px;
+}
+.modal-form-coleta {
+  max-width: 600px;
+}
+
+/* Garante que o conteúdo interno não cause overflow */
+.modal-content > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
