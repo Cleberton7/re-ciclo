@@ -42,7 +42,7 @@ const ColetaPublicCard = ({ coleta }) => {
         <div className="info-row">
           <span className="info-label">Data:</span>
           <span className="info-value">
-            {formatDate(coleta.dataColeta || coleta.createdAt)}
+            {formatDate(coleta.dataSolicitacao || coleta.createdAt)}
           </span>
         </div>
       </div>

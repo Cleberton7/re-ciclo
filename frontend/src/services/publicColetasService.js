@@ -12,20 +12,14 @@ export const getDadosPublicosColetas = async (filters = {}) => {
     };
     const { data } = await axios.get(`${API_BASE}/public/coletas`, { params });
 
-    if (!data.data) {
-      console.warn('Resposta da API não contém data.data:', data);
-      return [];
-    }
     return data.data || [];
   } catch (error) {
-    console.error('Erro detalhado:', {
-      message: error.message,
-      response: error.response?.data,
-      config: error.config
-    });
+    console.error('Erro ao buscar coletas:', error);
     throw new Error(error.response?.data?.message || 'Erro ao buscar coletas');
   }
 };
+
+
 
 export const getRankingEmpresas = async (periodo = 'mensal') => {
   try {
@@ -96,3 +90,15 @@ export const concluirColeta = async (idSolicitacao) => {
     );
   }
 };
+export const getEvolucaoColetas = async (periodo = 'mensal') => {
+  try {
+    const { data } = await axios.get(`${API_BASE}/public/evolucao`, {
+      params: { periodo }
+    });
+    return data.data || [];
+  } catch (error) {
+    console.error('Erro ao buscar evolução:', error);
+    throw new Error(error.response?.data?.message || 'Erro ao buscar evolução');
+  }
+};
+

@@ -3,10 +3,14 @@ import {
   getDadosPublicosColetas, 
   getRankingEmpresas,
   getEstatisticasPublicas,
-  getDistribuicaoMateriais
+  getDistribuicaoMateriais,
+  getEvolucaoColetas
 } from "../services/publicColetasService";
 import RankingEmpresas from "../components/RankingEmpresas";
 import GraficoColetas from "../components/GraficoColetas";
+import GraficoEvolucaoColetas from "../components/GraficoEvolucaoColetas"
+import GraficoImpactoAmbiental from "../components/GraficoImpactoAmbiental";
+import GraficoRankingEmpresas from "../components/GraficoRankingEmpresas";
 import ColetaPublicCard from "../components/ColetaPublicCard";
 import FilterBar from "../components/FilterBarPublic";
 import "./styles/PublicColetasPage.css";
@@ -22,10 +26,12 @@ const PublicColetasPage = () => {
   const [distribuicao, setDistribuicao] = useState([]);
   const [filters, setFilters] = useState({
     tipoMaterial: "",
-    periodo: "mensal"
+    periodo: "total"
   });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [evolucao, setEvolucao] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,7 +40,7 @@ const PublicColetasPage = () => {
         setError(null);
 
         
-        const [coletasData, rankingData, estatisticasData, distribuicaoData] = 
+        const [coletasData, rankingData, estatisticasData, distribuicaoData,evolucaoData] = 
           await Promise.all([
             getDadosPublicosColetas(filters).catch(e => {
               console.error('Erro em coletas:', e);
@@ -55,13 +61,15 @@ const PublicColetasPage = () => {
             getDistribuicaoMateriais().catch(e => {
               console.error('Erro em distribuição:', e);
               return [];
-            })
+            }),
+            getEvolucaoColetas(filters.periodo)
           ]);
         
         setColetas(coletasData);
         setRanking(rankingData);
         setEstatisticas(estatisticasData);
         setDistribuicao(distribuicaoData);
+        setEvolucao(evolucaoData);
       } catch (err) {
         console.error("Erro completo:", err);
         setError(err.message || "Erro ao carregar dados");
@@ -73,6 +81,27 @@ const PublicColetasPage = () => {
     loadData();
   }, [filters]);
 
+  const getPeriodoTexto = (periodo) => {
+    const now = new Date();
+    let startDate;
+
+    switch (periodo) {
+      case 'mensal':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        break;
+      case 'trimestral':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+        break;
+      case 'anual':
+        startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        break;
+      case 'total':
+      default:
+        return 'Exibindo todos os dados disponíveis';
+    }
+
+    return `De ${startDate.toLocaleDateString('pt-BR')} até ${now.toLocaleDateString('pt-BR')}`;
+  };
 
   const formatImpactoAmbiental = (kg) => {
     const toneladas = kg / 1000;
@@ -99,6 +128,9 @@ const PublicColetasPage = () => {
           onChange={setFilters}
           role="public"
         />
+        <p className="periodo-info">
+          {getPeriodoTexto(filters.periodo)}
+        </p>
       </section>
 
       <section className="public-stats-section">
@@ -125,14 +157,36 @@ const PublicColetasPage = () => {
         {loading ? (
           <div className="graph-placeholder">Carregando gráfico...</div>
         ) : distribuicao.length > 0 ? (
-          <div className="background-color-grafico" >
-            <GraficoColetas dados={distribuicao} />
-          </div>
-          
+          <GraficoColetas dados={distribuicao} />
         ) : (
           <div className="nenhum-dado">Nenhum dado disponível</div>
         )}
       </section>
+
+      <section className="public-graph-section">
+        <h2>Ranking de Empresas</h2>
+        {loading ? (
+          <div className="graph-placeholder">Carregando gráfico...</div>
+        ) : ranking.length > 0 ? (
+          <GraficoRankingEmpresas ranking={ranking} />
+        ) : (
+          <div className="nenhum-dado">Nenhum dado disponível</div>
+        )}
+      </section>
+
+      <section className="public-graph-section">
+        <h2>Evolução das Coletas</h2>
+        <GraficoEvolucaoColetas dados={evolucao} />
+      </section>
+
+      <section className="public-graph-section">
+        <h2>Impacto Ambiental</h2>
+        <GraficoImpactoAmbiental 
+          impactoAtual={estatisticas.impactoAmbiental} 
+          meta={10000} // 🔥 Defina sua meta aqui
+        />
+      </section>
+
 
       <section className="public-ranking-section">
         <h2>Ranking de Empresas Mais Sustentáveis</h2>

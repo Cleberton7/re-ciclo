@@ -19,6 +19,7 @@ import {
 import createUploader, { uploadErrorHandler } from '../config/multerConfig.js';
 import { rateLimiter } from '../middlewares/rateLimiter.js';
 import { coletaUpload } from '../config/uploadConfig.js';
+import { validarConclusaoColeta } from '../validators/coletaValidator.js';
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ router.get('/', verifyToken, requireAuth, getSolicitacoes);
 router.post('/',verifyToken,requireEmpresa,rateLimiter(10, 60),coletaUpload,uploadErrorHandler,criarSolicitacao);
 
 router.put('/:id/aceitar', verifyToken, requireCentro, aceitarColeta);
-router.put('/:id/concluir', verifyToken, requireCentro, concluirColeta);
+router.put('/:id/concluir',verifyToken,requireCentro,express.json(),validarConclusaoColeta,concluirColeta);
 
 router.put('/:id',verifyToken,requireAuth,coletaUpload,uploadErrorHandler,atualizarColeta);
 

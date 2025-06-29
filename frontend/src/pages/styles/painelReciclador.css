@@ -1,84 +1,99 @@
+/* Mantendo todos os estilos anteriores exatamente como estavam */
 .dashboard-container {
-    border-radius: 10%;
-    background-color: #009951;
-  }
-  
-section {
-    background-color: #009951;
-    color: black;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-    margin-top: 20px;
-    color: white;
-  }
-  
-  .resumo-operacional p {
-    margin: 5px 0;
-  }
-  
-  .filtros {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+  border-radius: 10px;
+  background-color: #009951;
+  padding: 20px;
+  color: white;
+  margin-top: 20px;
+}
 
-  }
-  .filtros select{
-     color: white;
-  }
-  
-  .cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .card {
-    background-color: #e6f7ff;
-    border-left: 5px solid #009951;
-    padding: 15px;
-    border-radius: 8px;
-    width: 250px;
-    color: black;
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  .card h3 {
-    margin: 0 0 10px;
-  }
-  
-  .card button {
-    background-color: #009951;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .card button:hover {
-    background-color: #007a3d;
-  }
-  
-  .timeline p {
-    margin: 5px 0;
-    font-weight: 500;
-  }
-  /* Estilos para notificações */
+section {
+  background-color: #007a40;
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+  margin-top: 20px;
+}
+
+.resumo-operacional p {
+  margin: 5px 0;
+}
+
+.filtros {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filtros select {
+  color: white;
+  background-color: #005a30;
+  border: 1px solid #004d29;
+  padding: 8px 12px;
+  border-radius: 5px;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  background-color: #e6f7ff;
+  border-left: 5px solid #009951;
+  padding: 15px;
+  border-radius: 8px;
+  width: 250px;
+  color: black;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card h3 {
+  margin: 0 0 10px;
+  color: #007a40;
+}
+
+.card p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.card button {
+  background-color: #009951;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.card button:hover:not(:disabled) {
+  background-color: #007a3d;
+}
+
 .notificacao {
-  padding: 12px 20px;
+  position: relative;
+  padding: 12px 40px 12px 20px;
   margin: 10px 0;
   border-radius: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   animation: slideIn 0.3s ease-out;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-
 .notificacao.sucesso {
   background-color: #d4edda;
   color: #155724;
@@ -92,14 +107,20 @@ section {
 }
 
 .fechar-notificacao {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   cursor: pointer;
   color: inherit;
-  margin-left: 15px;
 }
-/* No PainelReciclador.css */
+.fechar-notificacao:hover{
+    opacity: 0.8;
+}
+
 .btn-concluir {
   background-color: #28a745;
   color: white;
@@ -110,13 +131,98 @@ section {
   margin-top: 10px;
 }
 
-.btn-concluir:hover {
+.btn-concluir:hover:not(:disabled) {
   background-color: #218838;
 }
 
 .btn-concluir:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.form-modal-content {
+  background-color: #009951;
+  padding: 20px;
+  border-radius: 8px;
+  color: #333;
+}
+
+.form-modal-content h3 {
+  margin-top: 0;
+  color: white;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group input.invalid {
+  border-color: #dc3545;
+}
+
+.form-group input.valid {
+  border-color: #28a745;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.btn-enviar {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-enviar:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.btn-enviar:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes slideIn {
@@ -130,23 +236,17 @@ section {
   }
 }
 
-/* Melhorias nos cards */
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Adicionando apenas o necessário para o novo campo de data */
+.form-group input[type="date"] {
+  /* Mantendo o mesmo estilo dos outros inputs */
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Botões desabilitados */
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Responsividade */
+/* Responsividade mantida igual */
 @media (max-width: 768px) {
   .cards {
     grid-template-columns: 1fr;
@@ -155,5 +255,9 @@ button:disabled {
   .filtros {
     flex-direction: column;
     align-items: stretch;
+  }
+  
+  .card {
+    width: 100%;
   }
 }

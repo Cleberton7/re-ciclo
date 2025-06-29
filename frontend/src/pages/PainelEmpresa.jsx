@@ -22,7 +22,8 @@ const PainelEmpresa = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
-    tipoMaterial: "",
+    tipoMaterial: "eletronicos", // Fixo como "eletrônicos"
+    outros: "", // Novo campo para detalhes adicionais
     quantidade: "",
     endereco: "",
     observacoes: "",
@@ -52,6 +53,9 @@ const PainelEmpresa = () => {
     try {
       const formData = new FormData();
       formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+      if (novoResiduo.tipoMaterial === "outros" && novoResiduo.outros) {
+        formData.append("outros", novoResiduo.outros);
+      }
       formData.append("quantidade", novoResiduo.quantidade);
       formData.append("endereco", novoResiduo.endereco);
       formData.append("observacoes", novoResiduo.observacoes || "");
@@ -94,6 +98,9 @@ const PainelEmpresa = () => {
     try {
       const formData = new FormData();
       formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+      if (novoResiduo.tipoMaterial === "outros" && novoResiduo.outros) {
+        formData.append("outros", novoResiduo.outros);
+      }
       formData.append("quantidade", novoResiduo.quantidade);
       formData.append("endereco", novoResiduo.endereco);
       formData.append("observacoes", novoResiduo.observacoes);
@@ -131,7 +138,8 @@ const PainelEmpresa = () => {
 
   const resetForm = () => {
     setNovoResiduo({
-      tipoMaterial: "",
+      tipoMaterial: "eletronicos",
+      outros: "",
       quantidade: "",
       endereco: "",
       observacoes: "",
@@ -194,7 +202,11 @@ const PainelEmpresa = () => {
               ) : (
                 residuos.map((res) => (
                   <tr key={res._id}>
-                    <td>{res.tipoMaterial}</td>
+                  <td>
+                    {res.tipoMaterial === "outros" && res.outros
+                      ? `Outros (${res.outros})` // Ex: "Outros (Baterias)"
+                      : res.tipoMaterial} // Ex: "Eletrônicos"
+                  </td>
                     <td>{res.quantidade} kg</td>
                     <td>{res.endereco}</td>
                     <td>
@@ -262,11 +274,23 @@ const PainelEmpresa = () => {
               onChange={(e) => setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })}
               disabled={loading}
             >
-              <option value="" disabled>Selecione o tipo</option>
-              <option value="eletrônicos">Eletrônicos</option>
-              <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>
+              <option value="eletronicos">Eletrônicos</option>
+              <option value="outros">Outros</option>
             </select>
+
+            {/* Campo "Especificar" (aparece apenas se "Outros" for selecionado) */}
+            {novoResiduo.tipoMaterial === "outros" && (
+              <div className="outros-container">
+                <label>Especificar (opcional):</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Baterias, Cabos, etc."
+                  value={novoResiduo.outros}
+                  onChange={(e) => setNovoResiduo({ ...novoResiduo, outros: e.target.value })}
+                  disabled={loading}
+                />
+              </div>
+            )}
 
             <label>Quantidade (kg):</label>
             <input

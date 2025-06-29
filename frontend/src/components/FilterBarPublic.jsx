@@ -11,7 +11,7 @@ const FilterBar = ({ filters, onChange, role }) => {
 
   return (
     <div className="filter-bar">
-        {role === 'public' && (
+      {role === 'public' && (
         <>
           <div className="filter-group">
             <label htmlFor="tipoMaterial">Tipo de Material:</label>
@@ -24,7 +24,8 @@ const FilterBar = ({ filters, onChange, role }) => {
               <option value="">Todos</option>
               <option value="eletrônicos">Eletrônicos</option>
               <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>x
+              <option value="plásticos">Plásticos</option>
+              <option value="outros">Outros</option>
             </select>
           </div>
 
@@ -56,9 +57,9 @@ const FilterBar = ({ filters, onChange, role }) => {
               onChange={handleFilterChange}
             >
               <option value="">Todos</option>
-              <option value="eletrônicos">Eletrônicos</option>
+              <option value="eletronicos">Eletrônicos</option>
               <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>
+              <option value="plasticos">Plásticos</option>
               <option value="vidro">Vidro</option>
               <option value="papel">Papel</option>
             </select>

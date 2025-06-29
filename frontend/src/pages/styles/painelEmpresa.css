@@ -306,6 +306,16 @@
   min-height: 80px;
   resize: vertical;
 }
+.outros-container {
+  margin-top: 0.5rem;
+}
+
+.outros-container input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
 
 /* Preview de imagem */
 .image-preview {

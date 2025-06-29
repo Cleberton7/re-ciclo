@@ -25,8 +25,8 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
 
   if (!dadosValidos) {
     return (
-      <div style={{
-        height: '100%',
+      <div className="background-color-grafico" style={{
+        height: '300px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -59,7 +59,8 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
       backgroundColor: dadosAgrupados.map(item => 
         CORES_PADRAO[item.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || '#CCCCCC'
       ),
-      borderWidth: 1
+      borderWidth: 1,
+      borderColor: '#fff'
     }]
   };
 
@@ -74,7 +75,8 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
           padding: 20,
           font: {
             size: compactMode ? 12 : 14
-          }
+          },
+          color: '#333' // Cor do texto da legenda
         }
       },
       tooltip: {
@@ -86,17 +88,23 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
             const percentage = Math.round((value / total) * 100);
             return `${label}: ${value}kg (${percentage}%)`;
           }
+        },
+        bodyFont: {
+          size: 14
+        },
+        titleFont: {
+          size: 16
         }
       }
     }
   };
 
   return (
-    <div style={{
-      position: 'relative',
+    <div className="background-color-grafico" style={{
       width: '100%',
-      height: '100%',
-      minHeight: compactMode ? '250px' : '300px'
+      height: compactMode ? '250px' : '300px',
+      padding: '15px',
+      borderRadius: '10px'
     }}>
       <Pie 
         data={chartData} 

@@ -19,6 +19,7 @@ import centroRoutes from './src/routes/centroRoutes.js';
 import coletasRoutes from './src/routes/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
+import contatoRoutes from './src/routes/contatoRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -87,6 +88,7 @@ async function main() {
     app.use("/api/coletas", coletasRoutes);
     app.use("/api/noticias", noticiaRoutes);
     app.use("/api/public", publicRoutes);
+    app.use('/api', contatoRoutes);
 
     // 🔥 Health Check
     app.get('/api/health', (req, res) => {

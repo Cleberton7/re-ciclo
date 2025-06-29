@@ -56,6 +56,20 @@ const coletaSchema = new mongoose.Schema({
   impactoAmbiental: {  // NOVO CAMPO ADICIONADO
     type: Number,
     default: 0
+  },
+  materiaisSeparados: {
+    type: {
+      eletronicos: {
+        quantidade: { type: Number, min: 0 },
+        componentes: { type: String }
+      },
+      metais: {
+        quantidade: { type: Number, min: 0 }
+      },
+      plasticos: {
+        quantidade: { type: Number, min: 0 }
+      }
+    }
   }
 }, {
   timestamps: true,
@@ -63,14 +77,15 @@ const coletaSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Índices atualizados
-coletaSchema.index({ solicitante: 1 });
-coletaSchema.index({ centro: 1 });
-coletaSchema.index({ status: 1 });
-coletaSchema.index({ tipoMaterial: 1 });
-coletaSchema.index({ privacidade: 1 });  // NOVO ÍNDICE
-coletaSchema.index({ createdAt: 1 });    // NOVO ÍNDICE
 
+coletaSchema.index({
+  status: 1,
+  privacidade: 1,
+  tipoMaterial: 1,
+  createdAt: 1,
+  solicitante: 1,
+  centro: 1
+});
 // Middleware para calcular impacto ambiental antes de salvar
 coletaSchema.pre('save', function(next) {
   if (this.isModified('quantidade')) {

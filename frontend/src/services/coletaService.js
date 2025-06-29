@@ -1,5 +1,5 @@
 import axios from 'axios';
-import  authService  from './authService'; // ✅ Corrigido aqui
+import authService from './authService';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -8,6 +8,53 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// Função auxiliar para tratamento de erros
+const handleApiError = (error, defaultMessage) => {
+  console.error('Erro na requisição:', error);
+  
+  // Verifica se há resposta do servidor
+  if (error.response) {
+    const serverError = error.response.data;
+    console.log('Detalhes do erro:', serverError);
+    
+    // Retorna mensagem mais específica quando disponível
+    return new Error(
+      serverError.message || 
+      serverError.error || 
+      serverError.details?.[0]?.message || 
+      defaultMessage
+    );
+  }
+  
+  return new Error(error.message || defaultMessage);
+};
+
+export const criarSolicitacaoColeta = async (formData) => {
+  try {
+    // Verifica se os campos obrigatórios estão presentes
+    if (!formData.get('tipoMaterial') || !formData.get('quantidade') || !formData.get('endereco')) {
+      throw new Error('Campos obrigatórios não preenchidos');
+    }
+
+    const response = await axios.post(`${API_BASE}/coletas`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data'
+      },
+      transformRequest: (data) => data, // Impede transformação automática do axios
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Erro ao criar solicitação');
+    }
+
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'Erro ao criar solicitação de coleta');
+  }
+};
+
+// ... (mantenha as outras funções como estão)
 export const getSolicitacoesColeta = async (filters = {}) => {
   try {
     const params = new URLSearchParams();
@@ -32,20 +79,6 @@ export const getSolicitacoesColeta = async (filters = {}) => {
   }
 };
 
-export const criarSolicitacaoColeta = async (formData) => {
-  try {
-    const { data } = await axios.post(`${API_BASE}/coletas`, formData, {
-      headers: {
-        ...getAuthHeader(),
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return data;
-  } catch (error) {
-    console.error('Erro ao criar solicitação:', error);
-    throw new Error(error.response?.data?.error || 'Erro ao criar solicitação');
-  }
-};
 
 export const atualizarSolicitacaoColeta = async (id, formData) => {
   try {
@@ -111,27 +144,28 @@ export const aceitarColeta = async (idSolicitacao) => {
   }
 };
 
-export const concluirColeta = async (idSolicitacao) => {
-  console.log("Tentando concluir coleta ID:", idSolicitacao);
+export const concluirColeta = async (idSolicitacao, dados = {}) => {
   try {
+    // Garante que as datas estão no payload
+    const payload = {
+      ...dados,
+      dataColeta: dados.dataColeta || new Date().toISOString(),
+      dataConclusao: dados.dataConclusao || new Date().toISOString()
+    };
+
     const { data } = await axios.put(
       `${API_BASE}/coletas/${idSolicitacao}/concluir`,
-      {}, // Corpo vazio já que só atualizamos status
+      payload,
       { headers: getAuthHeader() }
     );
 
     if (!data.success) {
-      console.error("Resposta sem sucesso:", data);
       throw new Error(data.message || "Falha ao concluir coleta");
     }
 
     return data;
   } catch (error) {
-    console.error("Detalhes do erro:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    });
+    console.error("Detalhes do erro:", error.response?.data);
     throw new Error(
       error.response?.data?.error || 
       "Erro ao concluir coleta. Verifique sua conexão e tente novamente."

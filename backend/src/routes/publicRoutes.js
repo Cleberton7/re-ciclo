@@ -1,16 +1,19 @@
 import express from 'express';
 import {
-  getColetas,
-  getRanking,
-  getEstatisticas,
-  getDistribuicao
-} from '../controllers/publicController.js';
+  getColetasPublicas, // chama do coletaController
+  getRankingEmpresas,
+  getEstatisticasPublicas,
+  getDistribuicaoMateriais,
+  getEvolucaoColetas
+} from '../controllers/coletaController.js';
 
 const router = express.Router();
 
-router.get('/coletas', getColetas);
-router.get('/ranking', getRanking);
-router.get('/estatisticas', getEstatisticas);
-router.get('/distribuicao', getDistribuicao);
+router.get('/coletas', getColetasPublicas);
+router.get('/ranking', getRankingEmpresas);
+router.get('/estatisticas', getEstatisticasPublicas);
+router.get('/distribuicao', getDistribuicaoMateriais);
+router.get('/evolucao', getEvolucaoColetas);
+
 
 export default router;

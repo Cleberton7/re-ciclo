@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importação corrigida
+import { jwtDecode } from 'jwt-decode'; 
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
@@ -10,7 +10,7 @@ const api = axios.create({
 // Verifica se token JWT está expirado
 const isTokenExpired = (token) => {
   try {
-    const decoded = jwtDecode(token); // Agora usando a importação nomeada
+    const decoded = jwtDecode(token);
     return decoded.exp < Date.now() / 1000;
   } catch (e) {
     console.error('Erro ao decodificar token:', e);

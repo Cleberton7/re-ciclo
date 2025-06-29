@@ -1,5 +1,7 @@
 import Coleta from '../models/coletaModel.js';
 import { getImagePath, getFullImageUrl } from '../utils/fileHelper.js';
+import { getPeriodoFilter } from '../services/filtroServices.js';
+
 
 export const criarSolicitacao = async (req, res) => {
   try {
@@ -63,7 +65,8 @@ export const getSolicitacoes = async (req, res) => {
     if (status) filter.status = status;
 
     const solicitacoes = await Coleta.find(filter)
-      .populate('solicitante', 'nome email telefone')
+// No controller getSolicitacoes
+      .populate('solicitante', 'nome email telefone nomeFantasia razaoSocial')
       .populate('centro', 'nome email telefone')
       .sort({ createdAt: -1 })
       .lean();
@@ -198,52 +201,30 @@ export const deletarColeta = async (req, res) => {
     });
   }
 };
-// Adicione estas novas funções ao seu controller
+
+
 export const getColetasPublicas = async (req, res) => {
   try {
-    const { tipoMaterial, periodo, limit } = req.query;
-    
-    const filter = { 
-      $or: [
-        { status: 'concluída', privacidade: 'publica' },
-        // Inclui coletas antigas que não tinham o campo privacidade
-        { status: 'concluída', privacidade: { $exists: false } }
-      ]
+    const { tipoMaterial, periodo = 'mensal', limit = 6 } = req.query;
+
+    const filtroData = getPeriodoFilter(periodo);
+
+    const query = {
+      status: 'concluída',
+      privacidade: 'publica',
+      ...(tipoMaterial ? { tipoMaterial } : {}),
+      ...filtroData,
     };
-    if (tipoMaterial) filter.tipoMaterial = tipoMaterial;
-    
-    // Filtro por período
-    if (periodo) {
-      const dateFilter = {};
-      const now = new Date();
-      
-      if (periodo === 'mensal') {
-        dateFilter.$gte = new Date(now.setMonth(now.getMonth() - 1));
-      } else if (periodo === 'trimestral') {
-        dateFilter.$gte = new Date(now.setMonth(now.getMonth() - 3));
-      } else if (periodo === 'anual') {
-        dateFilter.$gte = new Date(now.setFullYear(now.getFullYear() - 1));
-      }
-      
-      filter.createdAt = dateFilter;
-    }
 
-    const coletas = await Coleta.find(filter)
-      .limit(parseInt(limit) || 6)
-      .populate('solicitante', 'nomeFantasia razaoSocial')
-      .sort({ createdAt: -1 })
-      .lean();
+    const coletas = await Coleta.find(query)
+      .populate('solicitante', 'razaoSocial nomeFantasia')
+      .sort({ dataSolicitacao: -1 })
+      .limit(parseInt(limit));
 
-    res.json({
-      success: true,
-      data: coletas.map(c => ({
-        ...c,
-        imagem: getFullImageUrl(req, c.imagem)
-      }))
-    });
+    res.json({ success: true, data: coletas });
   } catch (error) {
     console.error('Erro ao buscar coletas públicas:', error);
-    res.status(500).json({ success: false, error: 'Erro no servidor' });
+    res.status(500).json({ success: false, message: 'Erro ao buscar coletas públicas' });
   }
 };
 
@@ -280,59 +261,89 @@ export const getEstatisticasPublicas = async (req, res) => {
 
 export const getDistribuicaoMateriais = async (req, res) => {
   try {
-    const distribuicao = await Coleta.aggregate([
-      { $match: { status: 'concluída', privacidade: 'publica' } },
-      { $group: { 
-        _id: '$tipoMaterial', 
-        total: { $sum: '$quantidade' } 
-      }},
-      { $sort: { total: -1 } }
+    const { periodo = 'total' } = req.query;
+
+    const now = new Date();
+    let dateFilter = {};
+
+    if (periodo !== 'total') {
+      if (periodo === 'mensal') {
+        dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()) };
+      } else if (periodo === 'trimestral') {
+        dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()) };
+      } else if (periodo === 'anual') {
+        dateFilter = { $gte: new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()) };
+      }
+    }
+
+    const matchStage = {
+      status: 'concluída',
+      privacidade: 'publica',
+      ...(periodo !== 'total' ? { createdAt: dateFilter } : {})
+    };
+
+    const resultado = await Coleta.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: null,
+          eletronicos: { $sum: { $ifNull: ['$materiaisSeparados.eletronicos.quantidade', 0] } },
+          metais: { $sum: { $ifNull: ['$materiaisSeparados.metais.quantidade', 0] } },
+          plasticos: { $sum: { $ifNull: ['$materiaisSeparados.plasticos.quantidade', 0] } }
+        }
+      }
     ]);
 
-    res.json({
-      success: true,
-      data: distribuicao.map(item => ({
-        tipoMaterial: item._id,
-        total: item.total
-      }))
-    });
+    if (!resultado.length) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const dados = [
+      { tipoMaterial: 'eletronicos', quantidade: resultado[0].eletronicos },
+      { tipoMaterial: 'metais', quantidade: resultado[0].metais },
+      { tipoMaterial: 'plasticos', quantidade: resultado[0].plasticos }
+    ].filter(item => item.quantidade > 0); // remove se for zero
+
+    res.json({ success: true, data: dados });
+
   } catch (error) {
-    console.error('Erro ao buscar distribuição:', error);
+    console.error('Erro ao buscar distribuição de materiais:', error);
     res.status(500).json({ success: false, error: 'Erro no servidor' });
   }
 };
 
+
 export const getRankingEmpresas = async (req, res) => {
   try {
-    const { periodo } = req.query;
-    
-    const dateFilter = {};
-    if (periodo) {
-      const now = new Date();
-      
+    const { periodo = 'total' } = req.query;
+
+    const now = new Date();
+    let dateFilter = null;
+
+    if (periodo !== 'total') {
       if (periodo === 'mensal') {
-        dateFilter.$gte = new Date(now.setMonth(now.getMonth() - 1));
+        dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()) };
       } else if (periodo === 'trimestral') {
-        dateFilter.$gte = new Date(now.setMonth(now.getMonth() - 3));
+        dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()) };
       } else if (periodo === 'anual') {
-        dateFilter.$gte = new Date(now.setFullYear(now.getFullYear() - 1));
+        dateFilter = { $gte: new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()) };
       }
     }
 
+    const matchStage = {
+      status: 'concluída',
+      privacidade: 'publica',
+      ...(dateFilter ? { createdAt: dateFilter } : {})
+    };
+
     const ranking = await Coleta.aggregate([
-      { 
-        $match: { 
-          status: 'concluída',
-          privacidade: 'publica',
-          ...(periodo && { createdAt: dateFilter })
-        } 
-      },
-      { 
-        $group: { 
+      { $match: matchStage },
+      {
+        $group: {
           _id: '$solicitante',
           totalColetado: { $sum: '$quantidade' },
           coletasConcluidas: { $sum: 1 }
-        } 
+        }
       },
       { $sort: { totalColetado: -1 } },
       { $limit: 10 },
@@ -357,52 +368,54 @@ export const getRankingEmpresas = async (req, res) => {
       }
     ]);
 
-    res.json({
-      success: true,
-      data: ranking
-    });
+    res.json({ success: true, data: ranking });
   } catch (error) {
     console.error('Erro ao buscar ranking:', error);
     res.status(500).json({ success: false, error: 'Erro no servidor' });
   }
 };
 
+
 export const concluirColeta = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id; // ID do usuário logado
+    const { materiaisSeparados } = req.body;
+    const userId = req.user.id;
 
-    // Verifica se a coleta existe e foi aceita pelo usuário
-    const coleta = await Coleta.findOne({
-      _id: id,
-      centro: userId,
-      status: 'aceita'
-    });
-
-    if (!coleta) {
-      console.log('Coleta não encontrada ou não autorizada');
-      return res.status(404).json({
+    // Validação mínima
+    if (!materiaisSeparados?.eletronicos?.quantidade) {
+      return res.status(400).json({
         success: false,
-        error: "Coleta não encontrada ou você não tem permissão"
+        error: "Quantidade de eletrônicos é obrigatória"
       });
     }
 
-    const coletaAtualizada = await Coleta.findByIdAndUpdate(
-      id,
-      { 
+    const coleta = await Coleta.findOneAndUpdate(
+      {
+        _id: id,
+        centro: userId,
+        status: 'aceita'
+      },
+      {
         status: 'concluída',
-        dataConclusao: new Date() 
+        dataConclusao: new Date(),
+        materiaisSeparados
       },
       { new: true }
     ).populate('solicitante', 'nome email');
 
-    console.log('Coleta concluída:', coletaAtualizada);
+    if (!coleta) {
+      return res.status(404).json({
+        success: false,
+        error: "Coleta não encontrada ou não autorizada"
+      });
+    }
 
     res.json({
       success: true,
       data: {
-        ...coletaAtualizada.toObject(),
-        imagem: getFullImageUrl(req, coletaAtualizada.imagem)
+        ...coleta.toObject(),
+        imagem: getFullImageUrl(req, coleta.imagem)
       }
     });
   } catch (error) {
@@ -410,6 +423,76 @@ export const concluirColeta = async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || "Erro interno ao concluir coleta"
+    });
+  }
+};
+export const getEvolucaoColetas = async (req, res) => {
+  try {
+    const { periodo = 'mensal' } = req.query;
+    
+    // Define o intervalo de datas baseado no período
+    const now = new Date();
+    let startDate;
+    
+    switch(periodo) {
+      case 'mensal':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        break;
+      case 'trimestral':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+        break;
+      case 'anual':
+        startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        break;
+      default: // 'total'
+        startDate = new Date(0); // Data mínima
+    }
+
+    // Agrega os dados por mês
+    const evolucao = await Coleta.aggregate([
+      {
+        $match: {
+          status: 'concluída',
+          privacidade: 'publica',
+          createdAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          total: { $sum: "$quantidade" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      },
+      {
+        $project: {
+          _id: 0,
+          periodo: { 
+            $concat: [
+              { $toString: "$_id.year" },
+              "-",
+              { $toString: "$_id.month" }
+            ]
+          },
+          total: 1
+        }
+      }
+    ]);
+
+    res.json({ 
+      success: true, 
+      data: evolucao.length > 0 ? evolucao : [] 
+    });
+  } catch (error) {
+    console.error('Erro ao buscar evolução:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erro ao buscar dados de evolução' 
     });
   }
 };

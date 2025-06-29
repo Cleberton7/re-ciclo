@@ -1,36 +1,117 @@
-// src/middlewares/rateLimiter.js
 import rateLimit from 'express-rate-limit';
-import { NODE_ENV } from '../config/config.js';
+import { NODE_ENV, RATE_LIMIT_CONFIG } from '../config/config.js';
+import { createClient } from 'redis';
+import RedisStore from 'rate-limit-redis';
 
-/**
- * Middleware de limitação de taxa (rate limiting)
- * @param {number} maxRequests - Número máximo de requisições
- * @param {number} minutes - Janela de tempo em minutos
- * @returns {Function} Middleware de rate limiting
- */
-export const rateLimiter = (maxRequests = 100, minutes = 15) => {
+// Configuração do Redis (se disponível)
+let redisClient;
+let store;
+
+if (process.env.REDIS_URL && NODE_ENV !== 'test') {
+  redisClient = createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => Math.min(retries * 100, 5000)
+    }
+  });
+
+  redisClient.on('error', (err) => console.error('Redis error:', err));
+
+  store = new RedisStore({
+    sendCommand: (...args) => redisClient.sendCommand(args),
+    prefix: 'rate_limit:'
+  });
+
+  // Conecta ao Redis
+  if (!redisClient.isOpen) {
+    redisClient.connect().catch(err => {
+      console.error('Falha ao conectar ao Redis:', err);
+    });
+  }
+}
+
+// Função genérica para criar qualquer rate limiter
+export const createRateLimiter = ({
+  max = 100,
+  windowMinutes = 15,
+  scope = 'ip',
+  name = 'generic'
+}) => {
+  const keyGenerator = (req) => {
+    if (scope === 'user' && req.user?.id) {
+      return `user:${req.user.id}:${name}`;
+    }
+    if (scope === 'global') {
+      return `global:${name}`;
+    }
+    return `ip:${req.ip}:${name}`;
+  };
+
   return rateLimit({
-    windowMs: minutes * 60 * 1000, // Janela de tempo em milissegundos
-    max: maxRequests, // Limite de requisições por janela
+    windowMs: windowMinutes * 60 * 1000,
+    max,
     message: {
       success: false,
       code: 'TOO_MANY_REQUESTS',
-      message: `Muitas requisições. Por favor, tente novamente após ${minutes} minutos.`
+      message: `Limite de taxa excedido. Máximo ${max} requisições a cada ${windowMinutes} minutos.`,
+      retryAfter: `${windowMinutes} minutos`,
+      docs: 'https://api.recicle.com/docs/rate-limiting'
     },
-    standardHeaders: true, // Retorna informações de limite nos headers
-    legacyHeaders: false, // Desabilita headers legados
-    skip: () => NODE_ENV === 'test' // Desativa em ambiente de teste
+    keyGenerator,
+    store,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+      const whitelist = process.env.RATE_LIMIT_WHITELIST?.split(',') || [];
+      return NODE_ENV === 'test' || whitelist.includes(req.ip);
+    },
+    handler: (req, res, next, options) => {
+      res.status(429).json({
+        ...options.message,
+        currentCount: req.rateLimit.current,
+        limit: req.rateLimit.limit,
+        resetTime: new Date(req.rateLimit.resetTime).toISOString()
+      });
+    }
   });
 };
 
-/**
- * Middleware de limitação de taxa para endpoints sensíveis (login, registro, etc.)
- */
-export const sensitiveLimiter = rateLimiter(15, 15); // 15 requisições a cada 15 minutos
+// 🔥 Função simplificada para usar diretamente nas rotas
+export const rateLimiter = (max, windowMinutes) => 
+  createRateLimiter({ max, windowMinutes, scope: 'ip', name: 'generic' });
 
-/**
- * Middleware de limitação de taxa padrão para APIs
- */
-export const apiLimiter = rateLimiter(100, 15); // 100 requisições a cada 15 minutos
+// 🎯 Rate limiters pré-configurados
+export const contactLimiter = createRateLimiter({
+  ...RATE_LIMIT_CONFIG.contact,
+  scope: 'ip',
+  name: 'contact'
+});
 
-export default rateLimiter;
+export const sensitiveLimiter = createRateLimiter({
+  ...RATE_LIMIT_CONFIG.sensitive,
+  scope: 'user',
+  name: 'sensitive'
+});
+
+export const apiLimiter = createRateLimiter({
+  ...RATE_LIMIT_CONFIG.api,
+  scope: 'ip',
+  name: 'api'
+});
+
+export const heavyOperationLimiter = createRateLimiter({
+  max: 10,
+  windowMinutes: 60,
+  scope: 'user',
+  name: 'heavy_ops'
+});
+
+// Exporta tudo junto (opcional)
+export default {
+  createRateLimiter,
+  rateLimiter,
+  contactLimiter,
+  sensitiveLimiter,
+  apiLimiter,
+  heavyOperationLimiter
+};

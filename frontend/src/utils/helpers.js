@@ -5,13 +5,12 @@ export const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('pt-BR', options);
 };
 
-// Função para obter ícones de materiais
 export const getMaterialIcon = (material) => {
   const icons = {
-    plástico: '♻️',
-    metal: '🔩',
-    eletrônicos: '💻',
+    plasticos: '♻️',
+    metais: '🔩',
+    eletronicos: '💻',
     outros: '🗑️'
   };
-  return icons[material.toLowerCase()] || icons.outros;
+  return icons[material?.toLowerCase()] || icons.outros;
 };
