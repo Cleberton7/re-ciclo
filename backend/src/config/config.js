@@ -24,24 +24,19 @@ export const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aleatoria
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 export const JWT_EMAIL_EXPIRES_IN = process.env.JWT_EMAIL_EXPIRES_IN || '1h';
 
-// Configurações de e-mail (com fallback para SendGrid)
-export const EMAIL_PROVIDER = process.env.EMAIL_PROVIDER || 'sendgrid'; // ou 'nodemailer'
-export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+// Configurações de e-mail (Nodemailer)
 export const EMAIL_CONFIG = {
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  host: process.env.EMAIL_HOST || 'smtp.mailtrap.io',
-  port: parseInt(process.env.EMAIL_PORT) || 2525,
-  secure: process.env.EMAIL_SECURE === 'true',
+  service: process.env.EMAIL_SERVICE || 'gmail', // Pode ser gmail, outlook, etc.
   auth: {
-    user: process.env.EMAIL_USER || 'recicletucurui@gmail.com',
-    pass: process.env.EMAIL_PASS || 'hizn mxib unas ihrc'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 };
 
 export const EMAIL_FROM = process.env.EMAIL_FROM || 
-  `"Recicle" <${process.env.EMAIL_USER || 'no-reply@reciclatech.com'}>`;
+  `"Recicle" <${process.env.EMAIL_USER}>`;
 
-export const TEAM_EMAIL = process.env.TEAM_EMAIL || 'equipe@reciclatech.com';
+export const TEAM_EMAIL = process.env.TEAM_EMAIL || process.env.EMAIL_USER;
 
 // Frontend e URLs
 export const FRONTEND_URL = process.env.FRONTEND_URL || 
@@ -67,29 +62,23 @@ export const RATE_LIMIT_CONFIG = {
   }
 };
 
-// Validação das variáveis críticas por ambiente
-const productionConfigs = ['MONGO_URI', 'JWT_SECRET'];
-const developmentConfigs = [...productionConfigs, 'RECAPTCHA_SITE_KEY', 'RECAPTCHA_SECRET_KEY'];
+// Validação das variáveis críticas
+const requiredConfigs = [
+  'MONGO_URI',
+  'JWT_SECRET',
+  'EMAIL_USER',
+  'EMAIL_PASS',
+  'RECAPTCHA_SITE_KEY',
+  'RECAPTCHA_SECRET_KEY'
+];
 
-const validateConfig = (requiredConfigs) => {
-  requiredConfigs.forEach(config => {
-    if (!process.env[config]) {
-      throw new Error(`❌ Variável de ambiente crítica faltando: ${config}`);
-    }
-  });
-};
-
-if (NODE_ENV === 'production') {
-  validateConfig(productionConfigs);
-  
-  if (EMAIL_PROVIDER === 'sendgrid' && !SENDGRID_API_KEY) {
-    throw new Error('❌ SENDGRID_API_KEY é obrigatório em produção');
+requiredConfigs.forEach(config => {
+  if (!process.env[config]) {
+    throw new Error(`❌ Variável de ambiente crítica faltando: ${config}`);
   }
-} else {
-  validateConfig(developmentConfigs);
-}
+});
 
-// Exporta tudo como um objeto único (opcional)
+// Exporta tudo
 export default {
   PORT,
   BASE_URL,
@@ -99,8 +88,6 @@ export default {
   JWT_SECRET,
   JWT_EXPIRES_IN,
   JWT_EMAIL_EXPIRES_IN,
-  EMAIL_PROVIDER,
-  SENDGRID_API_KEY,
   EMAIL_CONFIG,
   EMAIL_FROM,
   TEAM_EMAIL,
