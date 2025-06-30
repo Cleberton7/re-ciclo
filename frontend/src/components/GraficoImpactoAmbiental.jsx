@@ -10,6 +10,7 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GraficoImpactoAmbiental = ({ impactoAtual = 0, meta = 10000 }) => {
+   
   const restante = Math.max(meta - impactoAtual, 0);
 
   const data = {
@@ -45,7 +46,7 @@ const GraficoImpactoAmbiental = ({ impactoAtual = 0, meta = 10000 }) => {
 
   return (
     <div className="background-color-grafico" style={{ 
-      height: '300px', 
+      height: '350px', 
       padding: '15px',
       position: 'relative'
     }}>
@@ -65,6 +66,9 @@ const GraficoImpactoAmbiental = ({ impactoAtual = 0, meta = 10000 }) => {
           fontWeight: 'bold'
         }}>
           {(impactoAtual/1000).toLocaleString('pt-BR')} ton
+        </p>
+        <p style={{ margin: 0, fontSize: '14px', color: '#555' }}>
+          Meta: {(meta / 1000).toLocaleString('pt-BR')} ton
         </p>
       </div>
     </div>

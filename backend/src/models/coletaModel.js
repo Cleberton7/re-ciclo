@@ -9,7 +9,7 @@ const coletaSchema = new mongoose.Schema({
   tipoMaterial: {
     type: String,
     required: true,
-    enum: ['eletrônicos', 'metais', 'plásticos', 'outros'],
+    enum: ['eletrônicos','eletronicos', 'metais', 'plásticos','plastico', 'outros'],
     default: 'outros'
   },
   quantidade: {
@@ -37,7 +37,7 @@ const coletaSchema = new mongoose.Schema({
     enum: ['pendente', 'agendada', 'em_andamento', 'concluída', 'cancelada'],
     default: 'pendente'
   },
-  privacidade: {  // NOVO CAMPO ADICIONADO
+  privacidade: {
     type: String,
     enum: ['publica', 'privada'],
     default: 'publica'

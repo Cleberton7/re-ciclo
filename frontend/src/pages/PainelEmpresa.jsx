@@ -22,8 +22,8 @@ const PainelEmpresa = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
-    tipoMaterial: "eletronicos", // Fixo como "eletrônicos"
-    outros: "", // Novo campo para detalhes adicionais
+    tipoMaterial: "eletronicos", 
+    outros: "", 
     quantidade: "",
     endereco: "",
     observacoes: "",

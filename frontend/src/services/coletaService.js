@@ -54,7 +54,7 @@ export const criarSolicitacaoColeta = async (formData) => {
   }
 };
 
-// ... (mantenha as outras funções como estão)
+
 export const getSolicitacoesColeta = async (filters = {}) => {
   try {
     const params = new URLSearchParams();

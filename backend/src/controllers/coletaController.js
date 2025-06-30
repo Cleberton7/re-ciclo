@@ -202,6 +202,129 @@ export const deletarColeta = async (req, res) => {
   }
 };
 
+export const concluirColeta = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { materiaisSeparados } = req.body;
+    const userId = req.user.id;
+
+    // Validação mínima
+    if (!materiaisSeparados?.eletronicos?.quantidade) {
+      return res.status(400).json({
+        success: false,
+        error: "Quantidade de eletrônicos é obrigatória"
+      });
+    }
+
+    const coleta = await Coleta.findOneAndUpdate(
+      {
+        _id: id,
+        centro: userId,
+        status: 'aceita'
+      },
+      {
+        status: 'concluída',
+        dataConclusao: new Date(),
+        materiaisSeparados
+      },
+      { new: true }
+    ).populate('solicitante', 'nome email');
+
+    if (!coleta) {
+      return res.status(404).json({
+        success: false,
+        error: "Coleta não encontrada ou não autorizada"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...coleta.toObject(),
+        imagem: getFullImageUrl(req, coleta.imagem)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao concluir coleta:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Erro interno ao concluir coleta"
+    });
+  }
+};
+
+
+export const getEvolucaoColetas = async (req, res) => {
+  try {
+    const { periodo = 'mensal' } = req.query;
+    
+    // Define o intervalo de datas baseado no período
+    const now = new Date();
+    let startDate;
+    
+    switch(periodo) {
+      case 'mensal':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        break;
+      case 'trimestral':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+        break;
+      case 'anual':
+        startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        break;
+      default: // 'total'
+        startDate = new Date(0); // Data mínima
+    }
+
+    // Agrega os dados por mês
+    const evolucao = await Coleta.aggregate([
+      {
+        $match: {
+          status: 'concluída',
+          privacidade: 'publica',
+          createdAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          total: { $sum: "$quantidade" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      },
+      {
+        $project: {
+          _id: 0,
+          periodo: { 
+            $concat: [
+              { $toString: "$_id.year" },
+              "-",
+              { $toString: "$_id.month" }
+            ]
+          },
+          total: 1
+        }
+      }
+    ]);
+
+    res.json({ 
+      success: true, 
+      data: evolucao.length > 0 ? evolucao : [] 
+    });
+  } catch (error) {
+    console.error('Erro ao buscar evolução:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erro ao buscar dados de evolução' 
+    });
+  }
+};
+
 
 export const getColetasPublicas = async (req, res) => {
   try {
@@ -372,127 +495,5 @@ export const getRankingEmpresas = async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar ranking:', error);
     res.status(500).json({ success: false, error: 'Erro no servidor' });
-  }
-};
-
-
-export const concluirColeta = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { materiaisSeparados } = req.body;
-    const userId = req.user.id;
-
-    // Validação mínima
-    if (!materiaisSeparados?.eletronicos?.quantidade) {
-      return res.status(400).json({
-        success: false,
-        error: "Quantidade de eletrônicos é obrigatória"
-      });
-    }
-
-    const coleta = await Coleta.findOneAndUpdate(
-      {
-        _id: id,
-        centro: userId,
-        status: 'aceita'
-      },
-      {
-        status: 'concluída',
-        dataConclusao: new Date(),
-        materiaisSeparados
-      },
-      { new: true }
-    ).populate('solicitante', 'nome email');
-
-    if (!coleta) {
-      return res.status(404).json({
-        success: false,
-        error: "Coleta não encontrada ou não autorizada"
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        ...coleta.toObject(),
-        imagem: getFullImageUrl(req, coleta.imagem)
-      }
-    });
-  } catch (error) {
-    console.error('Erro ao concluir coleta:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || "Erro interno ao concluir coleta"
-    });
-  }
-};
-export const getEvolucaoColetas = async (req, res) => {
-  try {
-    const { periodo = 'mensal' } = req.query;
-    
-    // Define o intervalo de datas baseado no período
-    const now = new Date();
-    let startDate;
-    
-    switch(periodo) {
-      case 'mensal':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        break;
-      case 'trimestral':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-        break;
-      case 'anual':
-        startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-        break;
-      default: // 'total'
-        startDate = new Date(0); // Data mínima
-    }
-
-    // Agrega os dados por mês
-    const evolucao = await Coleta.aggregate([
-      {
-        $match: {
-          status: 'concluída',
-          privacidade: 'publica',
-          createdAt: { $gte: startDate }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
-          },
-          total: { $sum: "$quantidade" }
-        }
-      },
-      {
-        $sort: { "_id.year": 1, "_id.month": 1 }
-      },
-      {
-        $project: {
-          _id: 0,
-          periodo: { 
-            $concat: [
-              { $toString: "$_id.year" },
-              "-",
-              { $toString: "$_id.month" }
-            ]
-          },
-          total: 1
-        }
-      }
-    ]);
-
-    res.json({ 
-      success: true, 
-      data: evolucao.length > 0 ? evolucao : [] 
-    });
-  } catch (error) {
-    console.error('Erro ao buscar evolução:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Erro ao buscar dados de evolução' 
-    });
   }
 };

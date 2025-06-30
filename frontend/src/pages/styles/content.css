@@ -81,15 +81,89 @@
   overflow: auto;
 }
 
-/* GRÁFICO */
+/* GRÁFICO - AGORA CARROSSEL */
 .grafico-wrapper {
   background: white;
   width: 100%;
   flex: 1;
   border-radius: 0.5rem;
-  padding: 1rem;
+  padding: 0; /* Removido para o carrossel ocupar todo espaço */
   position: relative;
   overflow: hidden;
+}
+
+/* ESTILOS DO CARROSSEL */
+.carrossel-graficos-container {
+  height: 100%;
+  width: 100%;
+  background: white;
+  border-radius: 0.4rem;
+}
+
+.graficos-swiper {
+  height: calc(100% - 40px); /* Ajuste para o título */
+  width: 100%;
+}
+
+.slide-container {
+  height: 100%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.grafico-titulo {
+  color: #333;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.carrossel-indicadores {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.indicador {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.indicador.ativo {
+  background-color: #009951;
+}
+
+/* Estilos do Swiper customizados */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #009951 !important;
+  width: 30px !important;
+  height: 30px !important;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 1rem !important;
+}
+
+.swiper-pagination-bullet {
+  background: #ccc !important;
+  opacity: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #009951 !important;
 }
 
 /* MENSAGENS DE ESTADO */
@@ -112,7 +186,7 @@
   border-radius: 0.4rem;
 }
 
-/* RESPONSIVIDADE - SOLUÇÃO PARA MOBILE */
+/* RESPONSIVIDADE */
 @media (max-width: 1024px) {
   .containerMaps {
     width: 50%;
@@ -136,6 +210,17 @@
     height: 100%;
     min-height: unset;
   }
+
+  /* Ajustes do carrossel para mobile */
+  .graficos-swiper {
+    height: calc(100% - 30px);
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 25px !important;
+    height: 25px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -144,5 +229,14 @@
     min-height: 350px;
     width: calc(100% - 1rem);
     padding: 0.5rem;
+  }
+
+  .containerGraphic,
+  .containerRanked {
+    min-height: 350px;
+  }
+
+  .grafico-titulo {
+    font-size: 0.8rem;
   }
 }

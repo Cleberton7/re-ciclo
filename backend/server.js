@@ -16,9 +16,9 @@ import authRoutes from './src/routes/authRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import centroRoutes from './src/routes/centroRoutes.js';
-import coletasRoutes from './src/routes/coletasRoutes.js';
+import coletasRoutes from './src/routes/Coletas/Private/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
-import publicRoutes from './src/routes/publicRoutes.js';
+import publicRoutes from './src/routes/Coletas/Public/publicRoutes.js';
 import contatoRoutes from './src/routes/contatoRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 

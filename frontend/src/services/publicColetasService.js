@@ -19,8 +19,6 @@ export const getDadosPublicosColetas = async (filters = {}) => {
   }
 };
 
-
-
 export const getRankingEmpresas = async (periodo = 'mensal') => {
   try {
     const { data } = await axios.get(`${API_BASE}/public/ranking`, {
