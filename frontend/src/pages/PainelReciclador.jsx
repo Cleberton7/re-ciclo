@@ -10,6 +10,7 @@ import "./styles/containerPrincipal.css";
 import "./styles/painelReciclador.css";
 import CloseButton from "../components/CloseButton";
 
+
 const PainelReciclador = () => {
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [concluindoId, setConcluindoId] = useState(null);

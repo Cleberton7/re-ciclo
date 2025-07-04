@@ -9,6 +9,7 @@ const Recicle = () => {
       <h3>Lixo eletrônico, você sabia das suas problemáticas?</h3>
       
       <div className="content-section">
+
         <h2>Como nos afeta?</h2>
         <p>
           <img 

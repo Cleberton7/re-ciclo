@@ -1,4 +1,4 @@
-/* Estilos Gerais */
+/* Estilos Gerais 
 .header-background {
   width: 100%;
   background-image: url('../../assets/fundoSite2.png');
@@ -10,7 +10,16 @@
   padding-top: 60px;
   padding-bottom: 60px;
 }
-
+.header-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  z-index: 1;
+}*/
 .header {
   width: 100%;
   max-width: 1200px;
