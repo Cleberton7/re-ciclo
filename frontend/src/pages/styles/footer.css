@@ -1,36 +1,26 @@
 .footer {
-  background-color: #006d39;
-  background-image: url('../../assets/fundoSite2.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  color: #fff;
-  padding: 40px 20px;
-  text-align: center;
-  margin-top: 100px;
-}
-.footer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 109, 57, 0.85); /* Overlay verde para melhor contraste */
-  z-index: 1;
-}
-
-.footer-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1200px;
-  margin-bottom: 20px;
-}
+    background-color: #006d39; 
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+    background-image: url('../../assets/fundoSite2.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 20px;
+  }
   
   .footer-section {
     flex: 1;
@@ -61,15 +51,4 @@
     font-size: 14px;
     color: #000000;
   }
-  @media (max-width: 768px) {
-  .footer {
-    background-size: contain;
-  }
-  .footer-section a {
-  color: #e0e0e0; /* Cor mais clara para melhor legibilidade */
-  text-decoration: none;
-  display: block;
-  margin-bottom: 5px;
-  transition: color 0.3s;
-}
-}
+  
