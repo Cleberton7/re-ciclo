@@ -194,6 +194,7 @@ export const userController = {
       });
     }
   },
+
   async deleteAccount(req, res) {
   try {
     const userId = req.user.id;
@@ -230,8 +231,7 @@ export const userController = {
       message: "Erro ao excluir conta"
     });
   }
-}
+  }
 };
-
 
 export default userController;

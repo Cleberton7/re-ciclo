@@ -34,7 +34,7 @@ export const EMAIL_CONFIG = {
 };
 
 export const EMAIL_FROM = process.env.EMAIL_FROM || 
-  `"Recicle" <${process.env.EMAIL_USER}>`;
+  `"Re-ciclo" <${process.env.EMAIL_USER}>`;
 
 export const TEAM_EMAIL = process.env.TEAM_EMAIL || process.env.EMAIL_USER;
 

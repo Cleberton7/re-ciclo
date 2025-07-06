@@ -1,15 +1,19 @@
+import React from "react";
 
-import "../pages/styles/closeButton.css"
-
-export default function CloseButton({ onClose, ariaLabel = "Fechar modal" }) {
+const CloseButton = ({ onClose, ariaLabel = "Fechar modal" }) => {
   return (
-    <button
-      className="close-button"
+    <span
       onClick={onClose}
       aria-label={ariaLabel}
-      type="button"
+      role="button"
+      tabIndex="0"
+      className="absolute top-4 right-4 text-2xl text-white hover:text-red-300 focus:text-red-300 cursor-pointer z-50"
+      style={{ lineHeight: '0.5' }}
+      onKeyDown={(e) => e.key === 'Enter' && onClose()}
     >
       ×
-    </button>
+    </span>
   );
-}
+};
+
+export default CloseButton;

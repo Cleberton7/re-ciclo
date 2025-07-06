@@ -29,6 +29,32 @@ const PainelEmpresa = () => {
     observacoes: "",
   });
 
+  // Função para formatar o tipoMaterial exibido
+  const formatarTipoMaterial = (tipo, outros) => {
+    if (!tipo) return "Desconhecido";
+
+    const tipoLimpo = tipo.split("//")[0].trim().toLowerCase();
+
+    if (tipoLimpo === "outros" && outros) {
+      return `Outros (${outros})`;
+    }
+
+    switch (tipoLimpo) {
+      case "eletronicos":
+      case "eletrônicos":
+        return "Eletrônicos";
+      case "metais":
+        return "Metais";
+      case "plasticos":
+      case "plásticos":
+        return "Plásticos";
+      case "outros":
+        return "Outros";
+      default:
+        return tipoLimpo.charAt(0).toUpperCase() + tipoLimpo.slice(1);
+    }
+  };
+
   const carregarResiduos = async () => {
     setGlobalLoading(true);
     try {
@@ -88,6 +114,7 @@ const PainelEmpresa = () => {
       quantidade: residuo.quantidade,
       endereco: residuo.endereco,
       observacoes: residuo.observacoes || "",
+      outros: residuo.outros || ""
     });
     setImagem(residuo.imagem || null);
     setShowModal(true);
@@ -202,11 +229,7 @@ const PainelEmpresa = () => {
               ) : (
                 residuos.map((res) => (
                   <tr key={res._id}>
-                  <td>
-                    {res.tipoMaterial === "outros" && res.outros
-                      ? `Outros (${res.outros})` // Ex: "Outros (Baterias)"
-                      : res.tipoMaterial} // Ex: "Eletrônicos"
-                  </td>
+                    <td>{formatarTipoMaterial(res.tipoMaterial, res.outros)}</td>
                     <td>{res.quantidade} kg</td>
                     <td>{res.endereco}</td>
                     <td>
@@ -214,9 +237,7 @@ const PainelEmpresa = () => {
                         {res.status}
                       </span>
                     </td>
-                    <td>
-                      {new Date(res.createdAt).toLocaleDateString("pt-BR")}
-                    </td>
+                    <td>{new Date(res.createdAt).toLocaleDateString("pt-BR")}</td>
                     <td>
                       <div className="imagem-container">
                         {res.imagem ? (
@@ -264,14 +285,20 @@ const PainelEmpresa = () => {
             </tbody>
           </table>
         )}
-        <Modal isOpen={showModal} onClose={() => !loading && cancelarEdicao()} size="form-coleta">
+        <Modal
+          isOpen={showModal}
+          onClose={() => !loading && cancelarEdicao()}
+          size="form-coleta"
+        >
           <div className="form-modal-content">
-            <h3>{editMode ? 'Editar Resíduo' : 'Adicionar Resíduo'}</h3>
+            <h3>{editMode ? "Editar Resíduo" : "Adicionar Resíduo"}</h3>
 
             <label>Tipo de Material:</label>
             <select
               value={novoResiduo.tipoMaterial}
-              onChange={(e) => setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })}
+              onChange={(e) =>
+                setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })
+              }
               disabled={loading}
             >
               <option value="eletronicos">Eletrônicos</option>
@@ -286,7 +313,9 @@ const PainelEmpresa = () => {
                   type="text"
                   placeholder="Ex: Baterias, Cabos, etc."
                   value={novoResiduo.outros}
-                  onChange={(e) => setNovoResiduo({ ...novoResiduo, outros: e.target.value })}
+                  onChange={(e) =>
+                    setNovoResiduo({ ...novoResiduo, outros: e.target.value })
+                  }
                   disabled={loading}
                 />
               </div>
@@ -297,7 +326,9 @@ const PainelEmpresa = () => {
               type="number"
               placeholder="Quantidade em kg"
               value={novoResiduo.quantidade}
-              onChange={(e) => setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })}
+              onChange={(e) =>
+                setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })
+              }
               disabled={loading}
               min="1"
             />
@@ -307,7 +338,9 @@ const PainelEmpresa = () => {
               type="text"
               placeholder="Endereço completo"
               value={novoResiduo.endereco}
-              onChange={(e) => setNovoResiduo({ ...novoResiduo, endereco: e.target.value })}
+              onChange={(e) =>
+                setNovoResiduo({ ...novoResiduo, endereco: e.target.value })
+              }
               disabled={loading}
             />
 
@@ -315,7 +348,9 @@ const PainelEmpresa = () => {
             <textarea
               placeholder="Detalhes adicionais (opcional)"
               value={novoResiduo.observacoes}
-              onChange={(e) => setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })}
+              onChange={(e) =>
+                setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })
+              }
               rows={3}
               disabled={loading}
             />
@@ -327,7 +362,7 @@ const PainelEmpresa = () => {
               onChange={(e) => {
                 const file = e.target.files[0];
                 if (file && file.size > 5 * 1024 * 1024) {
-                  alert('A imagem deve ser menor que 5MB');
+                  alert("A imagem deve ser menor que 5MB");
                   return;
                 }
                 setImagem(file);
@@ -343,11 +378,7 @@ const PainelEmpresa = () => {
                   alt="Preview"
                   className="preview-image"
                 />
-                <button
-                  type="button"
-                  onClick={() => setImagem(null)}
-                  disabled={loading}
-                >
+                <button type="button" onClick={() => setImagem(null)} disabled={loading}>
                   Remover
                 </button>
               </div>
@@ -358,11 +389,10 @@ const PainelEmpresa = () => {
               disabled={formularioInvalido || loading}
               className="btn-enviar"
             >
-              {loading ? 'Enviando...' : (editMode ? "Atualizar Solicitação" : "Solicitar Coleta")}
+              {loading ? "Enviando..." : editMode ? "Atualizar Solicitação" : "Solicitar Coleta"}
             </button>
           </div>
         </Modal>
-
 
         {deletingId && (
           <div className="overlay-loading">

@@ -31,7 +31,7 @@ export const sendEmail = async (to, subject, html) => {
       subject,
       html,
       headers: {
-        'X-Mailer': 'Recicle Mailer',
+        'X-Mailer': 'Re-ciclo Mailer',
         'X-Priority': '1'
       }
     };
@@ -65,7 +65,7 @@ export const sendVerificationEmail = async (user, token) => {
 
   return await sendEmail(
     user.email,
-    'Verificação de E-mail - Recicle',
+    'Verificação de E-mail - Re-ciclo',
     html
   );
 };
@@ -89,7 +89,7 @@ export const sendPasswordResetEmail = async (user, token) => {
 
   return await sendEmail(
     user.email,
-    'Redefinição de Senha - Recicle',
+    'Redefinição de Senha - Re-ciclo',
     html
   );
 };

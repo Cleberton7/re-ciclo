@@ -198,8 +198,6 @@ const PainelReciclador = () => {
             >
               <option value="">Todos os tipos</option>
               <option value="eletrônicos">Eletrônicos</option>
-              <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>
               <option value="outros">Outros</option>
             </select>
 
@@ -222,7 +220,15 @@ const PainelReciclador = () => {
             ) : (
               solicitacoes.map((solicitacao) => (
                 <div key={solicitacao._id} className="card">
-                  <h3>{solicitacao.tipoMaterial}</h3>
+                  <h3>
+                    {solicitacao.tipoMaterial === "outros" && solicitacao.outros
+                      ? `Outros (${solicitacao.outros})`
+                      : solicitacao.tipoMaterial
+                          .replace(/\/\/.*$/, "") // remove comentários como "// Ex: ...", se existirem
+                          .trim()
+                          .replace(/^./, (c) => c.toUpperCase())}
+                  </h3>
+
                   <p><strong>Quantidade:</strong> {solicitacao.quantidade} kg</p>
                   <p><strong>Endereço:</strong> {solicitacao.endereco}</p>
                   <p><strong>Status:</strong> {solicitacao.status}</p>
