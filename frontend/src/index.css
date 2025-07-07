@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 *,
 *::before,
@@ -37,14 +40,14 @@ html, body, #root {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
 }
 
 body {
   background-color: #c8c8c8;
   width: 100vw;  /* Garante que ocupe 100% da largura da tela */
   overflow-x: hidden; /* Evita rolagem horizontal */
-  display: flex; /* Se precisar alinhar algo no centro */
-  flex-direction: column;
+
 }
 
 h1 {

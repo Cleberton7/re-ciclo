@@ -2,14 +2,14 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        greenPrimary: "#004d26",    // verde escuro usado no fundo, botões, etc
-        greenHover: "#009951",      // verde do hover
-        greenActive: "#006d39",     // verde para estado ativo
+        greenPrimary: "#004d26",
+        greenHover: "#009951",
+        greenActive: "#006d39",
         redLogout: "#d9534f",
         redLogoutHover: "#c9302c",
         blackCustom: "#000000",
@@ -46,6 +46,9 @@ export default {
         'smaller': '0.9rem',
       },
     },
+  },
+  corePlugins: {
+    preflight: true,
   },
   plugins: [],
 }
