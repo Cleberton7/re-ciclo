@@ -137,35 +137,54 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #009951;
-  color: white;
+  background: rgba(255, 255, 255, 0.8);
+  color: #009951;
   border: none;
-  padding: 8px 15px;
-  cursor: pointer;
-  font-size: 18px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  z-index: 10;
-  width: 40px;
-  height: 40px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
-  border: 2px solid white;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+  z-index: 10;
+  padding: 0;
 }
-
 .carousel-btn:hover {
-  background-color: #007a40;
+  background: rgba(0, 153, 81, 0.9);
+  color: white;
   transform: translateY(-50%) scale(1.1);
 }
-
 .prev {
   left: 20px;
 }
 
 .next {
   right: 20px;
+}
+.section-indicadores {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.section-indicador {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s;
+}
+
+.section-indicador.ativo {
+  background-color: #009951;
 }
 
 .loading, .error, .no-news {

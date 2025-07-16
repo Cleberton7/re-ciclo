@@ -39,6 +39,8 @@ const Section = () => {
     carregarNoticias();
   }, []);
 
+  const totalPages = Math.ceil(noticias.length / itemsPerPage);
+
   const nextSlide = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex + itemsPerPage) % noticias.length);
   }, [noticias.length, itemsPerPage]);
@@ -69,6 +71,10 @@ const Section = () => {
   };
 
   const visibleNoticias = getVisibleNoticias();
+
+  const handleIndicadorClick = (pageIndex) => {
+    setCurrentIndex(pageIndex * itemsPerPage);
+  };
 
   if (loading) {
     return (
@@ -109,7 +115,18 @@ const Section = () => {
           onClick={prevSlide}
           aria-label="Notícias anteriores"
         >
-          &lt;
+          {/* SVG seta esquerda igual Swiper */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            width="20"
+            height="20"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
 
         <div className="carousel-items-container">
@@ -146,8 +163,31 @@ const Section = () => {
           onClick={nextSlide}
           aria-label="Próximas notícias"
         >
-          &gt;
+          {/* SVG seta direita igual Swiper */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            width="20"
+            height="20"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
+      </div>
+
+      {/* Indicadores (pontos) */}
+      <div className="section-indicadores">
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <button
+            key={i}
+            className={`section-indicador ${Math.floor(currentIndex / itemsPerPage) === i ? 'ativo' : ''}`}
+            onClick={() => handleIndicadorClick(i)}
+            aria-label={`Ir para página ${i + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
