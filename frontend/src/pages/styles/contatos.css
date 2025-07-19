@@ -1,7 +1,7 @@
 /* contatos.css */
-.container {
+.contact-container {
   width: 100%;
-  max-width: 100%; /* Alterado para ocupar toda a largura */
+  max-width: 100%;
   margin: 0 auto;
   padding: 30px;
   box-sizing: border-box;
@@ -9,14 +9,14 @@
   color: white;
 }
 
-.container h3 {
+.contact-container__title {
   font-size: 2.5rem;
   margin-bottom: 30px;
   text-align: center;
 }
 
-/* ---- Redes Sociais ---- */
-.containerContatos {
+/* ---- Social Media ---- */
+.contact-social {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,17 +28,17 @@
   width: 100%;
 }
 
-.tituloCompartilhe {
+.contact-social__title {
   font-weight: bold;
   font-size: 1.2rem;
 }
 
-.iconesRedes {
+.contact-social__icons {
   display: flex;
   gap: 15px;
 }
 
-.imagemComTexto {
+.contact-social__icon {
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -48,13 +48,13 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.imagemComTexto:hover {
+.contact-social__icon:hover {
   transform: scale(1.1);
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ---- Formulário ---- */
-.containerFormulario {
+/* ---- Contact Form ---- */
+.contact-form-section {
   margin: 40px 0;
   display: flex;
   justify-content: space-between;
@@ -64,7 +64,7 @@
   width: 100%;
 }
 
-.imagemFormularioContainer {
+.contact-form__image-container {
   flex: 1;
   min-width: 300px;
   display: flex;
@@ -72,14 +72,14 @@
   order: 1;
 }
 
-.imagemFormulario {
+.contact-form__image {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.formulario {
+.contact-form {
   flex: 1;
   min-width: 300px;
   order: 2;
@@ -90,19 +90,19 @@
   flex-direction: column;
 }
 
-.formulario h4 {
+.contact-form__subtitle {
   font-size: 1.8rem;
   margin-bottom: 15px;
   color: white;
 }
 
-.formulario h1 {
+.contact-form__description {
   font-size: 1.2rem;
   margin-bottom: 30px;
   color: #c9ffe1;
 }
 
-.formularioContato {
+.contact-form__form {
   flex: 1;
   width: 100%;
   max-width: 100%;
@@ -113,14 +113,14 @@
   padding: 0;
 }
 
-.inputGroup {
+.contact-form__input-group {
   width: 100%;
   max-width: 100%;
   margin: 0;
   padding: 0;
 }
 
-.inputLarge {
+.contact-form__input {
   width: 100%;
   max-width: 100%;
   padding: 20px;
@@ -133,32 +133,33 @@
   box-sizing: border-box;
 }
 
-.inputLarge::placeholder {
+.contact-form__input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.inputLarge:focus {
+.contact-form__input:focus {
   outline: none;
   border-color: white;
   background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Selects */
-.selectGroup {
+.contact-form__select-group {
   width: 100%;
   max-width: 100%;
   margin: 0;
   padding: 0;
 }
 
-.selectContainer {
+.contact-form__select-container {
   display: flex;
   gap: 15px;
   width: 100%;
-  flex-wrap: nowrap; /* Alterado de wrap para nowrap para ficar na mesma linha */
+  flex-wrap: nowrap;
 }
 
-.selectUF, .selectCidade {
+.contact-form__select--state, 
+.contact-form__select--city {
   width: 100%;
   max-width: 100%;
   padding: 20px;
@@ -176,36 +177,38 @@
   background-position: right 15px center;
   background-size: 24px;
   box-sizing: border-box;
-  height: 60px; /* Altura fixa para uniformidade */
-  padding: 15px 20px; /* Padding ajustado */
+  height: 60px;
+  padding: 15px 20px;
 }
 
-.selectUF {
-  flex:1; /* Aumentado de 100px e usando flex-basis */
-  min-width: 120px; /* Largura mínima garantida */
-  white-space: nowrap; /* Impede que o texto quebre */
+.contact-form__select--state {
+  flex:1;
+  min-width: 120px;
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
+  text-overflow: ellipsis;
 }
 
-.selectCidade {
+.contact-form__select--city {
   flex: 1;
-  min-width: 200px; /* Largura mínima para o campo de cidade */
+  min-width: 200px;
 }
 
-.selectUF:focus, .selectCidade:focus {
+.contact-form__select--state:focus, 
+.contact-form__select--city:focus {
   outline: none;
   border-color: white;
   background-color: rgba(100, 100, 100, 0.5);
 }
 
-.selectUF option, .selectCidade option {
+.contact-form__select--state option, 
+.contact-form__select--city option {
   background-color: #555;
   color: white;
 }
 
-/* Botão */
-.submitButton {
+/* Button */
+.contact-form__submit {
   width: 100%;
   max-width: 100%;
   padding: 22px;
@@ -221,12 +224,12 @@
   box-sizing: border-box;
 }
 
-.submitButton:hover {
+.contact-form__submit:hover {
   background-color: #0052a3;
   transform: translateY(-2px);
 }
 
-.formularioContato textarea {
+.contact-form__textarea {
   resize: vertical;
   min-height: 200px;
   padding: 20px;
@@ -236,8 +239,8 @@
   box-sizing: border-box;
 }
 
-/* ---- Outros Contatos ---- */
-.containerOutrosContatos {
+/* ---- Contact Info ---- */
+.contact-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -249,27 +252,27 @@
   width: 100%;
 }
 
-#Imagem {
+.contact-info__image-container {
   flex: 1;
   min-width: 300px;
   order: 2;
 }
 
-#Imagem img {
+.contact-info__image {
   width: 100%;
   height: auto;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-#outrosContatos {
+.contact-info__items {
   flex: 1;
   min-width: 300px;
   order: 1;
   width: 100%;
 }
 
-.contatoItem {
+.contact-info__item {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -277,7 +280,7 @@
   width: 100%;
 }
 
-.iconeContato {
+.contact-info__icon {
   width: 70px;
   height: 70px;
   border: 2px solid white;
@@ -289,35 +292,36 @@
   flex-shrink: 0;
 }
 
-.iconeContato img {
+.contact-info__icon-image {
   width: 35px;
   height: 35px;
 }
 
-.textoContato {
+.contact-info__text {
   flex: 1;
 }
 
-.tituloContato {
+.contact-info__title {
   font-weight: bold;
   font-size: 1.2rem;
   margin-bottom: 5px;
   color: white;
 }
 
-.infoContato {
+.contact-info__detail {
   font-size: 1.1rem;
   color: #c9ffe1;
 }
+
 /* Recaptcha */
-.recaptcha-container {
+.contact-form__recaptcha {
   margin: 20px 0;
   display: flex;
   justify-content: center;
 }
 
 /* Feedback Message */
-.feedback-message {
+.contact-form__feedback {
   margin-top: 15px;
   padding: 15px;
   border-radius: 8px;
@@ -325,20 +329,20 @@
   text-align: center;
 }
 
-.feedback-message.success {
+.contact-form__feedback--success {
   background-color: rgba(46, 125, 50, 0.2);
   color: #e8f5e9;
   border: 1px solid #2e7d32;
 }
 
-.feedback-message.error {
+.contact-form__feedback--error {
   background-color: rgba(198, 40, 40, 0.2);
   color: #ffebee;
   border: 1px solid #c62828;
 }
 
 /* Spinner */
-.spinner {
+.contact-form__spinner {
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -354,124 +358,126 @@
   to { transform: rotate(360deg); }
 }
 
-/* Botão quando desabilitado */
-.submitButton:disabled {
+/* Disabled Button */
+.contact-form__submit:disabled {
   background-color: #004080;
   cursor: not-allowed;
   opacity: 0.8;
 }
 
+/* Specific error types */
+.contact-form__feedback[data-code="RATE_LIMIT_EXCEEDED"] {
+  background-color: rgba(255, 152, 0, 0.2);
+  border-color: #ff9800;
+  color: #fff3e0;
+}
 
-/* ---- Acessibilidade para Modo de Alto Contraste ---- */
+.contact-form__feedback[data-code="RECAPTCHA_REQUIRED"] {
+  background-color: rgba(255, 235, 59, 0.2);
+  border-color: #ffeb3b;
+  color: #fffde7;
+}
+
+.contact-form__feedback[data-code="CONNECTION_TIMEOUT"] {
+  background-color: rgba(0, 188, 212, 0.2);
+  border-color: #00bcd4;
+  color: #e0f7fa;
+}
+
+/* ---- High Contrast Mode ---- */
 @media (forced-colors: active) {
-  .selectUF, .selectCidade {
+  .contact-form__select--state, 
+  .contact-form__select--city {
     forced-color-adjust: none;
     background-color: #555;
     color: white;
     border-color: white;
   }
 
-  .selectUF option, .selectCidade option {
+  .contact-form__select--state option, 
+  .contact-form__select--city option {
     background-color: #555;
     color: white;
   }
 
   @-moz-document url-prefix() {
-    .selectUF, .selectCidade {
+    .contact-form__select--state, 
+    .contact-form__select--city {
       color: white !important;
       text-shadow: 0 0 0 white;
     }
   }
 }
-/* Adicione ao seu contatos.css */
 
-/* Estilos para diferentes tipos de erro */
-.feedback-message[data-code="RATE_LIMIT_EXCEEDED"] {
-  background-color: rgba(255, 152, 0, 0.2);
-  border-color: #ff9800;
-  color: #fff3e0;
-}
-
-.feedback-message[data-code="RECAPTCHA_REQUIRED"] {
-  background-color: rgba(255, 235, 59, 0.2);
-  border-color: #ffeb3b;
-  color: #fffde7;
-}
-
-.feedback-message[data-code="CONNECTION_TIMEOUT"] {
-  background-color: rgba(0, 188, 212, 0.2);
-  border-color: #00bcd4;
-  color: #e0f7fa;
-}
-
-
-/* ---- Responsividade ---- */
+/* ---- Responsiveness ---- */
 @media (max-width: 1200px) {
-  .container {
+  .contact-container {
     padding: 25px;
   }
 
-  .containerFormulario,
-  .containerOutrosContatos {
+  .contact-form-section,
+  .contact-info {
     gap: 30px;
   }
 }
 
 @media (max-width: 768px) {
-  .container {
+  .contact-container {
     padding: 20px;
   }
 
-  .container h3 {
+  .contact-container__title {
     font-size: 2rem;
   }
 
-  .formulario h4 {
+  .contact-form__subtitle {
     font-size: 1.5rem;
   }
 
-  .selectContainer {
+  .contact-form__select-container {
     flex-direction: column;
   }
 
-  .selectUF, .selectCidade {
+  .contact-form__select--state, 
+  .contact-form__select--city {
     width: 100%;
     flex: 1 1 auto;
   }
 
-  #Imagem, .imagemFormularioContainer {
+  .contact-info__image-container, 
+  .contact-form__image-container {
     order: 0;
   }
 }
 
 @media (max-width: 576px) {
-  .container {
+  .contact-container {
     padding: 15px;
   }
 
-  .container h3 {
+  .contact-container__title {
     font-size: 1.8rem;
   }
 
-  .formulario h4 {
+  .contact-form__subtitle {
     font-size: 1.3rem;
   }
 
-  .iconeContato {
+  .contact-info__icon {
     width: 50px;
     height: 50px;
   }
 
-  .iconeContato img {
+  .contact-info__icon-image {
     width: 25px;
     height: 25px;
   }
 
-  .tituloContato {
+  .contact-info__title {
     font-size: 1.1rem;
   }
 
-  .infoContato {
+  .contact-info__detail {
     font-size: 1rem;
   }
 }

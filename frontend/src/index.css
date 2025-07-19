@@ -14,7 +14,39 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 
+}
+
+button {
+  background-color: #004d26;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #00331a;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}k
 .app-container {
   width: 100%; 
   min-height: 100vh;

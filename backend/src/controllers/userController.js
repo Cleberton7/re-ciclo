@@ -231,7 +231,33 @@ export const userController = {
       message: "Erro ao excluir conta"
     });
   }
+  },
+  async getTodosUsuarios(req, res){
+  try {
+    const usuarios = await User.find()
+      .select('-senha -__v -emailVerificationToken');
+
+    const usuariosCompletos = usuarios.map(user => {
+      return {
+        ...user._doc,
+        nomeCompleto: user.nome || user.nomeFantasia || user.razaoSocial,
+        documento: user.cpf || user.cnpj || user.documento || '',
+      };
+    });
+
+    res.json({
+      success: true,
+      data: usuariosCompletos
+    });
+  } catch (error) {
+    console.error("Erro ao buscar todos os usuários:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar usuários'
+    });
+  }
   }
 };
+
 
 export default userController;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import Login from "../pages/Login";
@@ -11,7 +11,7 @@ import useAuth from "../hooks/useAuth";
 const NavHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, userName, role, userData, logout,loading } = useAuth();
+  const { isLoggedIn, userName, role, userData, logout, loading } = useAuth();
   const menuRef = useRef(null);
   const [activeModal, setActiveModal] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,22 +56,24 @@ const NavHeader = () => {
     navigate("/");
     setMenuOpen(false);
   };
+
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (menuOpen && menuRef.current && !menuRef.current.contains(e.target)) {
-        // Verifica se não está clicando no botão do menu
-        const menuButton = document.querySelector('.menu-toggle');
+        const menuButton = document.querySelector('.nav-header-menu-toggle');
         if (menuButton && !menuButton.contains(e.target)) {
           setMenuOpen(false);
         }
       }
     };
+
     if (!menuOpen) {
-        const nav = menuRef.current;
-        if (nav && nav.contains(document.activeElement)) {
-          document.activeElement.blur();
-        }
+      const nav = menuRef.current;
+      if (nav && nav.contains(document.activeElement)) {
+        document.activeElement.blur();
       }
+    }
+
     const handleEscape = (e) => {
       if (e.key === 'Escape') setMenuOpen(false);
     };
@@ -84,10 +86,11 @@ const NavHeader = () => {
       document.removeEventListener('keydown', handleEscape);
     };
   }, [menuOpen]);
+
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/empresas", label: "Empresas Parceiras" },
-    { path: "/recicle", label: "Recicle" },
+    { path: "/reciclo", label: "Re-ciclo" },
     { path: "/publicColetasPage", label: "Coletas" },
     { path: "/eventos", label: "Eventos" },
     { path: "/contatos", label: "Contatos" }
@@ -95,35 +98,35 @@ const NavHeader = () => {
 
   return (
     <>
-      <div className="header-background">
-        <div className="header" id="containerPrincipal">
-          <div id="logo">
+      <div className="nav-header-background">
+        <div className="nav-header" id="containerPrincipal">
+          <div className="nav-header-logo">
             <img 
               src={LogoCapa} 
               alt="Logo da empresa" 
-              className="logo-img" 
+              className="nav-header-logo-img" 
               onClick={() => navigate("/")}
-              style={{ cursor: "pointer" }}
             />
           </div>
 
           <button 
-            className={`menu-toggle ${menuOpen ? 'active' : ''}`}
+            className={`nav-header-menu-toggle ${menuOpen ? 'active' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label="Menu"
           >
             {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
+
           <div 
             ref={menuRef}
-            id="nav" 
-            className={menuOpen ? "open" : ""}
-          >            {navLinks.map(({ path, label }) => (
+            className={`nav-header-nav ${menuOpen ? "open" : ""}`}
+          >
+            {navLinks.map(({ path, label }) => (
               <Link 
                 key={path} 
                 to={path} 
-                className={`menu ${location.pathname === path ? "active" : ""}`}
+                className={`nav-header-link ${location.pathname === path ? "active" : ""}`}
                 onClick={() => setMenuOpen(false)}
                 aria-current={location.pathname === path ? "page" : undefined}
               >
@@ -132,25 +135,19 @@ const NavHeader = () => {
             ))}
           </div>
 
-          <div id="loginRegister">
+          <div className="nav-header-auth">
             {isLoggedIn ? (
-              <div className="perfil-log">
+              <div className="nav-header-profile">
                 <div 
-                  id="perfil" 
+                  className="nav-header-profile-name"
                   onClick={handlePerfilClick}
-                  style={{ cursor: "pointer" }}
                   title={userData?.email}
                 >
-                  {loading ? (
-                    'Carregando...'
-                  ) : (
-                    `Olá, ${userName || userData?.nome || userData?.email || 'Usuário'}`
-                  )}
+                  {loading ? 'Carregando...' : `Olá, ${userName || userData?.nome || userData?.email || 'Usuário'}`}
                 </div>
                 <div 
-                  id="loggout" 
+                  className="nav-header-logout"
                   onClick={handleLogout}
-                  style={{ cursor: "pointer" }}
                 >
                   Sair
                 </div>
@@ -158,16 +155,14 @@ const NavHeader = () => {
             ) : (
               <>
                 <div 
-                  id="entrar" 
+                  className="nav-header-login"
                   onClick={() => openModal("login")}
-                  style={{ cursor: "pointer" }}
                 >
                   Entrar
                 </div>
                 <div 
-                  id="registrar" 
+                  className="nav-header-register"
                   onClick={() => openModal("register")}
-                  style={{ cursor: "pointer" }}
                 >
                   Registrar
                 </div>
@@ -176,9 +171,10 @@ const NavHeader = () => {
           </div>
         </div>
       </div>
+
       {menuOpen && (
         <div 
-          className="menu-overlay"
+          className="nav-header-overlay"
           onClick={() => setMenuOpen(false)}
           role="presentation"
         />
@@ -194,7 +190,6 @@ const NavHeader = () => {
           <Register onLoginClick={switchToLogin} />
         )}
       </Modal>
-
     </>
   );
 };

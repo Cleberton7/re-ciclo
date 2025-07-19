@@ -6,18 +6,14 @@ export const PORT = process.env.PORT || 5000;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export const BASE_URL = process.env.BASE_URL || 
-                       process.env.RAILWAY_PUBLIC_DOMAIN || 
                        (NODE_ENV === 'production' 
-                         ? 'https://re-cicle-production.up.railway.app' 
+                         ? 'https://re-cicle.onrender.com'  // ajuste seu domínio no Render aqui
                          : `http://localhost:${PORT}`);
 
 export const API_URL = `${BASE_URL}/api`;
 
 // Banco de dados
-export const MONGO_URI = process.env.MONGO_URI || 
-                        process.env.MONGODB_URI || 
-                        process.env.DATABASE_URL ||
-                        'mongodb://localhost:27017/re-cicle';
+export const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/re-cicle';
 
 // Autenticação JWT
 export const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aleatoria_aqui';
@@ -40,7 +36,7 @@ export const TEAM_EMAIL = process.env.TEAM_EMAIL || process.env.EMAIL_USER;
 
 // Frontend e URLs
 export const FRONTEND_URL = process.env.FRONTEND_URL || 
-                          'https://re-cicle-git-main-clebertons-projects.vercel.app';
+                          'http://localhost:5173';
 
 // reCAPTCHA
 export const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY;

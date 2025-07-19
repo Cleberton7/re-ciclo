@@ -1,47 +1,23 @@
-/* Estilos Gerais 
-.header-background {
-  width: 100%;
-  background-image: url('../../assets/fundoSite2.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  justify-content: center;
-  padding-top: 60px;
-  padding-bottom: 60px;
+/* Container */
+.nav-header-background {
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
-.header-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  z-index: 1;
-}*/
-.header {
+
+.nav-header {
   width: 100%;
   max-width: 1200px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0 auto;
+  padding: 0 20px;
   position: relative;
   z-index: 2;
-  padding: 0 20px;
 }
 
 /* Logo */
-#logo {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  position: relative;
-}
-
-.logo-img {
+.nav-header-logo-img {
   width: 450px;
   height: auto;
   cursor: pointer;
@@ -50,13 +26,13 @@
   max-width: 100%;
 }
 
-.logo-img:hover {
+.nav-header-logo-img:hover {
   transform: scale(1.05);
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
-/* Navegação Desktop */
-#nav {
+/* Navegação */
+.nav-header-nav {
   flex: 3;
   display: flex;
   justify-content: space-evenly;
@@ -65,7 +41,7 @@
   transition: all 0.3s ease;
 }
 
-.menu {
+.nav-header-link {
   padding: 10px 15px;
   border-radius: 5px;
   transition: all 0.3s ease;
@@ -77,29 +53,30 @@
   margin: 4px;
   cursor: pointer;
   text-decoration: none;
-  color: rgb(0, 0, 0);
+  color: #000;
   font-weight: bold;
 }
 
-.menu:hover {
+.nav-header-link:hover {
   background-color: #009951;
   color: white;
 }
 
-.menu.active {
+.nav-header-link.active {
   background-color: #006d39;
   color: white;
 }
 
-/* Área de Login/Registro */
-#loginRegister {
+/* Autenticação */
+.nav-header-auth {
   flex: 1;
   display: flex;
   justify-content: space-around;
   align-items: center;
 }
 
-#entrar, #registrar {
+.nav-header-login,
+.nav-header-register {
   width: 100px;
   padding: 10px 15px;
   border-radius: 5px;
@@ -110,31 +87,31 @@
   transition: all 0.3s ease;
 }
 
-#entrar {
+.nav-header-login {
   background-color: #006d39;
 }
 
-#entrar:hover {
+.nav-header-login:hover {
   background-color: #009951;
 }
 
-#registrar {
+.nav-header-register {
   background-color: black;
   margin-left: 5px;
 }
 
-#registrar:hover {
+.nav-header-register:hover {
   background-color: #333;
 }
 
-/* Perfil Logado */
-.perfil-log {
+/* Perfil */
+.nav-header-profile {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-#perfil {
+.nav-header-profile-name {
   background-color: #004d26;
   color: #ffffff;
   padding: 8px 12px;
@@ -144,11 +121,11 @@
   transition: background 0.3s;
 }
 
-#perfil:hover {
+.nav-header-profile-name:hover {
   background-color: #009952;
 }
 
-#loggout {
+.nav-header-logout {
   background-color: #d9534f;
   color: white;
   padding: 8px 12px;
@@ -158,12 +135,12 @@
   font-weight: bold;
 }
 
-#loggout:hover {
+.nav-header-logout:hover {
   background-color: #c9302c;
 }
 
-/* Botão Hamburguer */
-.menu-toggle {
+/* Menu Mobile */
+.nav-header-menu-toggle {
   display: none;
   background: none;
   border: none;
@@ -183,23 +160,23 @@
   transition: all 0.3s ease;
 }
 
-.menu-toggle:hover {
+.nav-header-menu-toggle:hover {
   background: rgba(0, 77, 38, 1);
   transform: scale(1.05);
 }
 
-.menu-toggle svg {
+.nav-header-menu-toggle svg {
   width: 24px;
   height: 24px;
   transition: transform 0.3s ease;
 }
 
-.menu-toggle.active svg {
+.nav-header-menu-toggle.active svg {
   transform: rotate(90deg);
 }
 
-/* Overlay do Menu */
-.menu-overlay {
+/* Overlay */
+.nav-header-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -212,44 +189,27 @@
   pointer-events: none;
 }
 
-.menu-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Versão Mobile */
+/* Responsivo */
 @media (max-width: 768px) {
-  .header-background {
-    padding-top: 30px;
-    padding-bottom: 30px;
-  }
-
-  .header {
+  .nav-header {
     flex-direction: column;
     padding: 15px 10px;
   }
 
-  .logo-img {
+  .nav-header-logo-img {
     width: 380px;
     max-width: 90%;
     margin: 0 auto 15px;
   }
 
-  #logo {
-    padding: 0;
-    width: 100%;
-  }
-
-  .menu-toggle {
+  .nav-header-menu-toggle {
     display: flex;
     right: 15px;
     top: 15px;
     background: rgba(0, 77, 38, 0.9);
   }
 
-  /* Menu Mobile */
-  #nav {
-    pointer-events: none; 
+  .nav-header-nav {
     position: fixed;
     top: 0;
     left: 0;
@@ -265,14 +225,11 @@
     justify-content: flex-start;
   }
 
-  #nav.open {
-    pointer-events: auto; 
+  .nav-header-nav.open {
     transform: translateX(0);
   }
 
-  .menu {
-    z-index: 1000;
-    position: relative;
+  .nav-header-link {
     width: 100%;
     color: white;
     padding: 15px 20px;
@@ -282,55 +239,56 @@
     border-radius: 0;
   }
 
-  .menu:hover {
+  .nav-header-link:hover {
     background: rgba(255, 255, 255, 0.1);
   }
 
-  .menu.active {
+  .nav-header-link.active {
     background: #009951;
   }
 
-  /* Área de Login Mobile */
-  #loginRegister {
+  .nav-header-auth {
     width: 100%;
     margin-top: 20px;
     flex-direction: column;
     gap: 10px;
   }
 
-  #entrar, #registrar, #perfil, #loggout {
+  .nav-header-login,
+  .nav-header-register,
+  .nav-header-profile-name,
+  .nav-header-logout {
     width: 100%;
     padding: 12px;
     margin: 0;
     text-align: center;
   }
 
-  .perfil-log {
+  .nav-header-profile {
     width: 100%;
     flex-direction: column;
     gap: 10px;
   }
 }
 
-/* Ajustes para telas pequenas */
 @media (max-width: 480px) {
-  .logo-img {
+  .nav-header-logo-img {
     width: 320px;
   }
 }
 
-/* Tablets */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .logo-img {
+  .nav-header-logo-img {
     width: 400px;
   }
   
-  .menu {
+  .nav-header-link {
     padding: 8px 12px;
     font-size: 0.9rem;
   }
   
-  #entrar, #registrar {
+  .nav-header-login,
+  .nav-header-register {
     width: 90px;
     padding: 8px 12px;
     font-size: 0.9rem;

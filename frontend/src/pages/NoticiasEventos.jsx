@@ -36,41 +36,41 @@ const NoticiasEventos = () => {
   }, []);
 
   return (
-    <div className="noticias-publicas-container" id='containerPrincipal'>
-      <h1>Eventos e Notícias</h1>
+    <div className="noticias-container" id='containerPrincipal'>
+      <h1 className="noticias-title">Eventos e Notícias</h1>
 
-      <div className="lista-noticias">
+      <div className="noticias-list">
         {loading && (
-          <div className="loading-message">Carregando notícias...</div>
+          <div className="noticias-loading">Carregando notícias...</div>
         )}
 
         {error && (
-          <div className="error-message">{error}</div>
+          <div className="noticias-error">{error}</div>
         )}
 
         {!loading && noticias.length === 0 && (
-          <div className="empty-message">Nenhuma notícia disponível no momento.</div>
+          <div className="noticias-empty">Nenhuma notícia disponível no momento.</div>
         )}
 
         {!loading && noticias.map(noticia => (
-          <article key={noticia._id} className="noticia-item">
-            <Link to={`/noticia/${noticia.slug}`}>
-              <div className="imagem-noticia-container">
+          <article key={noticia._id} className="noticias-item">
+            <Link to={`/noticia/${noticia.slug}`} className="noticias-link">
+              <div className="noticias-image-container">
                 <img 
                   src={noticia.image || '/imagem-padrao.jpg'}
                   alt={noticia.title}
-                  className="imagem-noticia"
+                  className="noticias-image"
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = '/imagem-padrao.jpg';
                   }}
                 />
               </div>
-              <h2>{noticia.title}</h2>
-              <p>{noticia.content.substring(0, 150)}...</p>
+              <h2 className="noticias-item-title">{noticia.title}</h2>
+              <p className="noticias-item-content">{noticia.content.substring(0, 150)}...</p>
             </Link>
             {noticia.tags && noticia.tags.length > 0 && (
-              <p className="tags">
+              <p className="noticias-tags">
                 <strong>Tags:</strong> {noticia.tags.join(', ')}
               </p>
             )}

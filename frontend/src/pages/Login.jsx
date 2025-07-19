@@ -64,13 +64,14 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
   return (
     <div className="login-container">
       <div className="login-left">
-        <img src={Logo} alt="Logo da empresa" className="logo-img" />
+        <img src={Logo} alt="Logo da empresa" className="login-logo-img" />
       </div>
 
       <div className="login-right">
-        <h2>Login</h2>
-        <form onSubmit={handleLogin}>
+        <h2 className="login-title">Login</h2>
+        <form className="login-form" onSubmit={handleLogin}>
           <input
+            className="login-input"
             type="email"
             placeholder="E-mail"
             value={email}
@@ -78,6 +79,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
             required
           />
           <input
+            className="login-input"
             type="password"
             placeholder="Senha"
             value={senha}
@@ -87,11 +89,15 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
           />
 
           {error && (
-            <div className="error-message">
+            <div className="login-error-message">
               {error}
               {error.includes('incorretos') && (
-                <div className="recover-link">
-                  <button type="button" onClick={() => setShowRecoverModal(true)}>
+                <div className="login-recover-link">
+                  <button 
+                    type="button" 
+                    className="login-recover-link-button"
+                    onClick={() => setShowRecoverModal(true)}
+                  >
                     Esqueceu sua senha?
                   </button>
                 </div>
@@ -99,38 +105,63 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
             </div>
           )}
 
-          <button type="submit" disabled={loading}>
+          <button 
+            className="login-submit-button" 
+            type="submit" 
+            disabled={loading}
+          >
             {loading ? 'Carregando...' : 'Entrar'}
           </button>
         </form>
 
-        <div className="forgot-password">
-          <a onClick={() => setShowRecoverModal(true)}>Esqueci minha senha</a>
+        <div className="login-forgot-password">
+          <a 
+            className="login-forgot-password-link"
+            onClick={() => setShowRecoverModal(true)}
+          >
+            Esqueci minha senha
+          </a>
         </div>
 
-        <div className="register-link">
-          Não tem uma conta? <span onClick={onRegisterClick}>Cadastre-se</span>
+        <div className="login-register-link">
+          Não tem uma conta?{' '}
+          <span 
+            className="login-register-link-text"
+            onClick={onRegisterClick}
+          >
+            Cadastre-se
+          </span>
         </div>
       </div>
 
-      {/* Modal de recuperação padronizado */}
       <Modal isOpen={showRecoverModal} onClose={() => setShowRecoverModal(false)} size="small">
-        <div className="recover-content">
-          <h3>Recuperar Senha</h3>
-          <p>Digite seu e-mail para receber o link de recuperação</p>
+        <div className="login-recover-content">
+          <h3 className="login-recover-title">Recuperar Senha</h3>
+          <p className="login-recover-description">
+            Digite seu e-mail para receber o link de recuperação
+          </p>
           
-          {recoverMessage && <div className="success-message">{recoverMessage}</div>}
-          {recoverError && <div className="error-message">{recoverError}</div>}
+          {recoverMessage && (
+            <div className="login-success-message">{recoverMessage}</div>
+          )}
+          {recoverError && (
+            <div className="login-error-message">{recoverError}</div>
+          )}
           
-          <form onSubmit={handleRecoverPassword}>
+          <form className="login-recover-form" onSubmit={handleRecoverPassword}>
             <input 
+              className="login-recover-input"
               type="email" 
               placeholder="Digite seu e-mail" 
               value={recoverEmail}
               onChange={(e) => setRecoverEmail(e.target.value)}
               required
             />
-            <button type="submit" disabled={loading}>
+            <button 
+              className="login-recover-submit-button"
+              type="submit" 
+              disabled={loading}
+            >
               {loading ? 'Enviando...' : 'Enviar'}
             </button>
           </form>

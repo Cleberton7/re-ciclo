@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import './styles/painelNoticias.css';
+import '../styles/painelNoticias.css';
 import {
   listarNoticias,
   criarNoticia,
   atualizarNoticia,
   deletarNoticia
-} from '../services/noticiaService';
+} from '../../services/noticiaService';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../contexts/AuthContext';
-import { API_URL, BASE_URL } from '../config/config.js';  // IMPORTANTE: importar as URLs
+import AuthContext from '../../contexts/AuthContext';
+import { BASE_URL } from '../../config/config.js';
+
+const ITENS_POR_PAGINA = 4;
 
 const PainelNoticias = () => {
   const { userData: user, role } = useContext(AuthContext);
@@ -20,6 +22,9 @@ const PainelNoticias = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [termoBusca, setTermoBusca] = useState('');
+  const [paginaAtual, setPaginaAtual] = useState(1);
+
   const navigate = useNavigate();
 
   const carregarNoticias = useCallback(async () => {
@@ -27,7 +32,6 @@ const PainelNoticias = () => {
     try {
       const data = await listarNoticias();
 
-      // Garante que todas as imagens tenham URLs completas usando BASE_URL
       const noticiasComImagens = data.map(noticia => ({
         ...noticia,
         image: noticia.image && !noticia.image.startsWith('http') 
@@ -66,7 +70,6 @@ const PainelNoticias = () => {
       const file = e.target.files[0];
       setImageFile(file);
 
-      // Criar preview da imagem
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
@@ -152,7 +155,6 @@ const PainelNoticias = () => {
       tags: noticia.tags ? noticia.tags.join(', ') : ''
     });
 
-    // Configura a pré-visualização da imagem existente
     setPreviewImage(noticia.image || null);
     setImageFile(null);
     setError('');
@@ -187,9 +189,31 @@ const PainelNoticias = () => {
     }
   };
 
+  // Filtra as notícias pelo termo de busca (título e tags)
+  const noticiasFiltradas = noticias.filter(n => {
+    const busca = termoBusca.toLowerCase();
+    const titulo = n.title.toLowerCase();
+    const tags = n.tags ? n.tags.join(', ').toLowerCase() : '';
+    return titulo.includes(busca) || tags.includes(busca);
+  });
+
+  // Paginação
+  const totalPaginas = Math.ceil(noticiasFiltradas.length / ITENS_POR_PAGINA);
+  const indiceUltimo = paginaAtual * ITENS_POR_PAGINA;
+  const indicePrimeiro = indiceUltimo - ITENS_POR_PAGINA;
+  const noticiasPagina = noticiasFiltradas.slice(indicePrimeiro, indiceUltimo);
+
+  const handleProxima = () => {
+    if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
+  };
+
+  const handleAnterior = () => {
+    if (paginaAtual > 1) setPaginaAtual(paginaAtual - 1);
+  };
+
   if (role !== 'adminGeral') {
     return (
-      <div className="painel-noticias-container">
+      <div className="news-panel news-panel--restricted">
         <h2>Acesso Restrito</h2>
         <p>Você precisa ser um administrador geral para acessar esta página.</p>
       </div>
@@ -197,118 +221,155 @@ const PainelNoticias = () => {
   }
 
   return (
-    <div className="painel-noticias-container" id='containerPrincipal'>
-      <h3>Painel de Notícias</h3>
-      <div className='formNoticia'>
+    <div className="news-panel" id='containerPrincipal'>
+      <h3 className="news-panel__title">Painel de Notícias</h3>
 
-        <p className="user-info">Usuário: {user?.nome} ({role})</p>
+      <p className="news-panel__user-info">Usuário: {user?.nome} ({role})</p>
 
-        <form onSubmit={handleSubmit} >
-          <div className="form-group">
-            <label>Título:</label>
+      <div className='news-form'>
+        <form onSubmit={handleSubmit}>
+          <div className="news-form__group">
+            <label className="news-form__label">Título:</label>
             <input
               type="text"
               name="title"
               value={form.title}
               onChange={handleChange}
               required
+              className="news-form__input"
             />
           </div>
 
-          <div className="form-group">
-            <label>Conteúdo:</label>
+          <div className="news-form__group">
+            <label className="news-form__label">Conteúdo:</label>
             <textarea
               name="content"
               value={form.content}
               onChange={handleChange}
               required
               rows={6}
+              className="news-form__textarea"
             />
           </div>
 
-          <div className="form-group">
-            <label>Imagem:</label>
+          <div className="news-form__group">
+            <label className="news-form__label">Imagem:</label>
             <input
               type="file"
               name="imageFile"
               accept="image/*"
               onChange={handleImageChange}
+              className="news-form__file-input"
             />
             {(previewImage || imageFile) && (
-              <div className="image-preview">
+              <div className="news-form__image-preview">
                 <img 
                   src={previewImage} 
                   alt="Preview" 
+                  className="news-form__preview-image"
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = '/imagem-padrao.jpg';
                   }}
                 />
-                {imageFile && <p>Arquivo selecionado: {imageFile.name}</p>}
+                {imageFile && <p className="news-form__file-info">Arquivo selecionado: {imageFile.name}</p>}
               </div>
             )}
           </div>
 
-          <div className="form-group">
-            <label>Tags (separadas por vírgula):</label>
+          <div className="news-form__group">
+            <label className="news-form__label">Tags (separadas por vírgula):</label>
             <input
               type="text"
               name="tags"
               value={form.tags}
               onChange={handleChange}
               placeholder="tag1, tag2, tag3"
+              className="news-form__input"
             />
           </div>
 
-          <button type="submit" className="submit-button">
-            {editId ? 'Atualizar Notícia' : 'Criar Notícia'}
-          </button>
+          <div className="news-form__buttons">
+            <button type="submit" className="news-form__submit">
+              {editId ? 'Atualizar Notícia' : 'Criar Notícia'}
+            </button>
 
-          {error && <p className="error-message">{error}</p>}
-          {successMsg && <p className="success-message">{successMsg}</p>}
+            <button
+              type="button"
+              className="news-form__clear"
+              onClick={limparForm}
+            >
+              Limpar Formulário
+            </button>
+          </div>
+
+          {error && <p className="news-form__message--error">{error}</p>}
+          {successMsg && <p className="news-form__message--success">{successMsg}</p>}
         </form>
       </div>
 
-      <div className="noticias-list">
-        <h3>Notícias Cadastradas</h3>
+      <div className="news-list">
+        <h3 className="news-list__title">Notícias Cadastradas</h3>
+        <div className="news-list__search-container">
+          <input
+            type="text"
+            className="news-list__search"
+            placeholder="🔎 Buscar por título ou tag..."
+            value={termoBusca}
+            onChange={(e) => {
+              setTermoBusca(e.target.value);
+              setPaginaAtual(1);
+            }}
+          />
+        </div>
+
         {loading ? (
           <p>Carregando...</p>
         ) : error ? (
-          <p className="error-message">{error}</p>
-        ) : noticias.length === 0 ? (
+          <p className="news-form__message--error">{error}</p>
+        ) : noticiasPagina.length === 0 ? (
           <p>Nenhuma notícia encontrada.</p>
         ) : (
-          <ul>
-            {noticias.map(noticia => (
-              <li key={noticia._id} className="noticia-item">
-                <div className="noticia-image">
-                  {noticia.image && (
-                    <img 
-                      src={noticia.image} 
-                      alt={noticia.title}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/imagem-padrao.jpg';
-                      }}
-                    />
-                  )}
-                </div>
-                <div className="noticia-content">
-                  <h4>{noticia.title}</h4>
-                  <p>{noticia.content.substring(0, 150)}...</p>
-                  <p className="noticia-tags"><small>Tags: {noticia.tags?.join(', ') || 'Nenhuma'}</small></p>
-                  <div className="noticia-actions">
-                    <button onClick={() => handleEditar(noticia)} className="edit-button">
-                      Editar
-                    </button>
-                    <button onClick={() => handleDeletar(noticia._id)} className="delete-button">
-                      Deletar
-                    </button>
+          <>
+            <ul>
+              {noticiasPagina.map(noticia => (
+                <li key={noticia._id} className="news-item">
+                  <div className="news-item__image-container">
+                    {noticia.image && (
+                      <img 
+                        src={noticia.image} 
+                        alt={noticia.title}
+                        className="news-item__image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/imagem-padrao.jpg';
+                        }}
+                      />
+                    )}
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="news-item__content">
+                    <h4 className="news-item__title">{noticia.title}</h4>
+                    <p className="news-item__text">{noticia.content.substring(0, 150)}...</p>
+                    <p className="news-item__tags"><small>Tags: {noticia.tags?.join(', ') || 'Nenhuma'}</small></p>
+                    <div className="news-item__actions">
+                      <button onClick={() => handleEditar(noticia)} className="news-item__edit" title="✏️ Editar">
+                        ✏️ Editar
+                      </button>
+                      <button onClick={() => handleDeletar(noticia._id)} className="news-item__delete" title="🗑️ Deletar">
+                        🗑️ Deletar
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="news-pagination">
+              <button onClick={handleAnterior} disabled={paginaAtual === 1} className="news-pagination__button">Anterior</button>
+              <span>Página {paginaAtual} de {totalPaginas}</span>
+              <button onClick={handleProxima} disabled={paginaAtual === totalPaginas} className="news-pagination__button">Próxima</button>
+            </div>
+          </>
         )}
       </div>
     </div>

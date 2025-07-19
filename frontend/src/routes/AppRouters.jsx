@@ -2,15 +2,15 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "../pages/Home";
 import Contatos from "../pages/Contatos";
 import Empresas from "../pages/Empresas";
-import Recicle from "../pages/Recicle";
+import Reciclo from "../pages/Reciclo";
 import Eventos from "../pages/NoticiasEventos";
 import Coletas from "../pages/Coletas";
 import PublicColetasPage from "../pages/PublicColetasPage";
 import PainelEmpresa from "../pages/PainelEmpresa";
 import PainelReciclador from "../pages/PainelReciclador";
 import PainelPessoa from "../pages/PainelPessoa";
-import PainelNoticias from "../pages/PainelNoticias";
-import PainelAdm from "../pages/PainelAdmin";
+import PainelNoticias from "../pages/admin/PainelNoticias";
+import PainelAdm from "../pages/admin/PainelAdmin";
 import NoticiasEventos from '../pages/NoticiasEventos';
 import NoticiaDetalhe from '../pages/NoticiaDetalhe';
 import Layout from "../components/Layout";
@@ -19,6 +19,14 @@ import EmailVerificationPage from '../pages/EmailVerificationPage';
 import PasswordResetPage from '../pages/PasswordResetPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
 import EmailNotVerifiedPage from '../pages/EmailNotVerifiedPage';
+import PainelUsuarios from '../pages/admin/PainelUsuarios';
+import EditarUsuarioForm from '../pages/admin/EditarUsuarioForm';
+import Permissoes from '../pages/admin/Permissoes';
+import SolicitacoesPendentes from '../pages/admin/SolicitacoesPendentes';
+import GerenciarPontosColeta from '../pages/admin/GerenciarPontosColeta';
+import EmpresasGeradoras from '../pages/admin/EmpresasGeradoras';
+import PainelColetas from '../pages/admin/PainelColetas';
+import Banners from '../pages/admin/Banners';
 
 const AppRoutes = () => {
   return (
@@ -27,7 +35,7 @@ const AppRoutes = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/empresas" element={<Empresas />} />
-        <Route path="/recicle" element={<Recicle />} />
+        <Route path="/reciclo" element={<Reciclo />} />
         <Route path="/coletas" element={<Coletas />} />
         <Route path="/publicColetasPage" element={<PublicColetasPage />} />
         <Route path="/eventos" element={<Eventos />} />
@@ -69,6 +77,8 @@ const AppRoutes = () => {
           />
         }
       />
+
+      {/* Rotas de administração */}
       <Route
         path="/painelAdmin"
         element={
@@ -85,6 +95,86 @@ const AppRoutes = () => {
           <ProtectedRoute 
             element={<PainelNoticias />} 
             requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        }
+      />
+
+      <Route 
+        path="/painelAdm" 
+        element={
+          <ProtectedRoute 
+            element={<PainelAdm />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        }     
+      />
+      
+      <Route path="/editarUsuarioForm" element={
+        <ProtectedRoute 
+            element={<EditarUsuarioForm />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        } 
+      />
+      <Route path="/painelUsuarios" element={
+        <ProtectedRoute
+            element={<PainelUsuarios />}
+            requiredRole="adminGeral"
+            redirectPath="/unauthorized"
+          />
+        }
+      />
+
+      <Route path="/permissoes" element={        
+        <ProtectedRoute 
+            element={<Permissoes />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        } 
+      />
+
+      <Route path="/solicitacoesPendentes" element={
+        <ProtectedRoute
+            element={<SolicitacoesPendentes />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        }
+      />
+
+      <Route path="/gerenciarPontosColeta" element={
+        <ProtectedRoute
+            element={<GerenciarPontosColeta />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        }
+      />
+      <Route path="/empresasGeradoras" element={
+        <ProtectedRoute
+            element={<EmpresasGeradoras />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"
+          />
+        }
+      />
+      <Route path="/painelColetas" element={
+        <ProtectedRoute
+            element={<PainelColetas />}
+            requiredRole="adminGeral" 
+            redirectPath="/unauthorized"                            
+          />
+        }   
+      />
+ 
+      <Route path="/banners" element={
+        <ProtectedRoute
+            element={<Banners />}    
+            requiredRole="adminGeral"
             redirectPath="/unauthorized"
           />
         }

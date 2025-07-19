@@ -1,12 +1,12 @@
+/* login.css */
 .login-container {
   display: flex;
   width: 100%;
   min-height: 400px;
-
 }
 
-.login-left,
-.login-right {
+.login-container .login-left,
+.login-container .login-right {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -15,24 +15,22 @@
   padding: 20px;
 }
 
-.logo-img {
-  width: 80%;
-  max-width: 300px;
+.login-container .logo-img {
+  min-width: 200px; /* Opcional: define um tamanho mínimo */
+  object-fit: contain; /* Mantém a proporção da imagem */
 }
 
-.login-right {
+.login-container .login-right {
   gap: 20px;
 }
 
-.login-right h2 {
-
+.login-container .login-right h2 {
   color: white;
   text-align: center;
   font-size: 28px;
-
 }
 
-form {
+.login-container .login-form {
   width: 100%;
   max-width: 300px;
   display: flex;
@@ -40,17 +38,16 @@ form {
   gap: 15px;
 }
 
-input,
-button {
+.login-container .login-input,
+.login-container .login-button {
   width: 100%;
   padding: 12px;
   font-size: 14px;
   border-radius: 5px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-
 }
 
-button {
+.login-container .login-button {
   background-color: #004d26;
   color: white;
   font-weight: bold;
@@ -59,39 +56,40 @@ button {
   transition: background-color 0.3s;
 }
 
-button:hover {
+.login-container .login-button:hover {
   background-color: #00331a;
 }
 
-button:disabled {
+.login-container .login-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
-.error-message {
+
+.login-container .login-error-message {
   color: #d9534f;
   font-size: 14px;
   text-align: center;
 }
 
-.success-message {
+.login-container .login-success-message {
   color: #5cb85c;
   font-size: 14px;
   text-align: center;
 }
 
-
-.forgot-password a {
+.login-container .login-forgot-password a {
   color: white;
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
   transition: color 0.3s;
 }
-.forgot-password a:hover {
+
+.login-container .login-forgot-password a:hover {
   color: #a0ffc8;
 }
 
-.recover-content {
+.login-container .login-recover-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -103,33 +101,33 @@ button:disabled {
   margin: 0 auto;
 }
 
-.recover-content h3 {
+.login-container .login-recover-content h3 {
   color: white;
   font-size: 24px;
   margin: 0;
 }
 
-.recover-content p {
+.login-container .login-recover-content p {
   color: white;
   font-size: 14px;
   margin: 0;
 }
 
-.recover-content form {
+.login-container .login-recover-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.recover-content input {
+.login-container .login-recover-input {
   padding: 10px;
   border-radius: 5px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 14px;
 }
 
-.recover-content button {
+.login-container .login-recover-button {
   padding: 10px;
   background-color: #009951;
   color: white;
@@ -140,24 +138,18 @@ button:disabled {
   transition: background-color 0.3s;
 }
 
-.recover-content button:hover {
+.login-container .login-recover-button:hover {
   background-color: #00331a;
 }
 
-.success-message,
-.error-message {
-  font-size: 13px;
-  text-align: center;
-}
-
-.register-link {
+.login-container .login-register-link {
   color: white;
   font-size: 14px;
   text-align: center;
   margin-top: 10px;
 }
 
-.register-link span {
+.login-container .login-register-link span {
   color: #a0ffc8;
   text-decoration: underline;
   cursor: pointer;
@@ -165,17 +157,16 @@ button:disabled {
   transition: color 0.3s;
 }
 
-.register-link span:hover {
+.login-container .login-register-link span:hover {
   color: #ffffff;
 }
-
 
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
   }
   
-  .login-left {
+  .login-container .login-left {
     padding: 40px 20px;
   }
 }

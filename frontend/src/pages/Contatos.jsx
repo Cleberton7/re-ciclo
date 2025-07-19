@@ -191,50 +191,50 @@ const Contatos = () => {
   };
 
   return (
-    <div className="container" id="containerPrincipal">
-      <h3>
+    <div className="contact-container" id="containerPrincipal">
+      <h3 className="contact-container__title">
         Dê um destino correto ao seu lixo eletrônico! Entre em contato conosco
         e faça parte da mudança para um planeta mais sustentável.
       </h3>
 
       {/* Redes Sociais */}
-      <div className="containerContatos">
-        <div className="tituloCompartilhe">Compartilhe</div>
-        <div className="iconesRedes">
+      <div className="contact-social">
+        <div className="contact-social__title">Compartilhe</div>
+        <div className="contact-social__icons">
           <a href="#" aria-label="Facebook">
-            <img src={logoFacebook} alt="Facebook" className="imagemComTexto" />
+            <img src={logoFacebook} alt="Facebook" className="contact-social__icon" />
           </a>
           <a href="#" aria-label="Instagram">
-            <img src={logoInstagram} alt="Instagram" className="imagemComTexto" />
+            <img src={logoInstagram} alt="Instagram" className="contact-social__icon" />
           </a>
           <a href="#" aria-label="WhatsApp">
-            <img src={logoWhatsapp} alt="WhatsApp" className="imagemComTexto" />
+            <img src={logoWhatsapp} alt="WhatsApp" className="contact-social__icon" />
           </a>
           <a href="#" aria-label="LinkedIn">
-            <img src={logoLinkedin} alt="LinkedIn" className="imagemComTexto" />
+            <img src={logoLinkedin} alt="LinkedIn" className="contact-social__icon" />
           </a>
           <a href="#" aria-label="Twitter">
-            <img src={logoX} alt="Twitter" className="imagemComTexto" />
+            <img src={logoX} alt="Twitter" className="contact-social__icon" />
           </a>
         </div>
       </div>
 
       {/* Formulário */}
-      <div className="containerFormulario" >
-        <div className="imagemFormularioContainer">
+      <div className="contact-form-section">
+        <div className="contact-form__image-container">
           <img
             src={recicleImagem}
             alt="Pessoas reciclando"
-            className="imagemFormulario"
+            className="contact-form__image"
           />
         </div>
 
-        <div className="formulario">
-          <h4>Utilize o formulário para contato</h4>
-          <h1>Em breve retornaremos</h1>
+        <div className="contact-form">
+          <h4 className="contact-form__subtitle">Utilize o formulário para contato</h4>
+          <h1 className="contact-form__description">Em breve retornaremos</h1>
 
-          <form className="formularioContato" onSubmit={handleSubmit}>
-            <div className="inputGroup">
+          <form className="contact-form__form" onSubmit={handleSubmit}>
+            <div className="contact-form__input-group">
               <input
                 type="text"
                 name="nome"
@@ -242,11 +242,11 @@ const Contatos = () => {
                 value={formData.nome}
                 onChange={handleChange}
                 required
-                className="inputLarge"
+                className="contact-form__input"
               />
             </div>
 
-            <div className="inputGroup">
+            <div className="contact-form__input-group">
               <input
                 type="email"
                 name="email"
@@ -254,11 +254,11 @@ const Contatos = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="inputLarge"
+                className="contact-form__input"
               />
             </div>
 
-            <div className="inputGroup">
+            <div className="contact-form__input-group">
               <input
                 type="tel"
                 name="telefone"
@@ -266,18 +266,18 @@ const Contatos = () => {
                 value={formData.telefone}
                 onChange={handleChange}
                 required
-                className="inputLarge"
+                className="contact-form__input"
               />
             </div>
 
-            <div className="selectGroup">
-              <div className="selectContainer">
+            <div className="contact-form__select-group">
+              <div className="contact-form__select-container">
                 <select
                   name="uf"
                   value={formData.uf}
                   onChange={handleSelectChange}
                   required
-                  className="selectUF"
+                  className="contact-form__select--state"
                 >
                   <option value="">Estado (UF)</option>
                   {estados.map((estado) => (
@@ -293,7 +293,7 @@ const Contatos = () => {
                   onChange={handleSelectChange}
                   disabled={!formData.uf}
                   required
-                  className="selectCidade"
+                  className="contact-form__select--city"
                 >
                   <option value="">Cidade</option>
                   {cidades.map((cidade) => (
@@ -305,7 +305,7 @@ const Contatos = () => {
               </div>
             </div>
 
-            <div className="inputGroup">
+            <div className="contact-form__input-group">
               <input
                 type="text"
                 name="assunto"
@@ -313,22 +313,22 @@ const Contatos = () => {
                 value={formData.assunto}
                 onChange={handleChange}
                 required
-                className="inputLarge"
+                className="contact-form__input"
               />
             </div>
 
-            <div className="inputGroup">
+            <div className="contact-form__input-group">
               <textarea
                 name="mensagem"
                 placeholder="Mensagem"
                 value={formData.mensagem}
                 onChange={handleChange}
                 required
-                className="inputLarge"
+                className="contact-form__input contact-form__textarea"
               ></textarea>
             </div>
 
-            <div className="recaptcha-container">
+            <div className="contact-form__recaptcha">
               <ReCAPTCHA
                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                 onChange={handleRecaptchaChange}
@@ -337,7 +337,7 @@ const Contatos = () => {
 
             {submitStatus.message && (
               <div 
-                className={`feedback-message ${submitStatus.success ? 'success' : 'error'}`}
+                className={`contact-form__feedback ${submitStatus.success ? 'contact-form__feedback--success' : 'contact-form__feedback--error'}`}
                 data-code={submitStatus.code || ''}
               >
                 {submitStatus.message}
@@ -346,12 +346,12 @@ const Contatos = () => {
 
             <button 
               type="submit" 
-              className="submitButton"
+              className="contact-form__submit"
               disabled={isSubmitting || !recaptchaToken}
             >
               {isSubmitting ? (
                 <>
-                  <span className="spinner"></span>
+                  <span className="contact-form__spinner"></span>
                   Enviando...
                 </>
               ) : (
@@ -363,45 +363,45 @@ const Contatos = () => {
       </div>
 
       {/* Outros Contatos */}
-      <div className="containerOutrosContatos">
-        <div id="outrosContatos">
-          <div className="contatoItem">
-            <div className="iconeContato">
-              <img src={logoTelefone} alt="Ícone de telefone" />
+      <div className="contact-info">
+        <div id="outrosContatos" className="contact-info__items">
+          <div className="contact-info__item">
+            <div className="contact-info__icon">
+              <img src={logoTelefone} alt="Ícone de telefone" className="contact-info__icon-image" />
             </div>
-            <div className="textoContato">
-              <div className="tituloContato">Telefone</div>
-              <div className="infoContato">(94) 98207-8802</div>
+            <div className="contact-info__text">
+              <div className="contact-info__title">Telefone</div>
+              <div className="contact-info__detail">(94) 98207-8802</div>
             </div>
           </div>
 
-          <div className="contatoItem">
-            <div className="iconeContato">
-              <img src={logoEmail} alt="Ícone de e-mail" />
+          <div className="contact-info__item">
+            <div className="contact-info__icon">
+              <img src={logoEmail} alt="Ícone de e-mail" className="contact-info__icon-image" />
             </div>
-            <div className="textoContato">
-              <div className="tituloContato">E-mail</div>
-              <div className="infoContato">
+            <div className="contact-info__text">
+              <div className="contact-info__title">E-mail</div>
+              <div className="contact-info__detail">
                 re-cicletucurui@recicle.org.br
               </div>
             </div>
           </div>
 
-          <div className="contatoItem">
-            <div className="iconeContato">
-              <img src={logoEndereco} alt="Ícone de endereço" />
+          <div className="contact-info__item">
+            <div className="contact-info__icon">
+              <img src={logoEndereco} alt="Ícone de endereço" className="contact-info__icon-image" />
             </div>
-            <div className="textoContato">
-              <div className="tituloContato">Endereço</div>
-              <div className="infoContato">
+            <div className="contact-info__text">
+              <div className="contact-info__title">Endereço</div>
+              <div className="contact-info__detail">
                 Rua Exemplo, 123 - Centro, Tucuruí - PA
               </div>
             </div>
           </div>
         </div>
 
-        <div id="Imagem">
-          <img src={contatoImagem} alt="Localização da empresa" />
+        <div id="Imagem" className="contact-info__image-container">
+          <img src={contatoImagem} alt="Localização da empresa" className="contact-info__image" />
         </div>
       </div>
     </div>

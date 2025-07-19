@@ -77,21 +77,21 @@ const Register = ({ onLoginClick }) => {
   return (
     <div className="register-container">
       <div className="register-left">
-        <img src={Logo} alt="Logo da empresa" className="logo-img" />
+        <img src={Logo} alt="Logo da empresa" className="register-logo-img" />
       </div>
 
       <div className="register-right">
-        <h2>Cadastro</h2>
+        <h2 className="register-title" >Cadastro</h2>
         <p className="register-subtitle">Selecione seu tipo de cadastro</p>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">Cadastro realizado com sucesso! Redirecionando...</div>}
+        {error && <div className="register-error-message">{error}</div>}
+        {success && <div className="register-success-message">Cadastro realizado com sucesso! Redirecionando...</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form className="register-form" onSubmit={handleSubmit}>
           <select
             value={userType}
             onChange={(e) => setUserType(e.target.value)}
-            className="form-select"
+            className="register-form-select"
             required
           >
             <option value="pessoa">Pessoa Física</option>
@@ -99,7 +99,7 @@ const Register = ({ onLoginClick }) => {
             <option value="coletor">Coletor</option>
           </select>
 
-          <div className="form-fields">
+          <div className="register-form-fields">
             {userType === 'pessoa' && (
               <>
                 <input
@@ -194,12 +194,16 @@ const Register = ({ onLoginClick }) => {
             />
           </div>
 
-          <button type="submit" disabled={loading}>
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="register-submit-button"
+          >
             {loading ? 'Carregando...' : 'Cadastrar'}
           </button>
         </form>
 
-        <div className="login-link">
+        <div className="register-login-link">
           Já tem uma conta? <span onClick={onLoginClick}>Faça login</span>
         </div>
       </div>

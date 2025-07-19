@@ -117,32 +117,32 @@ const Empresas = () => {
   );
 
   return (
-    <div className='containerEmpresas' id="containerPrincipal">
-      <div className="content-wrapper">
+    <div className='empresas-container' id="containerPrincipal">
+      <div className="empresas-content-wrapper">
         {/* Barra de busca */}
-        <div className="search-container">
-          <div className="search-input-wrapper">
-            <FaSearch className="search-icon" />
+        <div className="empresas-search-container">
+          <div className="empresas-search-input-wrapper">
+            <FaSearch className="empresas-search-icon" />
             <input
               type="text"
               placeholder="Buscar empresas ou centros de reciclagem..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              className="empresas-search-input"
             />
           </div>
         </div>
 
-        <div className="secao">
-          <h2><FaBuilding className="section-icon" />Empresas Parceiras</h2>
+        <div className="empresas-section">
+          <h2><FaBuilding className="empresas-section-icon" />Empresas Parceiras</h2>
           {filteredData.empresas.length === 0 ? (
-            <p className="no-results">Nenhuma empresa encontrada com o termo "{searchTerm}"</p>
+            <p className="empresas-no-results">Nenhuma empresa encontrada com o termo "{searchTerm}"</p>
           ) : (
-            <div className="cardsContainer">
+            <div className="empresas-cards-container">
               {filteredData.empresas.map(empresa => (
                 <div 
                   key={empresa.id} 
-                  className="cardEmpresa"
+                  className="empresas-card"
                   style={{ 
                     backgroundImage: empresa.imagemUrl 
                       ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
@@ -150,22 +150,22 @@ const Empresas = () => {
                     backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
                   }}
                 >
-                  <div className="card-content">
+                  <div className="empresas-card-content">
                     <h3>{empresa.nomeExibido}</h3>
-                    <div className="info-item">
-                      <FaEnvelope className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaEnvelope className="empresas-info-icon" />
                       <span>{empresa.email}</span>
                     </div>
-                    <div className="info-item">
-                      <FaPhone className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaPhone className="empresas-info-icon" />
                       <span>{empresa.telefone}</span>
                     </div>
-                    <div className="info-item">
-                      <FaMapMarkerAlt className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaMapMarkerAlt className="empresas-info-icon" />
                       <span>{empresa.endereco}</span>
                     </div>
-                    <div className="info-item">
-                      <FaIdCard className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaIdCard className="empresas-info-icon" />
                       <span>{empresa.cnpj}</span>
                     </div>
                   </div>
@@ -175,16 +175,16 @@ const Empresas = () => {
           )}
         </div>
 
-        <div className="secao">
-          <h2><FaRecycle className="section-icon" /> Centros de Coleta</h2>
+        <div className="empresas-section">
+          <h2><FaRecycle className="empresas-section-icon" /> Centros de Coleta</h2>
           {filteredData.centrosReciclagem.length === 0 ? (
-            <p className="no-results">Nenhum centro de reciclagem encontrado com o termo "{searchTerm}"</p>
+            <p className="empresas-no-results">Nenhum centro de reciclagem encontrado com o termo "{searchTerm}"</p>
           ) : (
-            <div className="cardsContainer">
+            <div className="empresas-cards-container">
               {filteredData.centrosReciclagem.map(centro => (
                 <div 
                   key={centro.id} 
-                  className="cardEmpresa"
+                  className="empresas-card"
                   style={{ 
                     backgroundImage: centro.imagemUrl 
                       ? `url(${centro.imagemUrl})`
@@ -192,23 +192,23 @@ const Empresas = () => {
                     backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
                   }}
                 >
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
+                  <div className="empresas-card-overlay"></div>
+                  <div className="empresas-card-content">
                     <h3>{centro.nomeExibido}</h3>
-                    <div className="info-item">
-                      <FaEnvelope className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaEnvelope className="empresas-info-icon" />
                       <span>{centro.email}</span>
                     </div>
-                    <div className="info-item">
-                      <FaPhone className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaPhone className="empresas-info-icon" />
                       <span>{centro.telefone}</span>
                     </div>
-                    <div className="info-item">
-                      <FaMapMarkerAlt className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaMapMarkerAlt className="empresas-info-icon" />
                       <span>{centro.endereco}</span>
                     </div>
-                    <div className="info-item">
-                      <FaIdCard className="info-icon" />
+                    <div className="empresas-info-item">
+                      <FaIdCard className="empresas-info-icon" />
                       <span>{centro.cnpj}</span>
                     </div>
                   </div>

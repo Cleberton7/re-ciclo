@@ -1,12 +1,12 @@
+/* Estilos específicos do Register */
 .register-container {
   display: flex;
   width: 100%;
   min-height: 500px;
-  /*background: linear-gradient(135deg, #009952, #004d26);*/
 }
 
-.register-left,
-.register-right {
+.register-container .register-left,
+.register-container .register-right {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -15,30 +15,31 @@
   padding: 20px;
 }
 
-.logo-img {
-  width: 80%;
-  max-width: 300px;
+.register-container .register-logo-img {
+  min-width: 200px; /* Opcional: define um tamanho mínimo */
+  object-fit: contain; /* Mantém a proporção da imagem */
 }
 
-.register-right h2 {
+.register-container .register-title {
   margin: 0;
   color: white;
   font-weight: bold;
   font-size: 28px;
 }
 
-.register-subtitle {
+.register-container .register-subtitle {
   color: rgba(255, 255, 255, 0.8);
   text-align: center;
   font-size: 14px;
 }
-.form-fields {
+
+.register-container .register-form-fields {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-form {
+.register-container .register-form {
   width: 100%;
   max-width: 300px;
   display: flex;
@@ -46,7 +47,7 @@ form {
   gap: 10px;
 }
 
-.form-select {
+.register-container .register-form-select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -59,17 +60,16 @@ form {
   background-size: 14px;
 }
 
-input {
+.register-container .register-input {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
   gap: 10px;
-  
 }
 
-button {
+.register-container .register-submit-button {
   background-color: #004d26;
   color: white;
   font-weight: bold;
@@ -77,33 +77,35 @@ button {
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 10px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
 }
 
-button:hover {
+.register-container .register-submit-button:hover {
   background-color: #00331a;
 }
 
-.error-message {
+.register-container .register-error-message {
   color: #d9534f;
   font-size: 14px;
   text-align: center;
 }
 
-.success-message {
+.register-container .register-success-message {
   color: #5cb85c;
   font-size: 14px;
   text-align: center;
 }
 
-.login-link {
+.register-container .register-login-link {
   color: white;
   font-size: 14px;
   text-align: center;
-  margin-top:  20px;
-
+  margin-top: 20px;
 }
 
-.login-link span {
+.register-container .register-login-link span {
   color: #a0ffc8;
   text-decoration: underline;
   cursor: pointer;
@@ -115,7 +117,7 @@ button:hover {
     flex-direction: column;
   }
   
-  .register-left {
+  .register-container .register-left {
     padding: 40px 20px;
   }
 }

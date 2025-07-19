@@ -1,0 +1,35 @@
+.editar-usuarios-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px;
+}
+
+.editar-usuarios-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #005f5c;
+}
+
+select,
+.form-edicao input,
+.form-edicao button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.form-edicao button {
+  background-color: #009951;
+  color: white;
+  font-weight: bold;
+  border: none;
+  transition: background 0.3s;
+}
+
+.form-edicao button:hover {
+  background-color: #007e44;
+}
