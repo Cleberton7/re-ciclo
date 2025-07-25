@@ -12,10 +12,9 @@ const center = { lat: -3.7657, lng: -49.6725 };
 const Content = () => {
   const [marcadores, setMarcadores] = useState([]);
 
-  // Memorizar filtro para evitar loop
+  
   const filters = useMemo(() => ({ periodo: "total" }), []);
 
-  // Agora pegamos também 'evolucao'
   const {
     ranking,
     distribuicao,
@@ -109,7 +108,7 @@ const Content = () => {
             <Map
               className="mapa"
               defaultCenter={center}
-              defaultZoom={12}
+              defaultZoom={14}
               mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
               gestureHandling={'greedy'}
             >
