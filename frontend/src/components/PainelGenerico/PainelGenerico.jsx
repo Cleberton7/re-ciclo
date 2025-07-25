@@ -8,7 +8,7 @@ import DeleteAccountModal from './DeleteAccountModal';
 import ProfileImageUpload from './ProfileImageUpload';
 import ProfileInfoSection from './ProfileInfoSection';
 import LocationSection from './LocationSection';
-import './Styles/PainelGenerico.css';
+import './Styles/painelGenerico.css';
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
