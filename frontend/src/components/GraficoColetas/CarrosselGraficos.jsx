@@ -7,7 +7,7 @@ import GraficoColetas from './GraficoColetas';
 import GraficoEvolucaoColetas from './GraficoEvolucaoColetas';
 import GraficoImpactoAmbiental from './GraficoImpactoAmbiental';
 import GraficoRankingEmpresas from './GraficoRankingEmpresas';
-import '../GraficoColetas/Styles/CarrosselGraficos.css';
+import '../GraficoColetas/Styles/carrosselGraficos.css';
 
 const CarrosselGraficos = ({ 
   distribuicao = [], 
