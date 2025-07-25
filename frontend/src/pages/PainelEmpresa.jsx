@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import PainelGenerico from "./PainelGenerico";
+//import PainelGenerico from "./PainelGenerico";
+import PainelGenerico from "../components/PainelGenerico/PainelGenerico";
 import Modal from "../components/Modal";
 import "./styles/painelEmpresa.css";
 import "./styles/containerPrincipal.css";

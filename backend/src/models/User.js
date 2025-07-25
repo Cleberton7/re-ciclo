@@ -129,6 +129,13 @@ const UserSchema = new mongoose.Schema({
     enum: ['pessoa', 'empresa', 'centro', 'adminGeral'],
     default: 'pessoa'
   },
+    recebeResiduoComunidade: {
+    type: Boolean,
+    default: false,
+    required: function() {
+      return this.tipoUsuario === 'empresa';
+    },
+  },
   cpf: {
     type: String,
     required: function() { return this.tipoUsuario === 'pessoa'; },

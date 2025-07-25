@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./styles/login.css";
 import Logo from "../assets/logo.png";
-import { loginUser, requestPasswordReset } from "../services/authService";
+import { loginUser, requestPasswordReset, resendVerificationEmail } from "../services/authService";
 import useAuth from "../hooks/useAuth";
 import Modal from "../components/Modal";
 
@@ -21,24 +21,43 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
     setError("");
     setLoading(true);
 
-    if (!email || !senha) {
-      setError("Por favor, preencha todos os campos");
-      setLoading(false);
-      return;
-    }
-
     try {
       const response = await loginUser({ email, senha });
+      
       if (!response?.token || !response?.usuario) {
-        throw new Error("Resposta do servidor incompleta");
+        throw new Error("Erro inesperado ao fazer login");
       }
-      if (!response.usuario.emailVerificado) {
-        throw new Error("E-mail não verificado. Por favor, verifique sua caixa de entrada.");
-      }
+      
       login(response.usuario, response.token);
       onLoginSuccess();
+      
     } catch (err) {
-      setError(err.message || "Erro ao fazer login");
+      if (err.code === 'EMAIL_NOT_VERIFIED') {
+        setError(
+          <div className="email-not-verified">
+            <p>Seu e-mail ainda não foi verificado</p>
+            <button 
+              onClick={async () => {
+                try {
+                  await resendVerificationEmail(email);
+                  setError("Novo e-mail de verificação enviado com sucesso!");
+                } catch (resendError) {
+                  setError("Erro ao reenviar e-mail. Tente novamente mais tarde.");
+                }
+              }}
+              className="resend-button"
+            >
+              Reenviar e-mail de verificação
+            </button>
+          </div>
+        );
+      } else {
+        setError(
+          err.response?.data?.mensagem || 
+          err.message || 
+          "Erro ao fazer login. Tente novamente."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -55,7 +74,22 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
       setRecoverMessage("E-mail de recuperação enviado. Verifique sua caixa de entrada.");
       setRecoverEmail("");
     } catch (err) {
-      setRecoverError(err.response?.data?.mensagem || "Erro ao solicitar recuperação");
+      let errorMessage = "Erro ao solicitar recuperação";
+      
+      if (err.response) {
+        switch (err.response.status) {
+          case 403:
+            errorMessage = "Ação não permitida para este usuário";
+            break;
+          case 404:
+            errorMessage = "E-mail não encontrado";
+            break;
+          default:
+            errorMessage = err.response.data?.message || errorMessage;
+        }
+      }
+      
+      setRecoverError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -91,7 +125,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
           {error && (
             <div className="login-error-message">
               {error}
-              {error.includes('incorretos') && (
+              {typeof error === 'string' && error.includes('incorretos') && (
                 <div className="login-recover-link">
                   <button 
                     type="button" 
@@ -115,7 +149,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
         </form>
 
         <div className="login-forgot-password">
-          <a 
+          <a
             className="login-forgot-password-link"
             onClick={() => setShowRecoverModal(true)}
           >
@@ -125,7 +159,7 @@ const Login = ({ onLoginSuccess, onRegisterClick }) => {
 
         <div className="login-register-link">
           Não tem uma conta?{' '}
-          <span 
+          <span
             className="login-register-link-text"
             onClick={onRegisterClick}
           >

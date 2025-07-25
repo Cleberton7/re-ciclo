@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-import { IMaskInput } from 'react-imask';
 import { ClipLoader } from "react-spinners";
-import { API_URL, BASE_URL } from '../config/config.js'; // importando URLs
-import './styles/painelGenerico.css';
+import { API_URL, BASE_URL } from '../../config/config';
+import ActionButtons from './ActionButtons';
+import DeleteAccountModal from './DeleteAccountModal';
+import ProfileImageUpload from './ProfileImageUpload';
+import ProfileInfoSection from './ProfileInfoSection';
+import LocationSection from './LocationSection';
+import './Styles/PainelGenerico.css';
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -24,7 +27,6 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const navigate = useNavigate();
-
   useEffect(() => {
     return () => {
       if (watchId) navigator.geolocation.clearWatch(watchId);
@@ -74,7 +76,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
           ...dadosRecebidos,
           documento,
           nomeExibido,
-          email: dadosRecebidos.email || 'Não informado'
+          email: dadosRecebidos.email || 'Não informado',
+          recebeResiduoComunidade: dadosRecebidos.recebeResiduoComunidade || false
         };
 
         setDados(dadosFormatados);
@@ -143,6 +146,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       if (tipoUsuario === "empresa") {
         formData.append('razaoSocial', tempDados.razaoSocial || '');
         formData.append('nomeFantasia', tempDados.nomeFantasia || '');
+        formData.append('recebeResiduoComunidade', tempDados.recebeResiduoComunidade ? 'true' : 'false');
       } else if (tipoUsuario === "pessoa") {
         formData.append('nome', tempDados.nome || '');
       } else if (tipoUsuario === "centro") {
@@ -158,7 +162,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
       }
 
       const response = await axios.put(
-        `${API_URL}/usuario/dados`, 
+        `${API_URL}/usuarios/dados`, 
         formData, 
         {
           headers: { 
@@ -411,241 +415,56 @@ const PainelGenerico = ({ tipoUsuario }) => {
     <div className="painel-container" id="containerPrincipal">
       <div className="painel-header">
         <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'centro' ? 'Centro de Reciclagem' : 'Usuário'}</h2>
-        {tipoUsuario !== 'admGeral' && (
-          <div className="action-buttons">
-            {!editing ? (
-              <>
-                <button onClick={handleEdit} className="edit-button">
-                  Editar Dados
-                </button>
-                <button 
-                  onClick={() => setShowDeleteModal(true)}
-                  className="delete-account-button"
-                >
-                  Excluir Conta
-                </button>
-              </>
-            ) : (
-              <>
-                <button onClick={handleSave} disabled={saving} className="save-button">
-                  {saving ? <ClipLoader color="#fff" size={18} /> : 'Salvar Alterações'}
-                </button>
-                <button onClick={handleCancel} disabled={saving} className="cancel-button">
-                  Cancelar
-                </button>
-              </>
-            )}
-          </div>
-        )}
+        <ActionButtons 
+          editing={editing}
+          handleEdit={handleEdit}
+          handleSave={handleSave}
+          handleCancel={handleCancel}
+          saving={saving}
+          setShowDeleteModal={setShowDeleteModal}
+          tipoUsuario={tipoUsuario}
+        />
       </div>
 
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="delete-modal">
-            <h3>Confirmar Exclusão de Conta</h3>
-            <p>Tem certeza que deseja excluir sua conta permanentemente? Todos os seus dados serão removidos.</p>
-            
-            <div className="modal-buttons">
-              <button 
-                onClick={handleDeleteAccount} 
-                disabled={deletingAccount}
-                className="confirm-delete-button"
-              >
-                {deletingAccount ? <ClipLoader color="#fff" size={18} /> : 'Confirmar Exclusão'}
-              </button>
-              <button 
-                onClick={() => setShowDeleteModal(false)} 
-                disabled={deletingAccount}
-                className="cancel-delete-button"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteAccountModal 
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        handleDeleteAccount={handleDeleteAccount}
+        deletingAccount={deletingAccount}
+      />
 
       <div className="painel-content">
         <div className="profile-section">
-          <div className="image-upload">
-            <div className="image-preview">
-              {imagePreview ? (
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/imagem-padrao.jpg';
-                  }}
-                />
-              ) : (
-                <div className="image-placeholder">
-                  {tipoUsuario === 'empresa' ? 'Logo da Empresa' : 'Foto de Perfil'}
-                </div>
-              )}
-            </div>
-            {editing && (
-              <div className="upload-controls">
-                <label htmlFor="image-upload" className="upload-button">
-                  {imagePreview ? 'Alterar Imagem' : 'Selecionar Imagem'}
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  style={{ display: 'none' }}
-                />
-                {imagePreview && (
-                  <button 
-                    onClick={handleRemoveImage}
-                    className="remove-image-button"
-                  >
-                    Remover Imagem
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          <ProfileImageUpload 
+            imagePreview={imagePreview}
+            editing={editing}
+            handleImageChange={handleImageChange}
+            handleRemoveImage={handleRemoveImage}
+            tipoUsuario={tipoUsuario}
+          />
 
-          <div className="dados-section">
-            <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : tipoUsuario === 'centro' ? 'do Centro de Reciclagem' : 'Pessoais'}</h3>
-            
-            <div className="info-row">
-              <span>Email:</span>
-              <strong>{dados.email}</strong>
-            </div>
-
-            <div className="info-row">
-              <span>{tipoUsuario === "empresa" || tipoUsuario === "centro" ? "CNPJ" : "CPF"}:</span>
-              <strong>{dados.documento}</strong>
-            </div>
-
-            <div className="info-row">
-              <span>{tipoUsuario === "empresa" ? "Razão Social" : tipoUsuario === "centro" ? "Nome Fantasia" : "Nome"}:</span>
-              {editing ? (
-                <input
-                  type="text"
-                  value={tempDados[tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"] || ''}
-                  onChange={(e) => setTempDados(prev => ({
-                    ...prev,
-                    [tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"]: e.target.value
-                  }))}
-                />
-              ) : (
-                <strong>{dados.nomeExibido}</strong>
-              )}
-            </div>
-
-            <div className="info-row">
-              <span>Telefone:</span>
-              {editing ? (
-                <IMaskInput
-                  mask={[
-                    { mask: '(00) 0000-0000' },
-                    { mask: '(00) 00000-0000' }
-                  ]}
-                  name="telefone"
-                  value={tempDados.telefone || ''}
-                  onAccept={(value) => setTempDados(prev => ({ ...prev, telefone: value }))}
-                />
-              ) : (
-                <strong>{dados.telefone || 'Não informado'}</strong>
-              )}
-            </div>
-
-            {tipoUsuario === "centro" && (
-              <>
-                <div className="info-row">
-                  <span>Veículo:</span>
-                  {editing ? (
-                    <input
-                      type="text"
-                      value={tempDados.veiculo || ''}
-                      onChange={handleInputChange}
-                      name="veiculo"
-                    />
-                  ) : (
-                    <strong>{dados.veiculo || 'Não informado'}</strong>
-                  )}
-                </div>
-                <div className="info-row">
-                  <span>Capacidade de Coleta (kg):</span>
-                  {editing ? (
-                    <input
-                      type="number"
-                      value={tempDados.capacidadeColeta || ''}
-                      onChange={handleInputChange}
-                      name="capacidadeColeta"
-                    />
-                  ) : (
-                    <strong>{dados.capacidadeColeta || 'Não informado'}</strong>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <ProfileInfoSection 
+            tipoUsuario={tipoUsuario}
+            dados={dados}
+            tempDados={tempDados}
+            editing={editing}
+            setTempDados={setTempDados}
+          />
         </div>
 
-        {(tipoUsuario === "empresa" || tipoUsuario === "centro") && (
-          <div className="localizacao-section">
-            <h3>Localização</h3>
-            <div className="info-row">
-              <button 
-                onClick={handleGetCurrentLocation} 
-                className="location-button"
-              >
-                Usar localização atual
-              </button>
-            </div>
-            <div className="map-container">
-              <Map
-                defaultCenter={mapCenter}
-                defaultZoom={15}
-                mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID}
-                onClick={handleMapClick}
-              >
-                {lat && lng && (
-                  <AdvancedMarker
-                    position={{ lat: Number(lat), lng: Number(lng) }}
-                    title={dados.nomeExibido}
-                  >
-                    <div className="marker">
-                      {tipoUsuario === "empresa" ? 'E' : 'C'}
-                    </div>
-                  </AdvancedMarker>
-                )}
-              </Map>
-            </div>
-            <div className="coordinates-input">
-              <div className="info-row">
-                <span>Latitude:</span>
-                <input
-                  type="number"
-                  value={lat}
-                  onChange={(e) => setLat(e.target.value)}
-                  step="0.000001"
-                />
-              </div>
-              <div className="info-row">
-                <span>Longitude:</span>
-                <input
-                  type="number"
-                  value={lng}
-                  onChange={(e) => setLng(e.target.value)}
-                  step="0.000001"
-                />
-              </div>
-              <button 
-                onClick={handleSaveLocation} 
-                disabled={saving}
-                className="save-location-button"
-              >
-                {saving ? "Salvando..." : "Salvar Localização"}
-              </button>
-            </div>
-          </div>
-        )}
+        <LocationSection 
+          tipoUsuario={tipoUsuario}
+          lat={lat}
+          lng={lng}
+          setLat={setLat}
+          setLng={setLng}
+          mapCenter={mapCenter}
+          handleMapClick={handleMapClick}
+          handleGetCurrentLocation={handleGetCurrentLocation}
+          handleSaveLocation={handleSaveLocation}
+          saving={saving}
+          dados={dados}
+        />
       </div>
     </div>
   );

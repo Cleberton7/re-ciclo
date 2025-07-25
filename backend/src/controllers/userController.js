@@ -46,7 +46,7 @@ export const userController = {
         capacidadeColeta, 
         nomeFantasia,
         razaoSocial,
-        removeImage // Novo campo para remoção de imagem
+        removeImage 
       } = req.body;
 
       const updateFields = {};
@@ -75,11 +75,15 @@ export const userController = {
         }
       }
 
+
       // Campos específicos por tipo de usuário
       switch(user.tipoUsuario) {
         case "empresa":
           if (razaoSocial) updateFields.razaoSocial = razaoSocial;
           if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
+          if (req.body && Object.prototype.hasOwnProperty.call(req.body, 'recebeResiduoComunidade')) {
+            updateFields.recebeResiduoComunidade = req.body.recebeResiduoComunidade === 'true';
+          }
           break;
         
         case "centro":

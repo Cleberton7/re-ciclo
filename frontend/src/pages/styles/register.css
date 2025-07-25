@@ -111,6 +111,19 @@
   cursor: pointer;
   font-weight: bold;
 }
+.register-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: white;
+}
+
+.register-checkbox-container input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #00b57d; /* Verde escuro */
+}
 
 @media (max-width: 768px) {
   .register-container {

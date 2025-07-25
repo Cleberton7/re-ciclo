@@ -1,0 +1,64 @@
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-button, .save-button, .cancel-button, 
+.delete-account-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.edit-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #2980b9;
+}
+
+.save-button {
+  background-color: #27ae60;
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #219653;
+}
+
+.cancel-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c0392b;
+}
+
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-account-button:hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .edit-button, .save-button, .cancel-button, 
+  .delete-account-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}

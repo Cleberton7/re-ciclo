@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaBuilding } from 'react-icons/fa';
 import '../pages/styles/pin.css';
 
-const Pin = ({ tipo, nome, endereco, telefone, email, cnpj }) => {
+const Pin = ({ tipo, nome, endereco, telefone, email, cnpj, recebeResiduoComunidade }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Define classes diferentes se recebe resíduos da comunidade
+  const pinClass = `pin-icon ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
+  const badgeClass = `tipo-badge ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
 
   return (
     <div
@@ -12,7 +16,7 @@ const Pin = ({ tipo, nome, endereco, telefone, email, cnpj }) => {
       onMouseLeave={() => setShowTooltip(false)}
       onClick={() => setShowTooltip(!showTooltip)}
     >
-      <div className={`pin-icon ${tipo}`}>
+      <div className={pinClass}>
         {tipo === 'empresa' ? <FaBuilding size={16} /> : <FaRecycle size={16} />}
       </div>
 
@@ -20,7 +24,7 @@ const Pin = ({ tipo, nome, endereco, telefone, email, cnpj }) => {
         <div className="pin-tooltip">
           <div className="tooltip-header">
             <h3>{nome}</h3>
-            <div className={`tipo-badge ${tipo}`}>
+            <div className={badgeClass}>
               {tipo === 'empresa' ? 'Empresa' : 'Centro de Reciclagem'}
             </div>
           </div>
@@ -51,6 +55,14 @@ const Pin = ({ tipo, nome, endereco, telefone, email, cnpj }) => {
               <div className="info-item">
                 <FaIdCard className="info-icon" />
                 <span>{cnpj}</span>
+              </div>
+            )}
+
+            {/* Informação extra para empresas que recebem resíduos */}
+            {tipo === 'empresa' && recebeResiduoComunidade && (
+              <div className="info-item recebe-residuo">
+                <FaRecycle className="info-icon" />
+                <span>Esta empresa aceita resíduos da comunidade</span>
               </div>
             )}
           </div>

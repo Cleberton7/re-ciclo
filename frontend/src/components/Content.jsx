@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices';
 import usePublicColetasData from '../hooks/usePublicColetasData';
-import RankingEmpresas from './RankingEmpresas';
+import RankingEmpresas from '../components/GraficoColetas/RankingEmpresas';
 import Pin from '../components/Pin';
-import CarrosselGraficos from '../components/CarrosselGraficos';
+import CarrosselGraficos from '../components/GraficoColetas/CarrosselGraficos';
 import "../pages/styles/content.css";
 
 const center = { lat: -3.7657, lng: -49.6725 };
@@ -44,14 +44,16 @@ const Content = () => {
           telefone: item.telefone || "Não informado",
           email: item.email || "Não informado",
           cnpj: item.cnpj || "Não informado",
+          recebeResiduoComunidade: item.recebeResiduoComunidade || false,
           id: `${tipo}-${item._id}`,
         })).filter(item => !isNaN(item.position.lat) && !isNaN(item.position.lng));
+
 
         const marcadores = [
           ...processar(empresas, "empresa"),
           ...processar(centros, "centro")
         ];
-
+      
         setMarcadores(marcadores);
       } catch (err) {
         console.error("Erro ao carregar marcadores:", err);

@@ -54,6 +54,7 @@ const Register = ({ onLoginClick }) => {
       } else if (userType === 'empresa') {
         userData.razaoSocial = formData.razaoSocial;
         userData.cnpj = formData.cnpj;
+        userData.recebeResiduoComunidade = formData.recebeResiduoComunidade || false;
       } else if (userType === 'coletor') {
         userData.nomeFantasia = formData.nomeFantasia;
         userData.cnpj = formData.cnpj;
@@ -173,6 +174,22 @@ const Register = ({ onLoginClick }) => {
               value={formData.endereco}
               onChange={handleChange}
             />
+            {userType === 'empresa' && (
+              <div className="register-checkbox-container">
+                <input
+                  type="checkbox"
+                  id="recebeResiduoComunidade"
+                  name="recebeResiduoComunidade"
+                  checked={formData.recebeResiduoComunidade || false}
+                  onChange={(e) =>
+                    setFormData({ ...formData, recebeResiduoComunidade: e.target.checked })
+                  }
+                />
+                <label htmlFor="recebeResiduoComunidade">
+                  Esta empresa aceita resíduos da comunidade?
+                </label>
+              </div>
+            )}
 
             <input
               type="email"

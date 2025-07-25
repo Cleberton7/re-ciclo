@@ -1,5 +1,5 @@
 import React from 'react';
-import '../pages/styles/FilterBar.css';
+import '../GraficoColetas/Styles/FilterBar.css';
 
 const FilterBar = ({ filters, onChange, role }) => {
   const handleFilterChange = (e) => {

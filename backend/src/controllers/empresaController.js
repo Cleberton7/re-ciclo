@@ -30,7 +30,7 @@ export const getColetoresDisponiveis = async (req, res) => {
     const coletores = await User.find({
       tipoUsuario: 'centro',
       endereco: req.user.endereco
-    }).select('nome email telefone veiculo capacidadeColeta');
+    }).select('nome email telefone ');
     res.json({ success: true, data: coletores });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro ao buscar coletores' });
@@ -67,7 +67,7 @@ export const getLocalizacoes = async (req, res) => {
 export const getEmpresasPublicas = async (req, res) => {
   try {
     const empresas = await User.find({ tipoUsuario: 'empresa' })
-      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao')
+      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade')
       .lean();
     res.json({
       success: true,

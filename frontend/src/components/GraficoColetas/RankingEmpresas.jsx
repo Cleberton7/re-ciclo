@@ -1,5 +1,5 @@
 import React from 'react';
-import "../pages/styles/RankingEmpresas.css";
+import "../GraficoColetas/Styles/RankingEmpresas.css";
 
 const RankingEmpresas = ({ ranking = [], compactMode = false, hideTitle = false }) => {
   if (!Array.isArray(ranking) || ranking.length === 0) {

@@ -4,7 +4,7 @@ import {
   aceitarColeta, 
   concluirColeta 
 } from "../services/coletaService";
-import PainelGenerico from "../pages/PainelGenerico";
+import PainelGenerico from "../components/PainelGenerico/PainelGenerico";
 import Modal from "../components/Modal";
 import "./styles/containerPrincipal.css";
 import "./styles/painelReciclador.css";

@@ -4,7 +4,6 @@ import Contatos from "../pages/Contatos";
 import Empresas from "../pages/Empresas";
 import Reciclo from "../pages/Reciclo";
 import Eventos from "../pages/NoticiasEventos";
-import Coletas from "../pages/Coletas";
 import PublicColetasPage from "../pages/PublicColetasPage";
 import PainelEmpresa from "../pages/PainelEmpresa";
 import PainelReciclador from "../pages/PainelReciclador";
@@ -36,7 +35,6 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/empresas" element={<Empresas />} />
         <Route path="/reciclo" element={<Reciclo />} />
-        <Route path="/coletas" element={<Coletas />} />
         <Route path="/publicColetasPage" element={<PublicColetasPage />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/contatos" element={<Contatos />} />

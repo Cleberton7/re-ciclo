@@ -124,43 +124,36 @@ export const register = async (req, res) => {
   }
 };
 
+
 export const login = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
-    // Validação básica
-    if (!email || !senha) {
-      return res.status(400).json({ 
-        mensagem: 'E-mail e senha são obrigatórios',
-        camposFaltando: [!email && 'email', !senha && 'senha'].filter(Boolean)
-      });
-    }
-
     const user = await User.findOne({ email }).select('+senha');
     
     if (!user || !(await user.comparePassword(senha))) {
       return res.status(401).json({ 
-        mensagem: 'Credenciais incorretas',
-        sugestao: 'Verifique seu e-mail e senha ou utilize a recuperação de senha'
+        mensagem: 'Credenciais incorretas' 
       });
     }
 
     if (!user.emailVerificado) {
+      // Gera novo token de verificação
       const verificationToken = jwt.sign({ id: user._id }, JWT_SECRET, { 
         expiresIn: JWT_EMAIL_EXPIRES_IN 
       });
       
       user.emailVerificationToken = verificationToken;
       await user.save();
+      
+      // Envia e-mail de verificação
       await sendVerificationEmail(user, verificationToken);
-
-      return res.status(403).json({ 
-        mensagem: 'E-mail não verificado', 
-        acao: 'Um novo e-mail de verificação foi enviado',
-        podeReenviarEm: '2 minutos'
+      
+      return res.status(403).json({
+        mensagem: 'E-mail não verificado',
+        code: 'EMAIL_NOT_VERIFIED'
       });
     }
-
     const token = jwt.sign(
       { id: user._id, tipoUsuario: user.tipoUsuario },
       JWT_SECRET,

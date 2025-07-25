@@ -59,7 +59,6 @@ input {
   flex-grow: 1;
   box-sizing: border-box;
   overflow-x: hidden;
-  /* Não precisa de min-height aqui */
 }
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

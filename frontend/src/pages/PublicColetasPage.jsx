@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import usePublicColetasData from "../hooks/usePublicColetasData";
-import RankingEmpresas from "../components/RankingEmpresas";
-import GraficoColetas from "../components/GraficoColetas";
-import GraficoEvolucaoColetas from "../components/GraficoEvolucaoColetas";
-import GraficoImpactoAmbiental from "../components/GraficoImpactoAmbiental";
-import GraficoRankingEmpresas from "../components/GraficoRankingEmpresas";
-import ColetaPublicCard from "../components/ColetaPublicCard";
-import FilterBar from "../components/FilterBarPublic";
+import RankingEmpresas from "../components/GraficoColetas/RankingEmpresas";
+import GraficoColetas from "../components/GraficoColetas/GraficoColetas";
+import GraficoEvolucaoColetas from "../components/GraficoColetas/GraficoEvolucaoColetas";
+import GraficoImpactoAmbiental from "../components/GraficoColetas/GraficoImpactoAmbiental";
+import GraficoRankingEmpresas from "../components/GraficoColetas/GraficoRankingEmpresas";
+import ColetaPublicCard from "../pages/ColetaPublicCard";
+import FilterBar from "../components/GraficoColetas/FilterBarPublic";
 import "./styles/PublicColetasPage.css";
 
 const PublicColetasPage = () => {

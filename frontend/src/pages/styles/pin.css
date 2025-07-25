@@ -21,14 +21,17 @@
   transition: all 0.3s ease;
 }
 
-.pin-icon.empresa {
+/* verde padrão .pin-icon.empresa {
   background: linear-gradient(135deg, #4285F4, #34A853);
 }
 
 .pin-icon.centro {
   background: linear-gradient(135deg, #0F9D58, #FBBC05);
 }
-
+*/
+.pin-icon.centro{
+  background-color: #4285F4;
+}
 .pin-icon svg {
   transform: rotate(45deg);
 }
@@ -107,6 +110,43 @@
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-top: 10px solid white;
+}
+/* Cor padrão para empresa */
+.pin-icon.empresa {
+  background-color: #009951; /* verde padrão */
+  color: white;
+}
+
+/* Cor para empresas que recebem resíduos */
+.pin-icon.empresa.recebe {
+  background-color: #f39c12; /* laranja destaque */
+  color: white;
+}
+
+/* Badge padrão */
+.tipo-badge.empresa {
+  background-color: #009951;
+  color: white;
+}
+
+/* Badge laranja para recebe resíduos */
+.tipo-badge.empresa.recebe {
+  background-color: #f39c12;
+  color: white;
+}
+
+/* Estilo texto extra no tooltip */
+.info-item.recebe-residuo {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #f39c12; /* laranja */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-item.recebe-residuo .info-icon {
+  color: #f39c12;
 }
 
 @keyframes fadeIn {

@@ -32,16 +32,25 @@ api.interceptors.response.use(
 );
 
 export const loginUser = async (credentials) => {
-  const response = await api.post('/auth/login', credentials);
-  
-  if (!response.data.token || !response.data.usuario) {
-    throw new Error('Resposta de login inválida');
-  }
+  try {
+    const response = await api.post('/auth/login', credentials);
+    
+    if (!response.data.token || !response.data.usuario) {
+      throw new Error('Resposta de login inválida');
+    }
 
-  return {
-    token: response.data.token,
-    usuario: response.data.usuario
-  };
+    return {
+      token: response.data.token,
+      usuario: response.data.usuario
+    };
+  } catch (error) {
+    // Tratamento específico para erro 403 (e-mail não verificado)
+    if (error.response?.status === 403 && error.response.data?.mensagem === 'E-mail não verificado') {
+      error.code = 'EMAIL_NOT_VERIFIED';
+      error.email = credentials.email;
+    }
+    throw error;
+  }
 };
 
 export const registerUser = async (userData) => {
@@ -69,8 +78,12 @@ export const verifyEmail = async (token) => {
 };
 
 export const resendVerificationEmail = async (email) => {
-  const response = await api.post('/auth/resend-verification', { email });
-  return response.data;
+  try {
+    const response = await api.post('/auth/resend-verification', { email });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const authService = {
