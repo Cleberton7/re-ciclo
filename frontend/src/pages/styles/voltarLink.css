@@ -1,0 +1,20 @@
+.voltar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  margin-bottom: 30px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  
+}
+
+.voltar-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #c9ffe1;
+  transform: translateX(-5px);
+}
