@@ -8,7 +8,9 @@ import DeleteAccountModal from './DeleteAccountModal';
 import ProfileImageUpload from './ProfileImageUpload';
 import ProfileInfoSection from './ProfileInfoSection';
 import LocationSection from './LocationSection';
+import VoltarLink from "../VoltarLink";
 import './Styles/painelGenerico.css';
+
 
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
@@ -413,6 +415,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
 
   return (
     <div className="painel-container" id="containerPrincipal">
+      <VoltarLink to="/home">Voltar</VoltarLink>
       <div className="painel-header">
         <h2>Painel do {tipoUsuario === 'empresa' ? 'Empresa' : tipoUsuario === 'centro' ? 'Centro de Reciclagem' : 'Usuário'}</h2>
         <ActionButtons 

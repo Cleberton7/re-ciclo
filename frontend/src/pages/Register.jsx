@@ -8,18 +8,19 @@ import Modal from '../components/Modal';
 
 const Register = ({ onLoginClick }) => {
   const navigate = useNavigate();
-  const [userType, setUserType] = useState('pessoa');
+  const [userType, setUserType] = useState('empresa');
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     senha: '',
+    confirmarSenha: '',
     cpf: '',
     telefone: '',
     endereco: '',
     nomeFantasia: '',
     razaoSocial: '',
     cnpj: '',
-    tipoUsuario: 'pessoa'
+    tipoUsuario: 'empresa'
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -38,6 +39,12 @@ const Register = ({ onLoginClick }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    if (formData.senha !== formData.confirmarSenha) {
+      setError('As senhas não coincidem');
+      setLoading(false);
+      return;
+    }
+
 
     try {
       const userData = {
@@ -59,6 +66,7 @@ const Register = ({ onLoginClick }) => {
         userData.nomeFantasia = formData.nomeFantasia;
         userData.cnpj = formData.cnpj;
       }
+
 
       const response = await registerUser(userData);
       
@@ -95,7 +103,7 @@ const Register = ({ onLoginClick }) => {
             className="register-form-select"
             required
           >
-            <option value="pessoa">Pessoa Física</option>
+            {/*<option value="pessoa">Pessoa Física</option>*/}
             <option value="empresa">Empresa</option>
             <option value="coletor">Coletor</option>
           </select>
@@ -209,6 +217,16 @@ const Register = ({ onLoginClick }) => {
               required
               minLength="6"
             />
+            <input
+              type="password"
+              name="confirmarSenha"
+              placeholder="Confirmar Senha *"
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+              required
+              minLength="6"
+/>
+
           </div>
 
           <button 

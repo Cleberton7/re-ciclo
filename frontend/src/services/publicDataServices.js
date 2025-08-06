@@ -29,3 +29,16 @@ export const getCentrosReciclagemPublicos = async () => {
     throw error;
   }
 };
+
+export const getEmpresaPublicaPorId = async (id) => {
+  try {
+    const response = await axios.get(`${API_BASE}/empresas/publicas/${id}`);
+    return {
+      ...response.data.data,
+      imagemPerfil: response.data.data.imagemPerfil || null
+    };
+  } catch (error) {
+    console.error(`Erro ao buscar empresa com ID ${id}:`, error);
+    throw error;
+  }
+};

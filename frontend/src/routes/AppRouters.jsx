@@ -6,6 +6,7 @@ import Reciclo from "../pages/Reciclo";
 import Eventos from "../pages/NoticiasEventos";
 import PublicColetasPage from "../pages/PublicColetasPage";
 import PainelEmpresa from "../pages/PainelEmpresa";
+import EmpresaDetalhes from "../pages/EmpresaDetalhes";
 import PainelReciclador from "../pages/PainelReciclador";
 import PainelPessoa from "../pages/PainelPessoa";
 import PainelNoticias from "../pages/admin/PainelNoticias";
@@ -42,6 +43,8 @@ const AppRoutes = () => {
         <Route path="/noticiasEventos" element={<NoticiasEventos />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="/email-not-verified" element={<EmailNotVerifiedPage />} />
+        <Route path="/empresas/:id" element={<EmpresaDetalhes />} />
+
       </Route>
 
       {/* Rotas protegidas */}

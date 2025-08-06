@@ -113,3 +113,31 @@ export const atualizarDados = async (req, res) => {
   }
 };
 
+// 🔹 Buscar empresa pública por ID
+export const getEmpresaPublicaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const empresa = await User.findOne({
+      _id: id,
+      tipoUsuario: 'empresa'
+    }).select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade');
+
+    if (!empresa) {
+      return res.status(404).json({ success: false, message: 'Empresa não encontrada' });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...empresa._doc,
+        nomeFantasia: empresa.razaoSocial || empresa.nome
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar empresa',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

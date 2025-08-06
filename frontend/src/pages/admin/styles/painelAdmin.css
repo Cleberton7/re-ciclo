@@ -1,6 +1,6 @@
-#containerPainelAdmin {
+.containerPainelAdmin {
   padding: 40px 20px;
-  max-width: 1200px;
+  background-color: #009951;
   margin: 0 auto;
   text-align: center;
 }

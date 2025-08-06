@@ -8,7 +8,8 @@ import {
   atualizarLocalizacao,
   getLocalizacoes,
   getEmpresasPublicas,
-  atualizarDados
+  atualizarDados,
+  getEmpresaPublicaPorId
 } from '../controllers/empresaController.js';
 
 const router = express.Router();
@@ -30,5 +31,7 @@ router.put('/atualizar',verifyToken,requireRole(['empresa']),uploadEmpresa,uploa
 // 🔹 Endpoints públicos
 router.get('/localizacoes', getLocalizacoes);
 router.get('/publicas', getEmpresasPublicas);
+router.get('/publicas/:id', getEmpresaPublicaPorId);
+
 
 export default router;

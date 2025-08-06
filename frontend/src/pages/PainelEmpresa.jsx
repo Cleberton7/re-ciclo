@@ -273,7 +273,7 @@ const PainelEmpresa = () => {
                               {deletingId === res._id ? (
                                 <ClipLoader color="#fff" size={14} />
                               ) : (
-                                "Excluir"
+                                "Cancelar"
                               )}
                             </button>
                           </>

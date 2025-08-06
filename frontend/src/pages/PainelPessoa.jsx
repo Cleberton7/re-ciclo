@@ -1,197 +1,226 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import "./styles/painelPessoa.css";
-import "./styles/containerPrincipal.css";
+import React, { useEffect, useState } from "react";
+import PainelGenerico from "../components/PainelGenerico/PainelGenerico";
+import Modal from "../components/Modal";
+import { ClipLoader } from "react-spinners";
+import {
+  criarSolicitacaoColeta,
+  getSolicitacoesColetaPessoa,
+  deletarSolicitacaoColeta
+} from "../services/coletaService";
 
 const PainelPessoa = () => {
-  const [userData, setUserData] = useState({
-    nome: "",
-    email: "",
-    cpf: "",
-    endereco: ""
+  const [residuos, setResiduos] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [globalLoading, setGlobalLoading] = useState(false);
+  const [novoResiduo, setNovoResiduo] = useState({
+    tipoMaterial: "eletronicos",
+    quantidade: "",
+    endereco: "",
+    observacoes: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const navigate = useNavigate();
+
+  const carregarResiduos = async () => {
+    setGlobalLoading(true);
+    try {
+      const dados = await getSolicitacoesColetaPessoa();
+      const sorted = dados.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setResiduos(sorted);
+    } catch (error) {
+      console.error("Erro ao carregar resíduos:", error.message);
+    } finally {
+      setGlobalLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        navigate('/login');
-        return;
-      }
+    carregarResiduos();
+  }, []);
 
-      try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/usuarios/pessoal`, {
-
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.data?.success) {
-          throw new Error(response.data.message || 'Resposta inválida do servidor');
-        }
-
-        // Garante que nenhum campo fique undefined
-        setUserData({
-          nome: response.data.data.nome ?? "",
-          email: response.data.data.email ?? "",
-          cpf: response.data.data.cpf ?? "",
-          endereco: response.data.data.endereco ?? ""
-        });
-        setHasError(false);
-
-      } catch (error) {
-        console.error('Erro ao buscar dados:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message
-        });
-
-        setHasError(true);
-        setMessage(error.response?.data?.message || "Erro ao carregar dados");
-
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUserData();
-  }, [navigate]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({ ...prev, [name]: value }));
+  const resetForm = () => {
+    setNovoResiduo({
+      tipoMaterial: "eletronicos",
+      quantidade: "",
+      endereco: "",
+      observacoes: "",
+    });
   };
 
-  const handleSave = async () => {
-    const token = localStorage.getItem("token");
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
+  const adicionarResiduo = async () => {
+    setLoading(true);
     try {
-      if (!userData.nome || !userData.cpf) {
-        throw new Error("Nome e CPF são obrigatórios");
+      const formData = new FormData();
+      formData.append("tipoMaterial", novoResiduo.tipoMaterial);
+      formData.append("quantidade", novoResiduo.quantidade);
+      formData.append("endereco", novoResiduo.endereco);
+      formData.append("observacoes", novoResiduo.observacoes || "");
+      formData.append("privacidade", "privada");
+
+      const response = await criarSolicitacaoColeta(formData);
+      if (response.success) {
+        resetForm();
+        setShowModal(false);
+        await carregarResiduos();
+      } else {
+        throw new Error(response.message || "Erro ao criar solicitação");
       }
-
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/usuarios/dados`,
-        { ...userData, tipoUsuario: "pessoa" },
-        {
-          headers: { 
-            'Authorization': `Bearer ${token.trim()}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Falha ao atualizar dados');
-      }
-
-      setUserData(prev => ({
-        ...prev,
-        ...response.data.data
-      }));
-      setMessage("Dados atualizados com sucesso!");
-      setIsEditing(false);
-      
-      setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message);
+      alert(`Erro ao adicionar: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
+  const cancelarSolicitacao = async (id) => {
+    const confirmacao = window.confirm("Tem certeza que deseja cancelar esta solicitação?");
+    if (!confirmacao) return;
 
-  if (loading) {
-    return <div className="loading">Carregando...</div>;
-  }
-
-  if (hasError) {
-    return (
-      <div className="painel-container error-container">
-        <h2>Erro ao carregar dados</h2>
-        <p>{message}</p>
-        <button onClick={() => window.location.reload()}>Tentar novamente</button>
-      </div>
-    );
-  }
+    setGlobalLoading(true);
+    try {
+      await deletarSolicitacaoColeta(id);
+      await carregarResiduos();
+    } catch (error) {
+      alert(`Erro ao cancelar solicitação: ${error.message}`);
+    } finally {
+      setGlobalLoading(false);
+    }
+  };
+  const formularioInvalido =
+    !novoResiduo.tipoMaterial || !novoResiduo.quantidade || !novoResiduo.endereco;;
 
   return (
-    <div className="painel-container" id="containerPrincipal">
-      <h2>Meu Perfil</h2>
-      {message && <p className={`message ${isEditing ? 'editing' : ''}`}>{message}</p>}
-      
-      <div className="info-group">
-        <label>Nome:</label>
-        <input
-          type="text"
-          name="nome"
-          value={userData.nome || ""}
-          onChange={handleChange}
-          disabled={!isEditing}
-          required
-        />
-      </div>
-      
-      <div className="info-group">
-        <label>Email:</label>
-        <input
-          type="email"
-          name="email"
-          value={userData.email || ""}
-          onChange={handleChange}
-          disabled={!isEditing}
-          required
-        />
-      </div>
-      
-      <div className="info-group">
-        <label>CPF:</label>
-        <input
-          type="text"
-          name="cpf"
-          value={userData.cpf || ""}
-          onChange={handleChange}
-          disabled={!isEditing}
-          required
-        />
-      </div>
-      
-      <div className="info-group">
-        <label>Endereço:</label>
-        <input
-          type="text"
-          name="endereco"
-          value={userData.endereco || ""}
-          onChange={handleChange}
-          disabled={!isEditing}
-        />
-      </div>
-      
-      <div className="button-group">
-        {isEditing ? (
-          <>
-            <button onClick={handleSave}>Salvar</button>
-            <button className="cancel-button" onClick={() => setIsEditing(false)}>Cancelar</button>
-          </>
+    <div id="containerPrincipal">
+      <PainelGenerico tipoUsuario="pessoa" />
+
+      <div className="container-container">
+        <h2>Meus Resíduos</h2>
+
+        <button onClick={() => setShowModal(true)} className="btn-adicionar">
+          Informar Resíduo
+        </button>
+
+        {globalLoading ? (
+          <div className="loading-table">
+            <ClipLoader color="#009951" size={30} />
+            <p>Carregando resíduos...</p>
+          </div>
         ) : (
-          <button onClick={() => setIsEditing(true)}>Editar</button>
+          <table className="tabela-residuos">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Observações</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ações</th> 
+              </tr>
+            </thead>
+            <tbody>
+              {residuos.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="nenhum-residuo">
+                    Nenhum resíduo informado
+                  </td>
+                </tr>
+              ) : (
+                residuos.map((res) => (
+                  <tr key={res._id}>
+                    <td>{res.tipoMaterial}</td>
+                    <td>{res.quantidade} kg</td>
+                    <td>{res.observacoes || "-"}</td>
+                    <td>
+                      <span className={`status-badge ${res.status}`}>
+                        {res.status}
+                      </span>
+                    </td>
+                    <td>{new Date(res.createdAt).toLocaleDateString("pt-BR")}</td>
+                    <td>
+                      {res.status === "pendente" && (
+                        <button
+                          onClick={() => cancelarSolicitacao(res._id)}
+                          className="btn-cancelar"
+                          disabled={globalLoading}
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         )}
       </div>
+
+      <Modal
+        isOpen={showModal}
+        onClose={() => !loading && setShowModal(false)}
+        size="form-coleta"
+      >
+        <div className="form-modal-content text-white">
+          <h3 className="text-xl font-semibold mb-4">Informar Resíduo</h3>
+
+          <label className="block mb-1">Tipo de Material:</label>
+          <select
+            value={novoResiduo.tipoMaterial}
+            onChange={(e) =>
+              setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })
+            }
+            disabled={loading}
+            className="w-full p-2 rounded text-black mb-3"
+          >
+            <option value="eletronicos">Eletrônicos</option>
+            <option value="outros">Outros</option>
+          </select>
+
+          <label className="block mb-1">Quantidade (kg):</label>
+          <input
+            type="number"
+            placeholder="Quantidade estimada"
+            value={novoResiduo.quantidade}
+            onChange={(e) =>
+              setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })
+            }
+            disabled={loading}
+            min="1"
+            className="w-full p-2 rounded text-black mb-3"
+          />
+          <label className="block mb-1">Endereço:</label>
+          <input
+            type="text"
+            placeholder="Endereço para coleta"
+            value={novoResiduo.endereco}
+            onChange={(e) =>
+              setNovoResiduo({ ...novoResiduo, endereco: e.target.value })
+            }
+            disabled={loading}
+            className="w-full p-2 rounded text-black mb-3"
+          />
+
+          <label className="block mb-1">Observações:</label>
+          <textarea
+            placeholder="Ex: Precisa agendar horário"
+            value={novoResiduo.observacoes}
+            onChange={(e) =>
+              setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })
+            }
+            rows={3}
+            disabled={loading}
+            className="w-full p-2 rounded text-black mb-4"
+          />
+
+          <button
+            onClick={adicionarResiduo}
+            disabled={formularioInvalido || loading}
+            className="btn-enviar"
+          >
+            {loading ? "Enviando..." : "Informar Resíduo"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,0 +1,65 @@
+.empresa-detalhes-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  background-color: #009951;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.empresa-card-detalhado {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.empresa-imagem {
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+}
+
+.empresa-info h2 {
+  color: #ffffff;
+  font-size: 1.8rem;
+}
+
+.empresa-info p {
+  margin: 8px 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.empresa-recebe {
+  margin-top: 15px;
+  font-weight: bold;
+  color: green;
+}
+
+.mapa-empresa-detalhes {
+  width: 100%;
+  height: 600px;
+  position: relative;
+  margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mapa-carregando,
+.mapa-erro {
+  padding: 20px;
+  text-align: center;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.mapa-erro {
+  color: #d32f2f;
+  background: #ffebee;
+}

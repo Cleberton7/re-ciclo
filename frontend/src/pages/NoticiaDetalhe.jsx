@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { buscarNoticiaPorSlug } from '../services/noticiaService';
 import { BASE_URL } from '../config/config.js';
+import VoltarLink from '../components/VoltarLink';
 import "./styles/containerPrincipal.css";
 import "./styles/noticiaDetalhe.css";
 
@@ -57,7 +58,7 @@ const NoticiaDetalhe = () => {
 
   return (
     <div className="noticia-detalhe-container" id='containerPrincipal'>
-      <Link to="/noticiasEventos" className="back-link">← Voltar para Notícias</Link>
+      <VoltarLink to="/noticiasEventos">Voltar para Notícias</VoltarLink>
 
       {noticia && (
         <>

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import authService from './authService';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -8,7 +7,7 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Função auxiliar para tratamento de erros
+
 const handleApiError = (error, defaultMessage) => {
   console.error('Erro na requisição:', error);
   
@@ -172,3 +171,27 @@ export const concluirColeta = async (idSolicitacao, dados = {}) => {
     );
   }
 };
+export const getSolicitacoesColetaPessoa = async () => {
+  try {
+    const { data } = await axios.get(`${API_BASE}/coletas`, {
+      headers: getAuthHeader()
+    });
+
+    if (!data.success) throw new Error(data.message || 'Erro ao buscar coletas do usuário');
+
+    return data.data.map((coleta) => ({
+      ...coleta,
+      imagem: coleta.imagem?.startsWith('http')
+        ? coleta.imagem
+        : `${API_BASE}${coleta.imagem}`
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar coletas do usuário:', error);
+    throw new Error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      'Erro ao buscar coletas do usuário'
+    );
+  }
+};
+

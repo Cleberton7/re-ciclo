@@ -129,6 +129,10 @@
   padding: 20px;
   font-style: italic;
 }
+.empresas-card-link{
+  text-decoration: none;
+  color: inherit; 
+}
 
 /* Responsividade */
 @media (max-width: 1200px) {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
 import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch } from 'react-icons/fa';
 import { BASE_URL } from '../config/config.js';
@@ -140,36 +141,38 @@ const Empresas = () => {
           ) : (
             <div className="empresas-cards-container">
               {filteredData.empresas.map(empresa => (
-                <div 
-                  key={empresa.id} 
-                  className="empresas-card"
-                  style={{ 
-                    backgroundImage: empresa.imagemUrl 
-                      ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
-                      : 'none',
-                    backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
-                  }}
-                >
-                  <div className="empresas-card-content">
-                    <h3>{empresa.nomeExibido}</h3>
-                    <div className="empresas-info-item">
-                      <FaEnvelope className="empresas-info-icon" />
-                      <span>{empresa.email}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaPhone className="empresas-info-icon" />
-                      <span>{empresa.telefone}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaMapMarkerAlt className="empresas-info-icon" />
-                      <span>{empresa.endereco}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaIdCard className="empresas-info-icon" />
-                      <span>{empresa.cnpj}</span>
+                <Link to={`/empresas/${empresa.id}`} key={empresa.id} className="empresas-card-link">
+                  <div 
+                    key={empresa.id} 
+                    className="empresas-card"
+                    style={{ 
+                      backgroundImage: empresa.imagemUrl 
+                        ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
+                        : 'none',
+                      backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
+                    }}
+                  >
+                    <div className="empresas-card-content">
+                      <h3>{empresa.nomeExibido}</h3>
+                      <div className="empresas-info-item">
+                        <FaEnvelope className="empresas-info-icon" />
+                        <span>{empresa.email}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaPhone className="empresas-info-icon" />
+                        <span>{empresa.telefone}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaMapMarkerAlt className="empresas-info-icon" />
+                        <span>{empresa.endereco}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaIdCard className="empresas-info-icon" />
+                        <span>{empresa.cnpj}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
