@@ -9,6 +9,14 @@ const Pin = ({ tipo, nome, endereco, telefone, email, cnpj, recebeResiduoComunid
   const pinClass = `pin-icon ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
   const badgeClass = `tipo-badge ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
 
+  // Função para abrir rota no Google Maps
+  const abrirRota = () => {
+    if (endereco) {
+      const enderecoEncoded = encodeURIComponent(endereco);
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${enderecoEncoded}`, '_blank');
+    }
+  };
+
   return (
     <div
       className="pin-container"
@@ -48,6 +56,9 @@ const Pin = ({ tipo, nome, endereco, telefone, email, cnpj, recebeResiduoComunid
               <div className="info-item">
                 <FaMapMarkerAlt className="info-icon" />
                 <span>{endereco}</span>
+                <button className="rota-button" onClick={abrirRota}>
+                  Obter Rota
+                </button>
               </div>
             )}
             

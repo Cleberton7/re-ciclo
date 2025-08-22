@@ -1,0 +1,16 @@
+{
+  "name": "projeto-e-cicle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "♻️ re-ciclo Plataforma de serviços de reciclagem, que tem como objetivo mapear as empresas geradoras de Resíduos de Equipamentos Eletroeletrônicos (REEE). E disponibilizar informações de coletas para centros de reciclagem, para que esses centros trabalhem com esses residuos, reutilazando, reciclando ou fazendo o descarte correto. A plataforma pode ser também acessada pela população, com a finalidade de informar e conscientizar sobre o REEE, além de informar as empresas recebedoras desses materiais.",
+  "scripts": {
+    "start": "dotenv -e .env -- concurrently -n BACKEND,FRONTEND -c blue,green \"npm run server --prefix backend\" \"npm run dev --prefix frontend\"",
+    "backend": "dotenv -e .env -- npm run server --prefix backend",
+    "frontend": "dotenv -e .env -- npm run dev --prefix frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "dotenv-cli": "^7.4.4"
+  }
+}

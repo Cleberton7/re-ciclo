@@ -185,37 +185,39 @@ const Empresas = () => {
           ) : (
             <div className="empresas-cards-container">
               {filteredData.centrosReciclagem.map(centro => (
-                <div 
-                  key={centro.id} 
-                  className="empresas-card"
-                  style={{ 
-                    backgroundImage: centro.imagemUrl 
-                      ? `url(${centro.imagemUrl})`
-                      : 'none',
-                    backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
-                  }}
-                >
-                  <div className="empresas-card-overlay"></div>
-                  <div className="empresas-card-content">
-                    <h3>{centro.nomeExibido}</h3>
-                    <div className="empresas-info-item">
-                      <FaEnvelope className="empresas-info-icon" />
-                      <span>{centro.email}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaPhone className="empresas-info-icon" />
-                      <span>{centro.telefone}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaMapMarkerAlt className="empresas-info-icon" />
-                      <span>{centro.endereco}</span>
-                    </div>
-                    <div className="empresas-info-item">
-                      <FaIdCard className="empresas-info-icon" />
-                      <span>{centro.cnpj}</span>
+                <Link to={`/centros/${centro.id}`} key={centro.id} className="empresas-card-link">
+                  <div 
+                    key={centro.id} 
+                    className="empresas-card"
+                    style={{ 
+                      backgroundImage: centro.imagemUrl 
+                        ? `url(${centro.imagemUrl})`
+                        : 'none',
+                      backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
+                    }}
+                  >
+                    <div className="empresas-card-overlay"></div>
+                    <div className="empresas-card-content">
+                      <h3>{centro.nomeExibido}</h3>
+                      <div className="empresas-info-item">
+                        <FaEnvelope className="empresas-info-icon" />
+                        <span>{centro.email}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaPhone className="empresas-info-icon" />
+                        <span>{centro.telefone}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaMapMarkerAlt className="empresas-info-icon" />
+                        <span>{centro.endereco}</span>
+                      </div>
+                      <div className="empresas-info-item">
+                        <FaIdCard className="empresas-info-icon" />
+                        <span>{centro.cnpj}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

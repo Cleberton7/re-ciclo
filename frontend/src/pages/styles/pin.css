@@ -148,6 +148,22 @@
 .info-item.recebe-residuo .info-icon {
   color: #f39c12;
 }
+.rota-button {
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 12px;
+  background-color: #009951;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.rota-button:hover {
+  background-color: #007a3d;
+}
+
 
 @keyframes fadeIn {
   from {

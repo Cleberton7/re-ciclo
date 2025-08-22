@@ -137,3 +137,31 @@ export const atualizarDados = async (req, res) => {
     });
   }
 };
+// 🔹 Buscar empresa pública por ID
+export const getCentroPublicoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const centro = await User.findOne({
+      _id: id,
+      tipoUsuario: 'centro'
+    }).select('nome email endereco cnpj nomeFantasia telefone imagemPerfil localizacao');
+
+    if (!centro) {
+      return res.status(404).json({ success: false, message: 'Centro não encontrada '  });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...centro._doc,
+        nomeFantasia: centro.nomeFantasia || centro.nome
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar centro',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

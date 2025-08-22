@@ -5,7 +5,8 @@ import {
   atualizarLocalizacao,
   getCentrosPublicos,
   getLocalizacoes,
-  atualizarDados
+  atualizarDados,
+  getCentroPublicoPorId
 } from '../controllers/centroController.js';
 
 import { 
@@ -33,5 +34,6 @@ router.put('/atualizar-localizacao',verifyToken,requireCentro,atualizarLocalizac
 router.put('/atualizar',verifyToken,requireCentro,uploadColetor,uploadErrorHandler,atualizarDados);
 router.get('/publicos',rateLimiter(30, 60),getCentrosPublicos);
 router.get('/localizacoes',getLocalizacoes);
+router.get('/publicos/:id', rateLimiter(30, 60), getCentroPublicoPorId);
 
 export default router;
