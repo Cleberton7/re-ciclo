@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/authService';
+import { registerUser } from '../../services/authService';
 import { IMaskInput } from 'react-imask';
-import './styles/register.css';
-import Logo from '../assets/logo.png';
-import Modal from '../components/Modal';
+import '../../pages/styles/register.css';
+import VoltarLink from '../../components/VoltarLink';
 
-const Register = ({ onLoginClick }) => {
+const CadastroUsuarioAdm = () => {
   const navigate = useNavigate();
   const [userType, setUserType] = useState('empresa');
   const [formData, setFormData] = useState({
@@ -23,7 +22,7 @@ const Register = ({ onLoginClick }) => {
     tipoUsuario: 'empresa'
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -38,13 +37,14 @@ const Register = ({ onLoginClick }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
+
     if (formData.senha !== formData.confirmarSenha) {
       setError('As senhas não coincidem');
       setLoading(false);
       return;
     }
-
 
     try {
       const userData = {
@@ -67,17 +67,11 @@ const Register = ({ onLoginClick }) => {
         userData.cnpj = formData.cnpj;
       }
 
-
-      const response = await registerUser(userData);
-      
-      if (response && response.token) {
-        setSuccess(true);
-        setTimeout(() => navigate('/login'), 2000);
-      } else {
-        throw new Error('Resposta inválida do servidor');
-      }
+      await registerUser(userData);
+      setSuccess('Usuário cadastrado com sucesso!');
+      setTimeout(() => navigate('/painelUsuarios'), 2000);
     } catch (err) {
-      setError(err.response?.data?.erros?.join(', ') || err.response?.data?.mensagem || err.message || 'Erro ao cadastrar');
+      setError(err.response?.data?.mensagem || err.message || 'Erro ao cadastrar usuário');
     } finally {
       setLoading(false);
     }
@@ -85,16 +79,13 @@ const Register = ({ onLoginClick }) => {
 
   return (
     <div className="register-container">
-      <div className="register-left">
-        <img src={Logo} alt="Logo da empresa" className="register-logo-img" />
-      </div>
-
+      <VoltarLink to="/painelAdmin">Voltar</VoltarLink>
       <div className="register-right">
-        <h2 className="register-title" >Cadastro</h2>
-        <p className="register-subtitle">Selecione seu tipo de cadastro</p>
+        <h2 className="register-title">Cadastro pelo Admin</h2>
+        <p className="register-subtitle">Cadastre empresas, centros ou outros usuários</p>
 
         {error && <div className="register-error-message">{error}</div>}
-        {success && <div className="register-success-message">Cadastro realizado com sucesso! Redirecionando...</div>}
+        {success && <div className="register-success-message">{success}</div>}
 
         <form className="register-form" onSubmit={handleSubmit}>
           <select
@@ -103,9 +94,10 @@ const Register = ({ onLoginClick }) => {
             className="register-form-select"
             required
           >
-            {/*<option value="pessoa">Pessoa Física</option>*/}
             <option value="empresa">Empresa</option>
-            <option value="centro">Coletor</option>
+            <option value="centro">Centro/Coletor</option>
+            <option value="pessoa">Pessoa</option>
+            <option value="adminGeral">Administrador</option>
           </select>
 
           <div className="register-form-fields">
@@ -140,6 +132,20 @@ const Register = ({ onLoginClick }) => {
                 required
               />
             )}
+            {userType === 'empresa' && (
+                <label>
+                    <input
+                    type="checkbox"
+                    name="recebeResiduoComunidade"
+                    checked={formData.recebeResiduoComunidade || false}
+                    onChange={(e) =>
+                        setFormData(prev => ({ ...prev, recebeResiduoComunidade: e.target.checked }))
+                    }
+                    />
+                    Aceita receber resíduos da comunidade
+                </label>
+            )}
+
 
             {userType === 'centro' && (
               <input
@@ -182,22 +188,6 @@ const Register = ({ onLoginClick }) => {
               value={formData.endereco}
               onChange={handleChange}
             />
-            {userType === 'empresa' && (
-              <div className="register-checkbox-container">
-                <input
-                  type="checkbox"
-                  id="recebeResiduoComunidade"
-                  name="recebeResiduoComunidade"
-                  checked={formData.recebeResiduoComunidade || false}
-                  onChange={(e) =>
-                    setFormData({ ...formData, recebeResiduoComunidade: e.target.checked })
-                  }
-                />
-                <label htmlFor="recebeResiduoComunidade">
-                  Esta empresa aceita resíduos da comunidade?
-                </label>
-              </div>
-            )}
 
             <input
               type="email"
@@ -225,8 +215,7 @@ const Register = ({ onLoginClick }) => {
               onChange={handleChange}
               required
               minLength="6"
-/>
-
+            />
           </div>
 
           <button 
@@ -234,16 +223,12 @@ const Register = ({ onLoginClick }) => {
             disabled={loading} 
             className="register-submit-button"
           >
-            {loading ? 'Carregando...' : 'Cadastrar'}
+            {loading ? 'Cadastrando...' : 'Cadastrar Usuário'}
           </button>
         </form>
-
-        <div className="register-login-link">
-          Já tem uma conta? <span onClick={onLoginClick}>Faça login</span>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Register;
+export default CadastroUsuarioAdm;

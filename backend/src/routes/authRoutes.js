@@ -8,11 +8,13 @@ import {
   resetPassword,
   getUserProfile,
   updateUserProfile,
+  adminRegisterEmpresaOrCentro,
   verifyAuth // Nova função adicionada
 } from "../controllers/authController.js";
 import { 
   verifyToken, 
-  requireAuth 
+  requireAuth,
+  requireAdmin
 } from "../middlewares/authMiddleware.js";
 import rateLimit from "express-rate-limit";
 
@@ -40,6 +42,7 @@ router.get("/verify-email/:token", verifyEmail);
 router.post("/resend-verification", authLimiter, resendVerificationEmail);
 router.post("/request-password-reset", authLimiter, requestPasswordReset);
 router.post("/reset-password", authLimiter, resetPassword);
+router.post("/admin-register", verifyToken, requireAuth, requireAdmin, adminRegisterEmpresaOrCentro);
 
 // ======================================
 // ROTAS PROTEGIDAS (requerem autenticação)

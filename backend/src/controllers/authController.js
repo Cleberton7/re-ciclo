@@ -124,69 +124,145 @@ export const register = async (req, res) => {
   }
 };
 
-
-export const login = async (req, res) => {
-  const { email, senha } = req.body;
-
+export const adminRegisterEmpresaOrCentro = async (req, res) => {
   try {
-    const user = await User.findOne({ email }).select('+senha');
-    
-    if (!user || !(await user.comparePassword(senha))) {
-      return res.status(401).json({ 
-        mensagem: 'Credenciais incorretas' 
+    const { email, cnpj, tipoUsuario, razaoSocial, nomeFantasia } = req.body;
+
+    if (!email || !cnpj || !tipoUsuario) {
+      return res.status(400).json({
+        mensagem: 'Campos obrigatórios: email, cnpj e tipoUsuario'
       });
     }
 
-    if (!user.emailVerificado) {
-      // Gera novo token de verificação
-      const verificationToken = jwt.sign({ id: user._id }, JWT_SECRET, { 
-        expiresIn: JWT_EMAIL_EXPIRES_IN 
+    if (!['empresa', 'centro'].includes(tipoUsuario)) {
+      return res.status(400).json({ mensagem: 'Tipo de usuário inválido' });
+    }
+
+    // Verificar se já existe
+    if (await User.findOne({ $or: [{ email }, { cnpj }] })) {
+      return res.status(400).json({ mensagem: 'E-mail ou CNPJ já cadastrados' });
+    }
+
+    // Criar usuário sem senha
+    const userData = {
+      email,
+      cnpj: cnpj.replace(/\D/g, ''),
+      tipoUsuario,
+      emailVerificado: false
+    };
+
+    if (tipoUsuario === 'empresa') userData.razaoSocial = razaoSocial;
+    if (tipoUsuario === 'centro') userData.nomeFantasia = nomeFantasia;
+
+    const newUser = await User.create(userData);
+
+    // Criar token para definir senha
+    const token = jwt.sign({ id: newUser._id }, JWT_SECRET, { expiresIn: '1h' });
+    newUser.passwordResetToken = token;
+    newUser.passwordResetExpires = Date.now() + 3600000;
+    await newUser.save();
+
+    await sendPasswordResetEmail(newUser, token);
+
+    res.status(201).json({
+      mensagem: 'Usuário criado. Um e-mail foi enviado para definir a senha.',
+      usuario: {
+        id: newUser._id,
+        email: newUser.email,
+        cnpj: newUser.cnpj,
+        tipoUsuario: newUser.tipoUsuario
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ mensagem: 'Erro no servidor', erro: err.message });
+  }
+};
+
+export const login = async (req, res) => {
+  const { identificador, senha } = req.body; // pode ser email ou CNPJ
+
+  // Validação de campos obrigatórios
+  if (!identificador || !senha) {
+    return res.status(400).json({ 
+      mensagem: 'Identificador e senha são obrigatórios',
+      code: 'MISSING_CREDENTIALS'
+    });
+  }
+
+  try {
+    // Buscar usuário por e-mail ou CNPJ
+    const user = await User.findOne({
+      $or: [
+        { email: identificador },
+        { cnpj: identificador.replace(/\D/g, '') }
+      ]
+    }).select('+senha'); // Seleciona a senha mesmo se estiver como select: false
+
+    if (!user) {
+      return res.status(401).json({ 
+        mensagem: 'Credenciais incorretas',
+        code: 'INVALID_CREDENTIALS'
       });
-      
+    }
+
+    // Verifica se usuário tem senha definida
+    if (!user.senha) {
+      return res.status(403).json({
+        mensagem: 'Conta criada pelo admin. Defina sua senha pelo e-mail enviado.',
+        code: 'NO_PASSWORD'
+      });
+    }
+
+    // Verifica se a senha está correta
+    const senhaCorreta = await user.comparePassword(senha);
+    if (!senhaCorreta) {
+      return res.status(401).json({ 
+        mensagem: 'Credenciais incorretas',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+
+    // Verifica e envia e-mail de verificação se não estiver verificado
+    if (!user.emailVerificado) {
+      const verificationToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: JWT_EMAIL_EXPIRES_IN });
       user.emailVerificationToken = verificationToken;
       await user.save();
-      
-      // Envia e-mail de verificação
       await sendVerificationEmail(user, verificationToken);
-      
+
       return res.status(403).json({
-        mensagem: 'E-mail não verificado',
+        mensagem: 'E-mail não verificado. Enviamos um novo e-mail de verificação.',
         code: 'EMAIL_NOT_VERIFIED'
       });
     }
+
+    // Geração do token JWT de autenticação
     const token = jwt.sign(
       { id: user._id, tipoUsuario: user.tipoUsuario },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
-    // Se o e-mail não estiver verificado, envie um novo token de verificação
-    if (!user.emailVerificado) {
-      const verificationToken = jwt.sign({ id: user._id }, JWT_SECRET, { 
-        expiresIn: JWT_EMAIL_EXPIRES_IN 
-      });
-      
-      user.emailVerificationToken = verificationToken;
-      await user.save();
-      await sendVerificationEmail(user, verificationToken);
-    }
+
+    // Determina o nome de exibição
+    const displayName = user.nome || user.razaoSocial || user.nomeFantasia || user.email;
+
     res.json({
       mensagem: 'Login bem-sucedido',
       token,
       usuario: {
         id: user._id,
-        nome: user.nome || user.razaoSocial || user.nomeFantasia,
+        nome: displayName,
         email: user.email,
         tipoUsuario: user.tipoUsuario,
         emailVerificado: user.emailVerificado
-      },
-      requerVerificacao: !user.emailVerificado
-
+      }
     });
 
   } catch (err) {
+    console.error('Erro no login:', err);
     res.status(500).json({ 
       mensagem: 'Erro no servidor', 
-      erro: process.env.NODE_ENV === 'development' ? err.message : undefined
+      code: 'SERVER_ERROR',
+      erro: err.message 
     });
   }
 };

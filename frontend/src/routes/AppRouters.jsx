@@ -27,6 +27,7 @@ import GerenciarPontosColeta from '../pages/admin/GerenciarPontosColeta';
 import EmpresasGeradoras from '../pages/admin/EmpresasGeradoras';
 import PainelColetas from '../pages/admin/PainelColetas';
 import Banners from '../pages/admin/Banners';
+import CadastroUsuarioAdm from '../pages/admin/CadastroUsuarioAdm';
 
 const AppRoutes = () => {
   return (
@@ -103,16 +104,15 @@ const AppRoutes = () => {
           />
         }
       />
-
       <Route 
-        path="/painelAdm" 
+        path="/cadastro-usuario-adm" 
         element={
           <ProtectedRoute 
-            element={<PainelAdm />}
+            element={<CadastroUsuarioAdm />} 
             requiredRole="adminGeral" 
             redirectPath="/unauthorized"
           />
-        }     
+        }
       />
       
       <Route path="/editarUsuarioForm" element={

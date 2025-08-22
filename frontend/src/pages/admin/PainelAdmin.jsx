@@ -26,6 +26,11 @@ const PainelAdm = () => {
             <h3>Gerenciar Permissões</h3>
             <p>Defina níveis de acesso e papéis dos usuários.</p>
           </div>
+          <div className="card-opcao" onClick={() => navigate("/cadastro-usuario-adm")}>
+            <h3>Cadastrar Usuário</h3>
+            <p>Adicione novas empresas, coletores ou admins</p>
+          </div>
+
         </div>
 
         {/* === Seção: Conteúdo === */}

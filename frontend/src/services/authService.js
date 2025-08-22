@@ -17,7 +17,7 @@ api.interceptors.request.use(
   },
   error => Promise.reject(error)
 );
-// No seu arquivo authService.js
+
 api.interceptors.response.use(
   response => response,
   error => {
@@ -31,10 +31,11 @@ api.interceptors.response.use(
   }
 );
 
-export const loginUser = async (credentials) => {
+export const loginUser = async ({ email, cnpj, senha }) => {
   try {
-    const response = await api.post('/auth/login', credentials);
-    
+    const identificador = email || cnpj; // envia email ou CNPJ
+    const response = await api.post('/auth/login', { identificador, senha });
+
     if (!response.data.token || !response.data.usuario) {
       throw new Error('Resposta de login inválida');
     }
@@ -45,18 +46,25 @@ export const loginUser = async (credentials) => {
     };
   } catch (error) {
     // Tratamento específico para erro 403 (e-mail não verificado)
-    if (error.response?.status === 403 && error.response.data?.mensagem === 'E-mail não verificado') {
+    if (error.response?.status === 403 && error.response.data?.code === 'EMAIL_NOT_VERIFIED') {
       error.code = 'EMAIL_NOT_VERIFIED';
-      error.email = credentials.email;
+      error.email = email;
     }
     throw error;
   }
 };
 
+
 export const registerUser = async (userData) => {
   const response = await api.post('/auth/register', userData);
   return response.data;
 };
+// Cadastro feito pelo admin
+export const adminRegisterUser = async (userData) => {
+  const response = await api.post('/auth/admin-register', userData);
+  return response.data;
+};
+
 
 export const getUserData = async () => {
   const response = await api.get('/usuarios/pessoal');
@@ -71,6 +79,11 @@ export const resetPassword = async (token, novaSenha) => {
   const response = await api.post('/auth/reset-password', { token, novaSenha });
   return response.data;
 };
+
+export const forgotPassword = async (email) => {
+  return axios.post('/api/auth/forgot-password', { email });
+};
+
 
 export const verifyEmail = async (token) => {
   const response = await api.get(`/auth/verify-email/${token}`);
@@ -89,9 +102,11 @@ export const resendVerificationEmail = async (email) => {
 const authService = {
   loginUser,
   registerUser,
+  adminRegisterUser, 
   getUserData,
   requestPasswordReset,
   resetPassword,
+  forgotPassword,
   verifyEmail,
   resendVerificationEmail
 };
