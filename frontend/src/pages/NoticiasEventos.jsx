@@ -4,6 +4,7 @@ import { listarNoticias } from '../services/noticiaService';
 import { BASE_URL } from '../config/config.js';
 import "./styles/containerPrincipal.css";
 import "./styles/eventosNoticias.css";
+import ImagemPadrão from '../image/ErrroSite.png';
 
 const NoticiasEventos = () => {
   const [noticias, setNoticias] = useState([]);
@@ -57,12 +58,12 @@ const NoticiasEventos = () => {
             <Link to={`/noticia/${noticia.slug}`} className="noticias-link">
               <div className="noticias-image-container">
                 <img 
-                  src={noticia.image || '/imagem-padrao.jpg'}
+                  src={noticia.image || {ImagemPadrão}}
                   alt={noticia.title}
                   className="noticias-image"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/imagem-padrao.jpg';
+                    e.target.src = {ImagemPadrão};
                   }}
                 />
               </div>

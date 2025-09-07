@@ -33,7 +33,7 @@ api.interceptors.response.use(
 
 export const loginUser = async ({ email, cnpj, senha }) => {
   try {
-    const identificador = email || cnpj; // envia email ou CNPJ
+    const identificador = email || cnpj;
     const response = await api.post('/auth/login', { identificador, senha });
 
     if (!response.data.token || !response.data.usuario) {

@@ -67,41 +67,31 @@
   color: white;
 }
 
-/* Autenticação */
+/* Autenticação - MODIFICADO */
 .nav-header-auth {
   flex: 1;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
   align-items: center;
 }
 
-.nav-header-login,
-.nav-header-register {
-  width: 100px;
-  padding: 10px 15px;
-  border-radius: 5px;
+/* Botão Área da Empresa - NOVO */
+.nav-header-empresa-btn {
+  padding: 10px 20px;
+  background-color: #006d39;
   color: white;
+  border-radius: 5px;
   font-weight: bold;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-.nav-header-login {
-  background-color: #006d39;
-}
-
-.nav-header-login:hover {
+.nav-header-empresa-btn:hover {
   background-color: #009951;
-}
-
-.nav-header-register {
-  background-color: black;
-  margin-left: 5px;
-}
-
-.nav-header-register:hover {
-  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Perfil */
@@ -252,12 +242,11 @@
     margin-top: 20px;
     flex-direction: column;
     gap: 10px;
+    justify-content: center;
   }
 
-  .nav-header-login,
-  .nav-header-register,
-  .nav-header-profile-name,
-  .nav-header-logout {
+  /* Botão Área da Empresa no Mobile - NOVO */
+  .nav-header-empresa-btn {
     width: 100%;
     padding: 12px;
     margin: 0;
@@ -268,6 +257,14 @@
     width: 100%;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .nav-header-profile-name,
+  .nav-header-logout {
+    width: 100%;
+    padding: 12px;
+    margin: 0;
+    text-align: center;
   }
 }
 
@@ -287,10 +284,8 @@
     font-size: 0.9rem;
   }
   
-  .nav-header-login,
-  .nav-header-register {
-    width: 90px;
-    padding: 8px 12px;
+  .nav-header-empresa-btn {
+    padding: 8px 16px;
     font-size: 0.9rem;
   }
 }

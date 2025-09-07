@@ -5,6 +5,7 @@ import { BASE_URL } from '../config/config.js';
 import VoltarLink from '../components/VoltarLink';
 import "./styles/containerPrincipal.css";
 import "./styles/noticiaDetalhe.css";
+import ImagemPadrão from '../image/ErrroSite.png';
 
 const NoticiaDetalhe = () => {
   const { slug } = useParams();
@@ -65,11 +66,11 @@ const NoticiaDetalhe = () => {
           <h1>{noticia.title}</h1>
           <div className="imagem-noticia-detalhe">
             <img 
-              src={noticia.image || '/imagem-padrao.jpg'} 
+              src={noticia.image || {ImagemPadrão}} 
               alt={noticia.title}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/imagem-padrao.jpg';
+                e.target.src = {ImagemPadrão};
               }}
             />
           </div>

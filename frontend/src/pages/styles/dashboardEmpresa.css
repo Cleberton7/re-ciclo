@@ -11,6 +11,74 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+  padding: 20px;
+}
+
+/* NOVA SEÇÃO: Partners Section */
+.partners-section {
+  background: linear-gradient(135deg, #006d39 0%, #009951 100%);
+  padding: 60px 20px;
+  color: white;
+  text-align: center;
+}
+
+.partners-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.partners-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.partners-content > p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.partner-cta {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.partner-cta h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+
+.partner-cta p {
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: white;
+  color: #006d39;
+}
+
+.btn-primary:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Seções */
@@ -86,40 +154,61 @@
   font-size: 0.9rem;
 }
 
-/* Barra de busca */
+/* Barra de busca MODERNIZADA */
 .empresas-search-container {
   width: 100%;
   margin-bottom: 20px;
+  padding: 20px 0;
 }
 
-.empresas-search-input-wrapper {
+.empresas-search-input-wrapper.modern-search {
   position: relative;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .empresas-search-icon {
   position: absolute;
-  left: 15px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
-  color: #777;
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 2;
 }
 
-.empresas-search-input {
+.empresas-search-input.modern-search-input {
   width: 100%;
-  padding: 12px 20px 12px 45px;
-  border-radius: 25px;
-  border: 2px solid #ddd;
-  font-size: 16px;
+  padding: 12px 0 12px 30px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: white;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
 }
 
-.empresas-search-input:focus {
-  border-color: #009951;
+.empresas-search-input.modern-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.empresas-search-input.modern-search-input:focus {
   outline: none;
-  box-shadow: 0 0 5px rgba(0, 153, 81, 0.3);
+  border-bottom-color: white;
+}
+
+.search-underline {
+  height: 2px;
+  width: 0;
+  background: white;
+  margin-top: -2px;
+  transition: width 0.3s ease;
+}
+
+.empresas-search-input.modern-search-input:focus ~ .search-underline {
+  width: 100%;
 }
 
 /* Mensagens */
@@ -129,7 +218,8 @@
   padding: 20px;
   font-style: italic;
 }
-.empresas-card-link{
+
+.empresas-card-link {
   text-decoration: none;
   color: inherit; 
 }
@@ -144,6 +234,18 @@
 @media (max-width: 768px) {
   .empresas-container {
     padding: 15px;
+  }
+  
+  .partners-section {
+    padding: 40px 15px;
+  }
+  
+  .partners-content h2 {
+    font-size: 2rem;
+  }
+  
+  .partner-cta {
+    padding: 25px;
   }
   
   .empresas-section {
@@ -163,5 +265,13 @@
   
   .empresas-card {
     height: 250px;
+  }
+  
+  .partners-content h2 {
+    font-size: 1.8rem;
+  }
+  
+  .partner-cta h3 {
+    font-size: 1.5rem;
   }
 }

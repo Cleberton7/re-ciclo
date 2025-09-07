@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
 import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch } from 'react-icons/fa';
 import { BASE_URL } from '../config/config.js';
+import Modal from '../components/Modal';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
 
@@ -12,6 +15,25 @@ const Empresas = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeModal, setActiveModal] = useState(null);
+
+  // Funções para controlar os modais
+  const openModal = (type) => {
+    setActiveModal(type);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
+  const switchToLogin = () => setActiveModal('login');
+  const switchToRegister = () => setActiveModal('register');
+
+  const handleLoginSuccess = () => {
+    closeModal();
+    // Recarregar a página ou redirecionar se necessário
+    window.location.reload();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,18 +141,40 @@ const Empresas = () => {
 
   return (
     <div className='empresas-container' id="containerPrincipal">
+      {/* Seção de Chamada para Empresas */}
+      <section className="partners-section">
+        <div className="partners-container">
+          <div className="partners-content">
+            <h2>Para empresas e centros de reciclagem</h2>
+            <p>Faça parte da nossa rede de parceiros e amplie seu impacto</p>
+            
+            <div className="partner-cta">
+              <h3>Seja uma empresa parceira</h3>
+              <p>Junte-se à nossa plataforma e conecte-se com milhares de pessoas que querem reciclar</p>
+              <button 
+                className="btn btn-primary" 
+                onClick={() => openModal("register")} // Abre o modal de registro
+              >
+                Acessar Área Restrita
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="empresas-content-wrapper">
         {/* Barra de busca */}
         <div className="empresas-search-container">
-          <div className="empresas-search-input-wrapper">
+          <div className="empresas-search-input-wrapper modern-search">
             <FaSearch className="empresas-search-icon" />
             <input
               type="text"
               placeholder="Buscar empresas ou centros de reciclagem..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="empresas-search-input"
+              className="empresas-search-input modern-search-input"
             />
+            <div className="search-underline"></div>
           </div>
         </div>
 
@@ -223,6 +267,18 @@ const Empresas = () => {
           )}
         </div>
       </div>
+
+      {/* Modais de Login e Registro */}
+      <Modal isOpen={activeModal !== null} onClose={closeModal} size="medium">
+        {activeModal === 'login' ? (
+          <Login 
+            onLoginSuccess={handleLoginSuccess} 
+            onRegisterClick={switchToRegister} 
+          />
+        ) : (
+          <Register onLoginClick={switchToLogin} />
+        )}
+      </Modal>
     </div>
   );
 };

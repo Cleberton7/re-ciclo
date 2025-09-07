@@ -88,7 +88,7 @@ const NavHeader = () => {
   }, [menuOpen]);
 
   const navLinks = [
-    { path: "/", label: "Home" },
+    { path: "/", label: "Início" },
     { path: "/empresas", label: "Empresas Parceiras" },
     { path: "/reciclo", label: "Re-ciclo" },
     { path: "/publicColetasPage", label: "Coletas" },
@@ -153,20 +153,13 @@ const NavHeader = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <div 
-                  className="nav-header-login"
-                  onClick={() => openModal("login")}
-                >
-                  Entrar
-                </div>
-                <div 
-                  className="nav-header-register"
-                  onClick={() => openModal("register")}
-                >
-                  Registrar
-                </div>
-              </>
+              // ALTERAÇÃO AQUI: Substituído por um único botão para empresas
+              <div 
+                className="nav-header-empresa-btn"
+                onClick={() => openModal("login")}
+              >
+                Área da Empresa
+              </div>
             )}
           </div>
         </div>

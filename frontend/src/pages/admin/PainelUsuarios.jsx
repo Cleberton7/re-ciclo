@@ -3,6 +3,8 @@ import axios from 'axios';
 import Modal from '../../components/Modal';
 import EditarUsuarioForm from './EditarUsuarioForm';
 import { getTodosUsuarios } from '../../services/usersServices';
+import { FaMapMarkerAlt } from "react-icons/fa";
+import avatar from '../../image/avatar.png';
 
 const PainelUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -13,14 +15,15 @@ const PainelUsuarios = () => {
     buscarUsuarios();
   }, []);
 
-    const buscarUsuarios = async () => {
+  const buscarUsuarios = async () => {
     try {
-        const data = await getTodosUsuarios();
-        setUsuarios(data);
+      const data = await getTodosUsuarios();
+      setUsuarios(data);
     } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
+      console.error('Erro ao buscar usuários:', error);
     }
-    }
+  };
+
   const handleEditar = (usuario) => {
     setUsuarioSelecionado(usuario);
     setModalAberto(true);
@@ -40,6 +43,29 @@ const PainelUsuarios = () => {
   const handleFecharModal = () => {
     setModalAberto(false);
     setUsuarioSelecionado(null);
+  };
+
+  const getImagemUsuario = (imagemPerfil) => {
+    if (!imagemPerfil) {
+      console.log('Sem imagem de perfil, usando avatar padrão');
+      return avatar;
+    }
+    
+    // Verifica se a imagem já é uma URL completa
+    if (imagemPerfil.startsWith('http')) {
+      console.log('URL completa:', imagemPerfil);
+      return imagemPerfil;
+    }
+    
+    // Remove barras invertidas extras que podem vir do backend
+    const caminhoNormalizado = imagemPerfil.replace(/\\/g, '/');
+    
+    // Se a VITE_API_URL já inclui /api, não precisamos adicionar novamente
+    // Vamos usar o caminho diretamente sem adicionar /api/
+    const urlFinal = `${import.meta.env.VITE_API_URL}/${caminhoNormalizado}`;
+    
+    console.log('Tentando carregar imagem:', urlFinal);
+    return urlFinal;
   };
 
   return (
@@ -66,9 +92,20 @@ const PainelUsuarios = () => {
               <tr key={usuario._id} className="border-b hover:bg-green-50">
                 <td className="p-4">
                   <img
-                    src={usuario.imagemPerfil}
+                    src={getImagemUsuario(usuario.imagemPerfil)}
                     alt="Perfil"
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover border border-gray-300"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== avatar) {
+                        console.warn(
+                          "Erro ao carregar imagem do usuário, usando avatar:",
+                          usuario.imagemPerfil,
+                          "URL tentada:",
+                          e.currentTarget.src
+                        );
+                        e.currentTarget.src = avatar;
+                      }
+                    }}
                   />
                 </td>
                 <td className="p-4">{usuario.tipoUsuario}</td>
@@ -78,9 +115,9 @@ const PainelUsuarios = () => {
                 <td className="p-4">{usuario.email}</td>
                 <td className="p-4">{usuario.telefone}</td>
                 <td className="p-4 text-center">
-                  {usuario.localizacao?.latitude && usuario.localizacao?.longitude ? (
+                  {usuario.localizacao?.lat && usuario.localizacao?.lng ? (
                     <a
-                      href={`https://www.google.com/maps?q=${usuario.localizacao.latitude},${usuario.localizacao.longitude}`}
+                      href={`https://www.google.com/maps?q=${usuario.localizacao.lat},${usuario.localizacao.lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green-700 hover:text-green-900"
@@ -112,18 +149,17 @@ const PainelUsuarios = () => {
         </table>
       </div>
 
-     <Modal isOpen={modalAberto} onClose={handleFecharModal} size="large">
+      <Modal isOpen={modalAberto} onClose={handleFecharModal} size="large">
         {usuarioSelecionado && (
-            <EditarUsuarioForm
+          <EditarUsuarioForm
             usuario={usuarioSelecionado}
             onClose={handleFecharModal}
             onAtualizar={buscarUsuarios}
-            />
+          />
         )}
-        </Modal>
+      </Modal>
     </div>
   );
 };
 
 export default PainelUsuarios;
-

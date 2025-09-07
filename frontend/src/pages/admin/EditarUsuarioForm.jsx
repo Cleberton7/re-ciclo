@@ -11,6 +11,7 @@ const EditarUsuarioForm = ({ usuario, onClose, onAtualizar }) => {
     senha: '',
     cnpj: '',
     cpf: '',
+    
   });
 
   useEffect(() => {
@@ -24,6 +25,7 @@ const EditarUsuarioForm = ({ usuario, onClose, onAtualizar }) => {
         senha: '',
         cnpj: usuario.cnpj || '',
         cpf: usuario.cpf || '',
+     
       });
     }
   }, [usuario]);

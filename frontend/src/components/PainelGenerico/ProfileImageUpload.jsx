@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClipLoader } from "react-spinners";
 import './Styles/ProfileImageUpload.css'; 
+import avatar from '../../image/avatar.png';
 
 const ProfileImageUpload = ({ imagePreview, editing, handleImageChange, handleRemoveImage, tipoUsuario }) => {
   return (
@@ -12,7 +13,7 @@ const ProfileImageUpload = ({ imagePreview, editing, handleImageChange, handleRe
             alt="Preview" 
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/imagem-padrao.jpg';
+              e.target.src = {avatar};
             }}
           />
         ) : (
