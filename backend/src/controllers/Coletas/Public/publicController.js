@@ -144,27 +144,34 @@ export const getDistribuicaoMateriais = async (req, res) => {
       ...(periodo !== 'total' ? { createdAt: dateFilter } : {})
     };
 
+    // ATUALIZADO: Agora agrupa por tipoMaterial em vez de usar materiaisSeparados
     const resultado = await Coleta.aggregate([
       { $match: matchStage },
       {
         $group: {
-          _id: null,
-          eletronicos: { $sum: { $ifNull: ['$materiaisSeparados.eletronicos.quantidade', 0] } },
-          metais: { $sum: { $ifNull: ['$materiaisSeparados.metais.quantidade', 0] } },
-          plasticos: { $sum: { $ifNull: ['$materiaisSeparados.plasticos.quantidade', 0] } }
+          _id: '$tipoMaterial',
+          quantidade: { $sum: '$quantidade' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          tipoMaterial: '$_id',
+          quantidade: 1
         }
       }
     ]);
 
-    if (!resultado.length) {
-      return res.json({ success: true, data: [] });
-    }
-
-    const dados = [
-      { tipoMaterial: 'eletronicos', quantidade: resultado[0].eletronicos },
-      { tipoMaterial: 'metais', quantidade: resultado[0].metais },
-      { tipoMaterial: 'plasticos', quantidade: resultado[0].plasticos }
-    ].filter(item => item.quantidade > 0); // remove se for zero
+    // Formatar os dados para incluir todas as categorias, mesmo com quantidade zero
+    const categorias = ['telefonia', 'informatica', 'eletrodomesticos', 'pilhas_baterias', 'outros'];
+    
+    const dados = categorias.map(categoria => {
+      const encontrado = resultado.find(item => item.tipoMaterial === categoria);
+      return {
+        tipoMaterial: categoria,
+        quantidade: encontrado ? encontrado.quantidade : 0
+      };
+    }).filter(item => item.quantidade > 0); // remove se for zero
 
     res.json({ success: true, data: dados });
 

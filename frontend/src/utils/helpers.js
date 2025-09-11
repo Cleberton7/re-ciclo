@@ -7,10 +7,11 @@ export const formatDate = (dateString) => {
 
 export const getMaterialIcon = (material) => {
   const icons = {
-    plasticos: '♻️',
-    metais: '🔩',
-    eletronicos: '💻',
-    outros: '🗑️'
+    telefonia: '📱',
+    informatica: '💻',
+    eletrodomesticos: '🏠',
+    pilhas_baterias: '🔋',
+    outros: '📦',
   };
   return icons[material?.toLowerCase()] || icons.outros;
 };

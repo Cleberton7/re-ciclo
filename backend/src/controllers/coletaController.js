@@ -5,18 +5,21 @@ import { getPeriodoFilter } from '../services/filtroServices.js';
 
 export const criarSolicitacao = async (req, res) => {
   try {
-
-    if (!req.file) {
+    const { tipoMaterial, quantidade, endereco, observacoes, privacidade } = req.body;
+    
+    // Validação das categorias
+    const categoriasValidas = ['telefonia', 'informatica', 'eletrodomesticos', 'pilhas_baterias', 'outros'];
+    if (!categoriasValidas.includes(tipoMaterial)) {
       return res.status(400).json({
         success: false,
-        error: 'Nenhuma imagem foi enviada'
+        error: 'Tipo de material inválido'
       });
     }
 
-    const { tipoMaterial, quantidade, endereco, observacoes } = req.body;
-    
-    // Cria o caminho completo da imagem
-    const imagemPath = `/uploads/coletas/${req.file.filename}`;
+    let imagemPath = null;
+    if (req.file) {
+      imagemPath = `/uploads/coletas/${req.file.filename}`;
+    }
 
     const novaColeta = await Coleta.create({
       solicitante: req.user.id,
@@ -26,14 +29,14 @@ export const criarSolicitacao = async (req, res) => {
       observacoes: observacoes || '',
       imagem: imagemPath,
       status: 'pendente',
-      privacidade: 'publica'
+      privacidade: privacidade || 'publica'
     });
 
     res.status(201).json({
       success: true,
       data: {
         ...novaColeta.toObject(),
-        imagem: `${req.protocol}://${req.get('host')}${imagemPath}`
+        imagem: imagemPath ? `${req.protocol}://${req.get('host')}${imagemPath}` : null
       }
     });
   } catch (error) {

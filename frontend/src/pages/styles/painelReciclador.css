@@ -1,4 +1,3 @@
-/* Mantendo todos os estilos anteriores exatamente como estavam */
 .dashboard-container {
   border-radius: 10px;
   background-color: #009951;
@@ -94,6 +93,7 @@ section {
   animation: slideIn 0.3s ease-out;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
+
 .notificacao.sucesso {
   background-color: #d4edda;
   color: #155724;
@@ -117,8 +117,9 @@ section {
   cursor: pointer;
   color: inherit;
 }
-.fechar-notificacao:hover{
-    opacity: 0.8;
+
+.fechar-notificacao:hover {
+  opacity: 0.8;
 }
 
 .btn-concluir {
@@ -142,7 +143,6 @@ section {
 }
 
 .form-modal-content {
-
   padding: 20px;
   border-radius: 8px;
   color: #333;
@@ -221,8 +221,85 @@ section {
   margin-right: 8px;
 }
 
+.busca-codigo-rastreamento {
+  margin: 20px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+
+.busca-codigo-rastreamento h3 {
+  margin-bottom: 15px;
+  color: #009951;
+  font-size: 18px;
+  font-weight: 600;
+}
+.input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.codigo-input {
+  flex: 3;
+  padding: 14px 16px;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: #333;
+  min-width: 250px;
+}
+.codigo-input::placeholder {
+  color: #999;
+}
+
+
+.btn-buscar-codigo {
+  flex: 1;
+  background: #009951;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+
+.btn-buscar-codigo:hover:not(:disabled) {
+  background: #007a3d;
+}
+
+.btn-buscar-codigo:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.coleta-info {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2c5530;
+}
+
+.coleta-info h4 {
+  margin-top: 0;
+  color: #2c5530;
+}
+
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to { 
+    transform: rotate(360deg); 
+  }
 }
 
 @keyframes slideIn {
@@ -236,9 +313,7 @@ section {
   }
 }
 
-/* Adicionando apenas o necessário para o novo campo de data */
 .form-group input[type="date"] {
-  /* Mantendo o mesmo estilo dos outros inputs */
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #ddd;
@@ -246,7 +321,6 @@ section {
   font-size: 16px;
 }
 
-/* Responsividade mantida igual */
 @media (max-width: 768px) {
   .cards {
     grid-template-columns: 1fr;
@@ -259,5 +333,9 @@ section {
   
   .card {
     width: 100%;
+  }
+  
+  .input-group {
+    flex-direction: column;
   }
 }

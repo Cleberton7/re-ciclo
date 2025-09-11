@@ -4,14 +4,12 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+
 const CORES_PADRAO = {
-  'eletrônicos': '#FF9F40',
-  'eletronicos': '#FF9F40',
-  'plástico': '#FF6384',
-  'plásticos': '#FF6384',
-  'plastico': '#FF6384',
-  'plasticos': '#FF6384',
-  'metal': '#4BC0C0',
+  'telefonia': '#FF9F40',
+  'informatica': '#36A2EB',
+  'eletrodomesticos': '#FF6384',
+  'pilhas_baterias': '#4BC0C0',
   'outros': '#8A2BE2'
 };
 
@@ -37,12 +35,20 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
       </div>
     );
   }
-
+  // Função para formatar o rótulo
+  const formatarRotulo = (tipoMaterial) => {
+    switch (tipoMaterial) {
+      case 'telefonia': return 'Telefonia e Acessórios';
+      case 'informatica': return 'Informática';
+      case 'eletrodomesticos': return 'Eletrodomésticos';
+      case 'pilhas_baterias': return 'Pilhas e Baterias';
+      case 'outros': return 'Outros Eletroeletrônicos';
+      default: return tipoMaterial;
+    }
+  }
   const dadosAgrupados = dadosProcessados.reduce((acc, item) => {
-    const tipoNormalizado = item.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const existente = acc.find(i => 
-      i.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === tipoNormalizado
-    );
+    const tipoNormalizado = item.tipoMaterial.toLowerCase();
+    const existente = acc.find(i => i.tipoMaterial.toLowerCase() === tipoNormalizado);
     
     if (existente) {
       existente.total += item.total;
@@ -53,11 +59,11 @@ const GraficoColetas = ({ dados = [], compactMode = false }) => {
   }, []);
 
   const chartData = {
-    labels: dadosAgrupados.map(item => item.tipoMaterial),
+    labels: dadosAgrupados.map(item => formatarRotulo(item.tipoMaterial)),
     datasets: [{
       data: dadosAgrupados.map(item => item.total),
       backgroundColor: dadosAgrupados.map(item => 
-        CORES_PADRAO[item.tipoMaterial.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')] || '#CCCCCC'
+        CORES_PADRAO[item.tipoMaterial.toLowerCase()] || '#CCCCCC'
       ),
       borderWidth: 1,
       borderColor: '#fff'

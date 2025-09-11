@@ -24,6 +24,12 @@ export default function usePublicColetasData(filters = { tipoMaterial: "", perio
       setError(null);
 
       try {
+        const params = {
+          tipoMaterial: filters.tipoMaterial,
+          periodo: filters.periodo,
+          limit: 6
+        };
+
         const [
           coletasRes,
           rankingRes,
@@ -31,10 +37,10 @@ export default function usePublicColetasData(filters = { tipoMaterial: "", perio
           distribuicaoRes,
           evolucaoRes,
         ] = await Promise.all([
-          axios.get(`${API_BASE}/public/coletas`, { params: filters }),
+          axios.get(`${API_BASE}/public/coletas`, { params }),
           axios.get(`${API_BASE}/public/ranking`, { params: { periodo: filters.periodo } }),
           axios.get(`${API_BASE}/public/estatisticas`),
-          axios.get(`${API_BASE}/public/distribuicao`),
+          axios.get(`${API_BASE}/public/distribuicao`, { params: { periodo: filters.periodo } }),
           axios.get(`${API_BASE}/public/evolucao`, { params: { periodo: filters.periodo } }),
         ]);
 

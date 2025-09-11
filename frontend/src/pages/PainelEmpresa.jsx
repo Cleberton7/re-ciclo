@@ -23,7 +23,7 @@ const PainelEmpresa = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
-    tipoMaterial: "eletronicos", 
+    tipoMaterial: "telefonia", 
     outros: "", 
     quantidade: "",
     endereco: "",
@@ -41,19 +41,25 @@ const PainelEmpresa = () => {
     }
 
     switch (tipoLimpo) {
-      case "eletronicos":
-      case "eletrônicos":
-        return "Eletrônicos";
-      case "metais":
-        return "Metais";
-      case "plasticos":
-      case "plásticos":
-        return "Plásticos";
+      case "telefonia":
+        return "Telefonia e Acessórios";
+      case "informatica":
+        return "Informática";
+      case "eletrodomesticos":
+        return "Eletrodomésticos";
+      case "pilhas_baterias":
+        return "Pilhas e Baterias";
       case "outros":
-        return "Outros";
+        return "Outros Eletroeletrônicos";
       default:
         return tipoLimpo.charAt(0).toUpperCase() + tipoLimpo.slice(1);
     }
+  };
+  // Função para formatar o código de rastreamento para exibição
+  const formatarCodigoRastreamento = (codigo) => {
+    if (!codigo) return "-";
+    // Formato: 20240115-0001 → 2024.01.15-0001
+    return `${codigo.slice(0, 4)}.${codigo.slice(4, 6)}.${codigo.slice(6, 8)}-${codigo.slice(9)}`;
   };
 
   const carregarResiduos = async () => {
@@ -96,6 +102,11 @@ const PainelEmpresa = () => {
         resetForm();
         setShowModal(false);
         await carregarResiduos();
+        if (response.data && response.data.codigoRastreamento) {
+          alert(`Solicitação criada com sucesso! Código de Rastreamento: ${formatarCodigoRastreamento(response.data.codigoRastreamento)}`);
+        } else {
+          alert("Solicitação criada com sucesso!");
+        } 
       } else {
         throw new Error(response.message || "Erro ao criar solicitação");
       }
@@ -149,7 +160,7 @@ const PainelEmpresa = () => {
 
   const handleDeletarResiduo = async (id) => {
     const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir esta solicitação?"
+      "Tem certeza que deseja cancelar esta solicitação?"
     );
     if (!confirmacao) return;
 
@@ -166,7 +177,7 @@ const PainelEmpresa = () => {
 
   const resetForm = () => {
     setNovoResiduo({
-      tipoMaterial: "eletronicos",
+      tipoMaterial: "telefonia",
       outros: "",
       quantidade: "",
       endereco: "",
@@ -211,6 +222,7 @@ const PainelEmpresa = () => {
           <table className="tabela-residuos">
             <thead>
               <tr>
+                <th>Cod</th>
                 <th>Tipo</th>
                 <th>Quantidade</th>
                 <th>Endereço</th>
@@ -230,6 +242,9 @@ const PainelEmpresa = () => {
               ) : (
                 residuos.map((res) => (
                   <tr key={res._id}>
+                    <td className="codigo-rastreamento">
+                      {formatarCodigoRastreamento(res.codigoRastreamento)}
+                    </td>
                     <td>{formatarTipoMaterial(res.tipoMaterial, res.outros)}</td>
                     <td>{res.quantidade} kg</td>
                     <td>{res.endereco}</td>
@@ -302,8 +317,11 @@ const PainelEmpresa = () => {
               }
               disabled={loading}
             >
-              <option value="eletronicos">Eletrônicos</option>
-              <option value="outros">Outros</option>
+              <option value="telefonia">Telefonia e Acessórios</option>
+              <option value="informatica">Informática</option>
+              <option value="eletrodomesticos">Eletrodomésticos</option>
+              <option value="pilhas_baterias">Pilhas e Baterias</option>
+              <option value="outros">Outros Eletroeletrônicos</option>
             </select>
 
             {/* Campo "Especificar" (aparece apenas se "Outros" for selecionado) */}
@@ -312,7 +330,7 @@ const PainelEmpresa = () => {
                 <label>Especificar (opcional):</label>
                 <input
                   type="text"
-                  placeholder="Ex: Baterias, Cabos, etc."
+                  placeholder="Ex: Câmeras, Brinquedos eletrônicos etc..."
                   value={novoResiduo.outros}
                   onChange={(e) =>
                     setNovoResiduo({ ...novoResiduo, outros: e.target.value })
@@ -398,7 +416,7 @@ const PainelEmpresa = () => {
         {deletingId && (
           <div className="overlay-loading">
             <ClipLoader color="#dc3545" size={30} />
-            <p>Excluindo solicitação...</p>
+            <p>Cancelando solicitação...</p>
           </div>
         )}
       </div>

@@ -22,10 +22,11 @@ const FilterBar = ({ filters, onChange, role }) => {
               onChange={handleFilterChange}
             >
               <option value="">Todos</option>
-              <option value="eletrônicos">Eletrônicos</option>
-              <option value="metais">Metais</option>
-              <option value="plásticos">Plásticos</option>
-              <option value="outros">Outros</option>
+              <option value="telefonia">Telefonia e Acessórios</option>
+              <option value="informatica">Informática</option>
+              <option value="eletrodomesticos">Eletrodomésticos</option>
+              <option value="pilhas_baterias">Pilhas e Baterias</option>
+              <option value="outros">Outros Eletroeletrônicos</option>
             </select>
           </div>
 
@@ -57,11 +58,11 @@ const FilterBar = ({ filters, onChange, role }) => {
               onChange={handleFilterChange}
             >
               <option value="">Todos</option>
-              <option value="eletronicos">Eletrônicos</option>
-              <option value="metais">Metais</option>
-              <option value="plasticos">Plásticos</option>
-              <option value="vidro">Vidro</option>
-              <option value="papel">Papel</option>
+              <option value="telefonia">Telefonia e Acessórios</option>
+              <option value="informatica">Informática</option>
+              <option value="eletrodomesticos">Eletrodomésticos</option>
+              <option value="pilhas_baterias">Pilhas e Baterias</option>
+              <option value="outros">Outros Eletroeletrônicos</option>
             </select>
           </div>
 

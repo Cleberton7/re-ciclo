@@ -4,11 +4,18 @@ import { getImagePath, getFullImageUrl } from '../../../utils/fileHelper.js';
 
 export const criarSolicitacao = async (req, res) => {
   try {
-    const { tipoMaterial, quantidade, endereco, observacoes } = req.body;
+    const { tipoMaterial, quantidade, endereco, observacoes, privacidade} = req.body;
 
     // Se recebeu arquivo, cria o caminho da imagem, senão null
     const imagemPath = req.file ? `/uploads/coletas/${req.file.filename}` : null;
-
+    // Validação das categorias
+    const categoriasValidas = ['telefonia', 'informatica', 'eletrodomesticos', 'pilhas_baterias', 'outros'];
+    if (!categoriasValidas.includes(tipoMaterial)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tipo de material inválido'
+      });
+    }
     const novaColeta = await Coleta.create({
       solicitante: req.user.id,
       tipoMaterial,
@@ -17,18 +24,25 @@ export const criarSolicitacao = async (req, res) => {
       observacoes: observacoes || '',
       imagem: imagemPath,  // pode ser null
       status: 'pendente',
-      privacidade: 'publica'
+      privacidade: privacidade  || 'publica'
     });
-
+    const coletaComCodigo = await Coleta.findById(novaColeta._id);
     res.status(201).json({
       success: true,
       data: {
-        ...novaColeta.toObject(),
+        ...coletaComCodigo.toObject(),
         imagem: imagemPath ? `${req.protocol}://${req.get('host')}${imagemPath}` : null
       }
     });
   } catch (error) {
     console.error('Erro detalhado:', error);
+    // Tratar erro de código duplicado (extremamente raro, mas possível)
+    if (error.code === 11000 && error.keyPattern.codigoRastreamento) {
+      return res.status(500).json({
+        success: false,
+        error: 'Erro ao gerar código único. Tente novamente.'
+      });
+    }
     res.status(400).json({
       success: false,
       error: error.message || 'Erro ao criar solicitação'
@@ -200,11 +214,15 @@ export const concluirColeta = async (req, res) => {
     const { materiaisSeparados } = req.body;
     const userId = req.user.id;
 
-    // Validação mínima
-    if (!materiaisSeparados?.eletronicos?.quantidade) {
+    // ATUALIZADO: Validação para verificar se pelo menos uma categoria tem quantidade
+    const temQuantidadeValida = Object.values(materiaisSeparados || {}).some(
+      material => material && material.quantidade && !isNaN(material.quantidade) && Number(material.quantidade) > 0
+    );
+
+    if (!temQuantidadeValida) {
       return res.status(400).json({
         success: false,
-        error: "Quantidade de eletrônicos é obrigatória"
+        error: "Pelo menos uma categoria deve ter quantidade válida"
       });
     }
 
@@ -241,6 +259,40 @@ export const concluirColeta = async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || "Erro interno ao concluir coleta"
+    });
+  }
+};
+export const buscarColetaPorCodigo = async (req, res) => {
+  try {
+    const { codigo } = req.params;
+    
+    console.log('Buscando coleta com código:', codigo); // Debug
+
+    const coleta = await Coleta.findOne({ codigoRastreamento: codigo })
+      .populate('solicitante', 'nome email telefone nomeFantasia razaoSocial')
+      .populate('centro', 'nome email telefone')
+      .lean();
+
+    if (!coleta) {
+      console.log('Coleta não encontrada para código:', codigo);
+      return res.status(404).json({
+        success: false,
+        message: 'Coleta não encontrada'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...coleta,
+        imagem: getFullImageUrl(req, coleta.imagem)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar coleta por código:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erro ao buscar coleta por código'
     });
   }
 };

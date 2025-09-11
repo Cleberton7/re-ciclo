@@ -147,6 +147,22 @@
   background-color: #d4edda;
   color: #155724;
 }
+/* Adicione ao arquivo CSS */
+.codigo-rastreamento {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #2c5282;
+  background-color: #f0f9ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #bee3f8;
+  font-size: 0.85rem;
+}
+
+.tabela-residuos th:nth-child(1),
+.tabela-residuos td:nth-child(1) {
+  width: 120px;
+}
 
 /* Imagens na tabela */
 .imagem-container {

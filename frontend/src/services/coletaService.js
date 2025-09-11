@@ -40,7 +40,7 @@ export const criarSolicitacaoColeta = async (formData) => {
         ...getAuthHeader(),
         'Content-Type': 'multipart/form-data'
       },
-      transformRequest: (data) => data, // Impede transformação automática do axios
+      transformRequest: (data) => data, 
     });
 
     if (!response.data.success) {
@@ -171,6 +171,34 @@ export const concluirColeta = async (idSolicitacao, dados = {}) => {
     );
   }
 };
+
+export const buscarColetaPorCodigo = async (codigoRastreamento) => {
+  try {
+        const headers = getAuthHeader();
+    console.log('Headers sendo enviados:', headers); // Debug
+    const response = await axios.get( 
+      `${API_BASE}/coletas/codigo/${codigoRastreamento}`,
+      { headers: getAuthHeader() }
+    );
+
+    if (response.data.success) {
+      return response.data.data; // Retorna os dados da coleta
+    } else {
+      throw new Error(response.data.message || 'Coleta não encontrada');
+    }
+  } catch (error) {
+    console.error('Erro ao buscar coleta:', error);
+    
+    if (error.response?.status === 404) {
+      throw new Error('Coleta não encontrada com este código');
+    } else if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error('Erro ao buscar coleta. Verifique sua conexão e tente novamente.');
+    }
+  }
+};
+
 export const getSolicitacoesColetaPessoa = async () => {
   try {
     const { data } = await axios.get(`${API_BASE}/coletas`, {

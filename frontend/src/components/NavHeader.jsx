@@ -138,22 +138,66 @@ const NavHeader = () => {
           <div className="nav-header-auth">
             {isLoggedIn ? (
               <div className="nav-header-profile">
-                <div 
-                  className="nav-header-profile-name"
-                  onClick={handlePerfilClick}
-                  title={userData?.email}
-                >
-                  {loading ? 'Carregando...' : `Olá, ${userName || userData?.nome || userData?.email || 'Usuário'}`}
-                </div>
-                <div 
-                  className="nav-header-logout"
-                  onClick={handleLogout}
-                >
-                  Sair
+                {/* Menu Dropdown Moderno */}
+                <div className="profile-dropdown">
+                  <div className="profile-trigger">
+                    <div className="profile-avatar">
+                      {userName?.charAt(0) || userData?.nome?.charAt(0) || 'U'}
+                    </div>
+                    <span className="profile-name">
+                      {userName || userData?.nome || 'Usuário'}
+                    </span>
+                    <svg className="dropdown-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none">
+                      <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  
+                  <div className="dropdown-menu">
+                    <div className="dropdown-header">
+                      <div className="dropdown-avatar">
+                        {userName?.charAt(0) || userData?.nome?.charAt(0) || 'U'}
+                      </div>
+                      <div className="dropdown-user-info"
+                        onClick={handlePerfilClick}>
+                        <div className="dropdown-user-name">
+                          {userName || userData?.nome || 'Usuário'}
+                        </div>
+                        <div className="dropdown-user-email" title={userData?.email}>
+                          {userData?.email || ''}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="dropdown-divider"></div>
+                    
+                    <div 
+                      className="dropdown-item"
+                      onClick={handlePerfilClick}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13.5 14V12.5C13.5 11.837 13.2366 11.2011 12.7678 10.7322C12.2989 10.2634 11.663 10 11 10H5C4.33696 10 3.70107 10.2634 3.23223 10.7322C2.76339 11.2011 2.5 11.837 2.5 12.5V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M8 7.5C9.38071 7.5 10.5 6.38071 10.5 5C10.5 3.61929 9.38071 2.5 8 2.5C6.61929 2.5 5.5 3.61929 5.5 5C5.5 6.38071 6.61929 7.5 8 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      <span>Acessar Painel</span>
+                    </div>
+                    
+                    <div className="dropdown-divider"></div>
+                    
+                    <div 
+                      className="dropdown-item logout-item"
+                      onClick={handleLogout}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M10.6667 11.3333L14 8L10.6667 4.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      <span>Sair</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
-              // ALTERAÇÃO AQUI: Substituído por um único botão para empresas
               <div 
                 className="nav-header-empresa-btn"
                 onClick={() => openModal("login")}

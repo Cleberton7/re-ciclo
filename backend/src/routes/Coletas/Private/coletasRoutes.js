@@ -11,6 +11,7 @@ import {
   atualizarColeta,
   deletarColeta,
   concluirColeta,
+  buscarColetaPorCodigo
 
 } from '../../../controllers/Coletas/Private/coletaController.js';
 import createUploader, { uploadErrorHandler } from '../../../config/multerConfig.js';
@@ -32,6 +33,7 @@ router.put('/:id/aceitar', verifyToken, requireCentro, aceitarColeta);
 router.put('/:id/concluir', verifyToken, requireCentro, express.json(), validarConclusaoColeta, concluirColeta);
 router.put('/:id', verifyToken, requireAuth, coletaUpload, uploadErrorHandler, atualizarColeta);
 router.delete('/:id', verifyToken, requireAuth, deletarColeta);
+router.get('/codigo/:codigo',verifyToken,requireAuth, buscarColetaPorCodigo);
 
 
 
