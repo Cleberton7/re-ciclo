@@ -249,6 +249,17 @@
     color: white;
     transform: translateY(-50%) scale(1.1);
   }
+  .carousel-btn:active {
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: #009951 !important;
+    transform: translateY(-50%) scale(0.95) !important;
+    transition: all 0.1s ease;
+  }
+
+  .carousel-btn:hover:active {
+    background: rgba(0, 153, 81, 0.8) !important;
+    color: white !important;
+  }
 
   .prev {
     left: 5px;
