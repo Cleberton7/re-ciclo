@@ -253,12 +253,20 @@
     background: rgba(255, 255, 255, 0.8) !important;
     color: #009951 !important;
     transform: translateY(-50%) scale(0.95) !important;
-    transition: all 0.1s ease;
   }
-
-  .carousel-btn:hover:active {
-    background: rgba(0, 153, 81, 0.8) !important;
-    color: white !important;
+  
+  .carousel-btn.next:active,
+  .carousel-btn.prev:active {
+    /* Garante que volte ao estado normal */
+    animation: buttonReset 0.5s forwards;
+  }
+  
+  @keyframes buttonReset {
+    to {
+      background: rgba(255, 255, 255, 0.9);
+      color: #009951;
+      transform: translateY(-50%) scale(1);
+    }
   }
 
   .prev {
