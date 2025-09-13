@@ -10,6 +10,7 @@ const Modal = ({ isOpen, onClose, children, size = "medium" }) => {
     medium: "max-w-[900px]",
     large: "max-w-[1200px]",
     "form-coleta": "max-w-[600px]",
+    comprovante: "max-w-[850px]", 
   };
 
   return (
@@ -19,11 +20,13 @@ const Modal = ({ isOpen, onClose, children, size = "medium" }) => {
     >
       <div
         className={`relative bg-gradient-to-br from-green-600 to-green-900 rounded-xl shadow-lg max-h-[90vh] overflow-y-auto m-5 w-[calc(100%-40px)] ${sizeClasses[size] || sizeClasses.medium}`}
-        style={{ 
-          background: 'linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to))',
-          '--tw-gradient-from': '#009952',
-          '--tw-gradient-to': '#004d26',
-        }}onClick={(e) => e.stopPropagation()}
+        style={{
+          background:
+            "linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to))",
+          "--tw-gradient-from": "#009952",
+          "--tw-gradient-to": "#004d26",
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
         <CloseButton onClose={onClose} />
         <div className="p-5 max-w-full box-border">{children}</div>

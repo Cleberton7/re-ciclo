@@ -15,6 +15,7 @@ const NavHeader = () => {
   const menuRef = useRef(null);
   const [activeModal, setActiveModal] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const openModal = (type) => {
     setActiveModal(type);
@@ -26,9 +27,28 @@ const NavHeader = () => {
   };
 
   const handleLoginSuccess = () => {
+    setLoginSuccess(true);
     closeModal();
-    navigate("/");
   };
+
+  useEffect(() => {
+    if (loginSuccess && isLoggedIn && userData) {
+      switch (userData.role || role) {
+        case "empresa":
+          navigate("/painelEmpresa");
+          break;
+        case "centro":
+          navigate("/painelReciclador");
+          break;
+        case "adminGeral":
+          navigate("/painelAdmin");
+          break;
+        default:
+          navigate("/");
+      }
+      setLoginSuccess(false);
+    }
+  }, [loginSuccess, isLoggedIn, userData, role, navigate]);
 
   const switchToLogin = () => setActiveModal('login');
   const switchToRegister = () => setActiveModal('register');
@@ -36,7 +56,7 @@ const NavHeader = () => {
   const handlePerfilClick = () => {
     if (!userData) return;
 
-    switch (role) {
+    switch (userData.role || role) {
       case "empresa":
         navigate("/painelEmpresa");
         break;
@@ -47,7 +67,7 @@ const NavHeader = () => {
         navigate("/painelAdmin");
         break;
       default:
-        navigate("/painelPessoa");
+        navigate("/");
     }
   };
 

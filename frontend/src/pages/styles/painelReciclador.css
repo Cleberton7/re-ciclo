@@ -145,7 +145,7 @@ section {
 .form-modal-content {
   padding: 20px;
   border-radius: 8px;
-  color: #333;
+  color: white;
 }
 
 .form-modal-content h3 {
@@ -251,7 +251,7 @@ section {
   border: none;
   outline: none;
   font-size: 15px;
-  color: #333;
+  color: white;
   min-width: 250px;
 }
 .codigo-input::placeholder {
@@ -284,7 +284,7 @@ section {
 }
 
 .coleta-info {
-  background-color: #f9f9f9;
+  background-color: #0f0707;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -293,7 +293,8 @@ section {
 
 .coleta-info h4 {
   margin-top: 0;
-  color: #2c5530;
+  color: #b2eeb8;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {

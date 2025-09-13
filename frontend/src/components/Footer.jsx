@@ -28,7 +28,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-copy">
-        © 2025 Projeto Re-cicle Tucuruí. Todos os direitos reservados.
+        © 2025 Projeto Re-ciclo Tucuruí. Todos os direitos reservados.
       </div>
     </footer>
 

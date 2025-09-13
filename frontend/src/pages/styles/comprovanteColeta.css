@@ -1,0 +1,146 @@
+/* Container principal */
+.comprovante-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Caixa do comprovante */
+.comprovante-box {
+  background: #fff;
+  width: 100%;
+  max-width: 680px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #333;
+}
+
+/* Cabeçalho */
+.comprovante-box .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #009951;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.comprovante-box .logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #009951;
+}
+
+.comprovante-box .codigo {
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+}
+
+/* Título */
+.comprovante-box h2 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #009951;
+  border-bottom: 1px dashed #ddd;
+  padding-bottom: 8px;
+}
+
+/* Subtítulo */
+.comprovante-box h3 {
+  font-size: 16px;
+  margin: 18px 0 10px;
+  color: #007a40;
+}
+
+/* Detalhes */
+.comprovante-box .detalhes {
+  margin-bottom: 15px;
+}
+
+.comprovante-box .linha {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.comprovante-box .label {
+  font-weight: bold;
+  margin-right: 4px;
+  color: #222;
+}
+
+/* Lista de materiais */
+.comprovante-box ul {
+  margin: 6px 0 0 20px;
+  padding: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Imagem do resíduo */
+.comprovante-box .imagem-residuo {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Rodapé */
+.comprovante-box .rodape {
+  margin-top: 20px;
+  font-size: 12px;
+  text-align: center;
+  color: #666;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 10px;
+  font-style: italic;
+}
+
+/* Botões */
+.comprovante-acoes {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-imprimir,
+.btn-imprimir-outline,
+.btn-fechar {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  min-width: 120px;
+}
+
+/* Baixar PDF  Imprimir */ 
+.btn-imprimir ,.btn-imprimir-outline {
+  background: #009951;
+  color: #fff;
+}
+.btn-imprimir:hover {
+  background: #007a40;
+}
+
+/* Imprimir */
+
+
+/* Fechar */
+.btn-fechar {
+  background: #dc3545;
+  color: #fff;
+}
+.btn-fechar:hover {
+  background: #b52b39;
+}

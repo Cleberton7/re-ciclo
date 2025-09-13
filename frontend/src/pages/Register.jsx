@@ -105,7 +105,7 @@ const Register = ({ onLoginClick }) => {
           >
             {/*<option value="pessoa">Pessoa Física</option>*/}
             <option value="empresa">Empresa</option>
-            <option value="centro">Coletor</option>
+            <option value="centro">Centro</option>
           </select>
 
           <div className="register-form-fields">

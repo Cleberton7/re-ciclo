@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-//import PainelGenerico from "./PainelGenerico";
 import PainelGenerico from "../components/PainelGenerico/PainelGenerico";
 import Modal from "../components/Modal";
+import ComprovanteColeta from "../components/ComprovanteColeta";
 import "./styles/painelEmpresa.css";
 import "./styles/containerPrincipal.css";
 import {
@@ -21,6 +21,8 @@ const PainelEmpresa = () => {
   const [editingId, setEditingId] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [comprovanteVisivel, setComprovanteVisivel] = useState(false);
+  const [residuoSelecionado, setResiduoSelecionado] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
     tipoMaterial: "telefonia", 
@@ -55,6 +57,7 @@ const PainelEmpresa = () => {
         return tipoLimpo.charAt(0).toUpperCase() + tipoLimpo.slice(1);
     }
   };
+  
   // Função para formatar o código de rastreamento para exibição
   const formatarCodigoRastreamento = (codigo) => {
     if (!codigo) return "-";
@@ -193,6 +196,11 @@ const PainelEmpresa = () => {
     setEditMode(false);
   };
 
+  const visualizarComprovante = (residuo) => {
+    setResiduoSelecionado(residuo);
+    setComprovanteVisivel(true);
+  };
+
   const formularioInvalido =
     !novoResiduo.tipoMaterial ||
     !novoResiduo.quantidade ||
@@ -235,7 +243,7 @@ const PainelEmpresa = () => {
             <tbody>
               {residuos.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="nenhum-residuo">
+                  <td colSpan="8" className="nenhum-residuo">
                     Nenhum resíduo disponível
                   </td>
                 </tr>
@@ -269,6 +277,16 @@ const PainelEmpresa = () => {
                     </td>
                     <td>
                       <div className="acoes-container">
+                        {/* Botão de Comprovante - sempre visível */}
+                        <button
+                          onClick={() => visualizarComprovante(res)}
+                          className="btn-comprovante"
+                          title="Ver comprovante"
+                        >
+                          Comprovante
+                        </button>
+                        
+                        {/* Botões de Editar e Cancelar - apenas para status pendente */}
                         {res.status === "pendente" && (
                           <>
                             <button
@@ -301,6 +319,8 @@ const PainelEmpresa = () => {
             </tbody>
           </table>
         )}
+        
+        {/* Modal para adicionar/editar resíduo */}
         <Modal
           isOpen={showModal}
           onClose={() => !loading && cancelarEdicao()}
@@ -411,6 +431,22 @@ const PainelEmpresa = () => {
               {loading ? "Enviando..." : editMode ? "Atualizar Solicitação" : "Solicitar Coleta"}
             </button>
           </div>
+        </Modal>
+
+        {/* Modal para comprovante */}
+        <Modal
+          isOpen={comprovanteVisivel}
+          onClose={() => setComprovanteVisivel(false)}
+          size="comprovante"
+        >
+          {residuoSelecionado && (
+            <ComprovanteColeta 
+              residuo={residuoSelecionado} 
+              onClose={() => setComprovanteVisivel(false)}
+              formatarTipoMaterial={formatarTipoMaterial}
+              formatarCodigoRastreamento={formatarCodigoRastreamento}
+            />
+          )}
         </Modal>
 
         {deletingId && (
