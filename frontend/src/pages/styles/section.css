@@ -238,13 +238,17 @@
     top: 50%;
     transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.8);
+    transition: background-color 0.3s ease;
+    color: #009951;
+    border: none;
     z-index: 2; 
   }
+
   .carousel-btn:hover {
-  background: rgba(0, 153, 81, 0.9);
-  color: white;
-  transform: translateY(-50%) scale(1.1);
-}
+    background: rgba(0, 153, 81, 0.9);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+  }
 
   .prev {
     left: 5px;
