@@ -12,8 +12,8 @@ import logoX from "../assets/twitter.png";
 import logoEmail from "../assets/o-email.png";
 import logoTelefone from "../assets/celular.png";
 import logoEndereco from "../assets/endereco-residencial.png";
-import recicleImagem from "../image/cotato-imagem.png";
-import contatoImagem from "../image/contat.png";
+import recicloImagem from "../image/recicloImagem.png";
+import contatoImagem from "../image/contact.png";
 
 const Contatos = () => {
   const [formData, setFormData] = useState({
@@ -223,7 +223,7 @@ const Contatos = () => {
       <div className="contact-form-section">
         <div className="contact-form__image-container">
           <img
-            src={recicleImagem}
+            src={recicloImagem}
             alt="Pessoas reciclando"
             className="contact-form__image"
           />
