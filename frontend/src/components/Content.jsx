@@ -12,7 +12,6 @@ const center = { lat: -3.7657, lng: -49.6725 };
 const Content = () => {
   const [marcadores, setMarcadores] = useState([]);
 
-
   const filters = useMemo(() => ({ periodo: "total" }), []);
 
   const {
@@ -97,7 +96,7 @@ const Content = () => {
         </div>
       </div>
 
-      <div className='containerMaps'>
+      <div className='containerMaps' id="mapa-coleta">
         <div className='section-title'>Localização das Empresas e Centros</div>
         <div className='map-wrapper'>
           {marcadores.length === 0 ? (
