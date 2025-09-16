@@ -74,12 +74,15 @@ export const getCentrosPublicos = async (req, res) => {
     const centros = await User.find({
       tipoUsuario: 'centro',
     })
-      .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil localizacao')
+      .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil localizacao tiposMateriais')
       .lean();
 
     res.json({
       success: true,
-      data: centros
+      data: centros.map(centro => ({
+        ...centro,
+        tiposMateriais: centro.tiposMateriais || [] // Garante que sempre retorne um array
+      }))
     });
   } catch (error) {
     res.status(500).json({
@@ -144,17 +147,18 @@ export const getCentroPublicoPorId = async (req, res) => {
     const centro = await User.findOne({
       _id: id,
       tipoUsuario: 'centro'
-    }).select('nome email endereco cnpj nomeFantasia telefone imagemPerfil localizacao');
+    }).select('nome email endereco cnpj nomeFantasia telefone imagemPerfil localizacao tiposMateriais');
 
     if (!centro) {
-      return res.status(404).json({ success: false, message: 'Centro não encontrada '  });
+      return res.status(404).json({ success: false, message: 'Centro não encontrado' });
     }
 
     res.json({
       success: true,
       data: {
         ...centro._doc,
-        nomeFantasia: centro.nomeFantasia || centro.nome
+        nomeFantasia: centro.nomeFantasia || centro.nome,
+        tiposMateriais: centro.tiposMateriais || [] // Garante que sempre retorne um array
       }
     });
   } catch (error) {

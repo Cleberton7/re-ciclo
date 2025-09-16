@@ -20,15 +20,47 @@ const Register = ({ onLoginClick }) => {
     nomeFantasia: '',
     razaoSocial: '',
     cnpj: '',
-    tipoUsuario: 'empresa'
+    tipoUsuario: 'empresa',
+    recebeResiduoComunidade: false,
+    tiposMateriais: []
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Opções de tipos de materiais
+  const tiposMateriaisOptions = [
+    'Telefonia e Acessórios',
+    'Informática',
+    'Eletrodoméstico',
+    'Pilhas e Baterias',
+    'Outros Eletroeletrônicos'
+  ];
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      if (name === 'recebeResiduoComunidade') {
+        setFormData(prev => ({ 
+          ...prev, 
+          [name]: checked,
+          // Limpa os tipos de materiais se desmarcar o recebimento
+          ...(checked === false && { tiposMateriais: [] })
+        }));
+      } else {
+        // Lógica para os checkboxes de tipos de materiais
+        setFormData(prev => {
+          const updatedTiposMateriais = checked
+            ? [...prev.tiposMateriais, value]
+            : prev.tiposMateriais.filter(item => item !== value);
+            
+          return { ...prev, tiposMateriais: updatedTiposMateriais };
+        });
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleAccept = (value, name) => {
@@ -45,7 +77,6 @@ const Register = ({ onLoginClick }) => {
       return;
     }
 
-
     try {
       const userData = {
         email: formData.email,
@@ -53,6 +84,7 @@ const Register = ({ onLoginClick }) => {
         telefone: formData.telefone,
         endereco: formData.endereco,
         tipoUsuario: userType,
+        tiposMateriais: formData.tiposMateriais
       };
 
       if (userType === 'pessoa' || userType === 'adminGeral') {
@@ -61,12 +93,11 @@ const Register = ({ onLoginClick }) => {
       } else if (userType === 'empresa') {
         userData.razaoSocial = formData.razaoSocial;
         userData.cnpj = formData.cnpj;
-        userData.recebeResiduoComunidade = formData.recebeResiduoComunidade || false;
+        userData.recebeResiduoComunidade = formData.recebeResiduoComunidade;
       } else if (userType === 'centro') {
         userData.nomeFantasia = formData.nomeFantasia;
         userData.cnpj = formData.cnpj;
       }
-
 
       const response = await registerUser(userData);
       
@@ -83,6 +114,11 @@ const Register = ({ onLoginClick }) => {
     }
   };
 
+  // Verifica se deve mostrar os tipos de materiais
+  const mostrarTiposMateriais = 
+    userType === 'centro' || 
+    (userType === 'empresa' && formData.recebeResiduoComunidade);
+
   return (
     <div className="register-container">
       <div className="register-left">
@@ -90,7 +126,7 @@ const Register = ({ onLoginClick }) => {
       </div>
 
       <div className="register-right">
-        <h2 className="register-title" >Cadastro</h2>
+        <h2 className="register-title">Cadastro</h2>
         <p className="register-subtitle">Selecione seu tipo de cadastro</p>
 
         {error && <div className="register-error-message">{error}</div>}
@@ -182,20 +218,38 @@ const Register = ({ onLoginClick }) => {
               value={formData.endereco}
               onChange={handleChange}
             />
+            
             {userType === 'empresa' && (
               <div className="register-checkbox-container">
                 <input
                   type="checkbox"
                   id="recebeResiduoComunidade"
                   name="recebeResiduoComunidade"
-                  checked={formData.recebeResiduoComunidade || false}
-                  onChange={(e) =>
-                    setFormData({ ...formData, recebeResiduoComunidade: e.target.checked })
-                  }
+                  checked={formData.recebeResiduoComunidade}
+                  onChange={handleChange}
                 />
                 <label htmlFor="recebeResiduoComunidade">
                   Esta empresa aceita resíduos da comunidade?
                 </label>
+              </div>
+            )}
+
+            {mostrarTiposMateriais && (
+              <div className="register-materiais-container">
+                <p className="register-materiais-title">Tipos de materiais que recebe:</p>
+                {tiposMateriaisOptions.map((material) => (
+                  <div key={material} className="register-checkbox-container">
+                    <input
+                      type="checkbox"
+                      id={material}
+                      name="tiposMateriais"
+                      value={material}
+                      checked={formData.tiposMateriais.includes(material)}
+                      onChange={handleChange}
+                    />
+                    <label htmlFor={material}>{material}</label>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -225,8 +279,7 @@ const Register = ({ onLoginClick }) => {
               onChange={handleChange}
               required
               minLength="6"
-/>
-
+            />
           </div>
 
           <button 

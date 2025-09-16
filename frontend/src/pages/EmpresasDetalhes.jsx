@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle } from 'react-icons/fa';
 import { Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
 import Pin from '../components/Pin';
 import VoltarLink from '../components/VoltarLink';
@@ -34,7 +34,8 @@ const EmpresasDetalhes = ({ tipo }) => {
         setItem({
           ...data,
           latitude: coordsValidas ? parseFloat(latitude) : null,
-          longitude: coordsValidas ? parseFloat(longitude) : null
+          longitude: coordsValidas ? parseFloat(longitude) : null,
+          tiposMateriais: data.tiposMateriais || [] // ✅ Garantir array vazio
         });
 
       } catch (err) {
@@ -68,25 +69,89 @@ const EmpresasDetalhes = ({ tipo }) => {
     return null;
   };
 
+  // Verificar se deve mostrar tipos de materiais
+  const mostrarTiposMateriais = 
+    (tipo === 'empresa' && item.recebeResiduoComunidade) || 
+    tipo === 'centro';
+
   return (
     <div className="empresa-detalhes-container" id="containerPrincipal">
       <VoltarLink to={tipo === 'empresa' ? "/empresas" : "/centros"}>Voltar</VoltarLink>
 
       <div className="empresa-card-detalhado">
-        {imagemUrl && <div className="empresa-imagem" style={{ backgroundImage: `url(${imagemUrl})` }} />}
+        {imagemUrl && (
+          <div 
+            className="empresa-imagem" 
+            style={{ 
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url(${imagemUrl})` 
+            }} 
+          />
+        )}
+        
         <div className="empresa-info">
           <h2>{item.nomeFantasia || item.nome || item.razaoSocial}</h2>
-          <p><FaEnvelope /> {item.email || 'Não informado'}</p>
-          <p><FaPhone /> {formatarTelefone(item.telefone)}</p>
-          <p><FaMapMarkerAlt /> {item.endereco || 'Endereço não informado'}</p>
-          <p><FaIdCard /> {item.cnpj ? formatarCNPJ(item.cnpj) : 'CNPJ não informado'}</p>
+          
+          <div className="empresa-info-item">
+            <FaEnvelope className="empresa-info-icon" />
+            <span>{item.email || 'Não informado'}</span>
+          </div>
 
-          {tipo === 'empresa' && item.aceitaResiduos && (
-            <p className="empresa-recebe"><strong>✔️ Recebe resíduos da comunidade</strong></p>
+          <div className="empresa-info-item">
+            <FaPhone className="empresa-info-icon" />
+            <span>{formatarTelefone(item.telefone)}</span>
+          </div>
+
+          <div className="empresa-info-item">
+            <FaMapMarkerAlt className="empresa-info-icon" />
+            <span>{item.endereco || 'Endereço não informado'}</span>
+          </div>
+
+          <div className="empresa-info-item">
+            <FaIdCard className="empresa-info-icon" />
+            <span>{item.cnpj ? formatarCNPJ(item.cnpj) : 'CNPJ não informado'}</span>
+          </div>
+
+          {tipo === 'empresa' && (
+            <div className="empresa-info-item">
+              <FaRecycle className="empresa-info-icon" />
+              <span>
+                <strong>Recebe resíduos da comunidade:</strong> 
+                {item.recebeResiduoComunidade ? ' Sim' : ' Não'}
+              </span>
+            </div>
+          )}
+
+          {/* ✅ Seção de Tipos de Materiais */}
+          {mostrarTiposMateriais && item.tiposMateriais && item.tiposMateriais.length > 0 && (
+            <div className="empresa-materiais-section">
+              <div className="empresa-materiais-header">
+                <FaRecycle className="empresa-materiais-icon" />
+                <h3>Materiais Aceitos</h3>
+              </div>
+              <div className="empresa-materiais-list">
+                {item.tiposMateriais.map((material, index) => (
+                  <div key={index} className="empresa-material-item">
+                    <span className="empresa-material-bullet">•</span>
+                    <span className="empresa-material-text">{material}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mostrarTiposMateriais && (!item.tiposMateriais || item.tiposMateriais.length === 0) && (
+            <div className="empresa-materiais-section">
+              <div className="empresa-materiais-header">
+                <FaRecycle className="empresa-materiais-icon" />
+                <h3>Materiais Aceitos</h3>
+              </div>
+              <p className="empresa-sem-materiais">Nenhum material específico informado</p>
+            </div>
           )}
 
           {item.latitude && item.longitude && (
             <div className="mapa-empresa-detalhes">
+              <h3>Localização</h3>
               {!mapLoaded && !mapError && <p className="mapa-carregando">Carregando mapa...</p>}
               {mapError && <p className="mapa-erro">Erro ao carregar o mapa: {mapError}</p>}
               <Map
@@ -105,7 +170,8 @@ const EmpresasDetalhes = ({ tipo }) => {
                     telefone={item.telefone}
                     email={item.email}
                     endereco={item.endereco}
-                    recebeResiduoComunidade={tipo === 'empresa' ? item.aceitaResiduos : false}
+                    recebeResiduoComunidade={tipo === 'empresa' ? item.recebeResiduoComunidade : false}
+                    tiposMateriais={item.tiposMateriais} 
                   />
                 </AdvancedMarker>
               </Map>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
-import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch } from 'react-icons/fa';
+import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch, FaTrash } from 'react-icons/fa';
 import { BASE_URL } from '../config/config.js';
 import Modal from '../components/Modal';
 import Login from '../pages/Login';
@@ -54,7 +54,9 @@ const Empresas = () => {
             endereco: empresa.endereco || "Endereço não informado",
             imagemUrl: empresa.imagemPerfil 
               ? `${BASE_URL}/uploads/${empresa.imagemPerfil}`
-              : null
+              : null,
+            recebeResiduoComunidade: empresa.recebeResiduoComunidade || false,
+            tiposMateriais: empresa.tiposMateriais || [] // ✅ Novo campo
           }))
           .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
@@ -69,7 +71,8 @@ const Empresas = () => {
             endereco: centro.endereco || "Endereço não informado",
             imagemUrl: centro.imagemPerfil 
               ? `${BASE_URL}/uploads/${centro.imagemPerfil}`
-              : null
+              : null,
+            tiposMateriais: centro.tiposMateriais || [] // ✅ Novo campo
           }))
           .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
@@ -95,15 +98,22 @@ const Empresas = () => {
         empresa.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
         empresa.email.toLowerCase().includes(lowerCaseSearchTerm) ||
         empresa.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
-        empresa.cnpj.toLowerCase().includes(lowerCaseSearchTerm)
+        empresa.cnpj.toLowerCase().includes(lowerCaseSearchTerm) ||
+        (empresa.tiposMateriais && empresa.tiposMateriais.some(material => 
+          material.toLowerCase().includes(lowerCaseSearchTerm)
+        ))
       ),
       centrosReciclagem: centrosReciclagem.filter(centro => 
         centro.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
         centro.email.toLowerCase().includes(lowerCaseSearchTerm) ||
         centro.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
-        centro.cnpj.toLowerCase().includes(lowerCaseSearchTerm)
+        centro.cnpj.toLowerCase().includes(lowerCaseSearchTerm) ||
+        (centro.tiposMateriais && centro.tiposMateriais.some(material => 
+          material.toLowerCase().includes(lowerCaseSearchTerm)
+        ))
       )
-  }}, [empresas, centrosReciclagem, searchTerm]);
+    };
+  }, [empresas, centrosReciclagem, searchTerm]);
 
   // Função para formatar CNPJ
   const formatarCNPJ = (cnpj) => {
@@ -153,7 +163,7 @@ const Empresas = () => {
               <p>Junte-se à nossa plataforma e conecte-se com milhares de pessoas que querem reciclar</p>
               <button 
                 className="btn btn-primary" 
-                onClick={() => openModal("register")} // Abre o modal de registro
+                onClick={() => openModal("register")}
               >
                 Acessar Área Restrita
               </button>
@@ -169,7 +179,7 @@ const Empresas = () => {
             <FaSearch className="empresas-search-icon" />
             <input
               type="text"
-              placeholder="Buscar empresas ou centros de reciclagem..."
+              placeholder="Buscar empresas, centros de reciclagem ou tipos de materiais..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="empresas-search-input modern-search-input"
@@ -187,17 +197,39 @@ const Empresas = () => {
               {filteredData.empresas.map(empresa => (
                 <Link to={`/empresas/${empresa.id}`} key={empresa.id} className="empresas-card-link">
                   <div 
-                    key={empresa.id} 
                     className="empresas-card"
                     style={{ 
                       backgroundImage: empresa.imagemUrl 
-                        ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${empresa.imagemUrl})`
+                        ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url(${empresa.imagemUrl})`
                         : 'none',
                       backgroundColor: !empresa.imagemUrl ? '#009951' : 'transparent'
                     }}
                   >
                     <div className="empresas-card-content">
                       <h3>{empresa.nomeExibido}</h3>
+                      
+                      {/* ✅ Exibir tipos de materiais para empresas que recebem resíduos */}
+                      {empresa.recebeResiduoComunidade && empresa.tiposMateriais && empresa.tiposMateriais.length > 0 && (
+                        <div className="empresas-materiais-section">
+                          <div className="empresas-materiais-label">
+                            <FaRecycle className="empresas-info-icon" />
+                            <span>Materiais aceitos:</span>
+                          </div>
+                          <div className="empresas-materiais-list">
+                            {empresa.tiposMateriais.slice(0, 3).map((material, index) => (
+                              <span key={index} className="empresas-material-tag">
+                                {material}
+                              </span>
+                            ))}
+                            {empresa.tiposMateriais.length > 3 && (
+                              <span className="empresas-material-more">
+                                +{empresa.tiposMateriais.length - 3} mais
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="empresas-info-item">
                         <FaEnvelope className="empresas-info-icon" />
                         <span>{empresa.email}</span>
@@ -231,18 +263,41 @@ const Empresas = () => {
               {filteredData.centrosReciclagem.map(centro => (
                 <Link to={`/centros/${centro.id}`} key={centro.id} className="empresas-card-link">
                   <div 
-                    key={centro.id} 
                     className="empresas-card"
                     style={{ 
                       backgroundImage: centro.imagemUrl 
-                        ? `url(${centro.imagemUrl})`
+                        ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url(${centro.imagemUrl})`
                         : 'none',
-                      backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent'
+                      backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent',
+      
                     }}
                   >
                     <div className="empresas-card-overlay"></div>
                     <div className="empresas-card-content">
                       <h3>{centro.nomeExibido}</h3>
+
+                      {/* ✅ Exibir tipos de materiais para centros */}
+                      {centro.tiposMateriais && centro.tiposMateriais.length > 0 && (
+                        <div className="empresas-materiais-section">
+                          <div className="empresas-materiais-label">
+                            <FaRecycle className="empresas-info-icon" />
+                            <span>Materiais aceitos:</span>
+                          </div>
+                          <div className="empresas-materiais-list">
+                            {centro.tiposMateriais.slice(0, 3).map((material, index) => (
+                              <span key={index} className="empresas-material-tag">
+                                {material}
+                              </span>
+                            ))}
+                            {centro.tiposMateriais.length > 3 && (
+                              <span className="empresas-material-more">
+                                +{centro.tiposMateriais.length - 3} mais
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="empresas-info-item">
                         <FaEnvelope className="empresas-info-icon" />
                         <span>{centro.email}</span>

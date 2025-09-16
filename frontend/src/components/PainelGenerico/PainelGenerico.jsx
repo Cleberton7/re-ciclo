@@ -12,6 +12,8 @@ import VoltarLink from "../VoltarLink";
 import './Styles/painelGenerico.css';
 
 
+
+
 const PainelGenerico = ({ tipoUsuario }) => {
   const [dados, setDados] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +31,7 @@ const PainelGenerico = ({ tipoUsuario }) => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     return () => {
       if (watchId) navigator.geolocation.clearWatch(watchId);
@@ -79,7 +82,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
           documento,
           nomeExibido,
           email: dadosRecebidos.email || 'Não informado',
-          recebeResiduoComunidade: dadosRecebidos.recebeResiduoComunidade || false
+          recebeResiduoComunidade: dadosRecebidos.recebeResiduoComunidade || false,
+          tiposMateriais: dadosRecebidos.tiposMateriais || [] 
         };
 
         setDados(dadosFormatados);
@@ -149,12 +153,18 @@ const PainelGenerico = ({ tipoUsuario }) => {
         formData.append('razaoSocial', tempDados.razaoSocial || '');
         formData.append('nomeFantasia', tempDados.nomeFantasia || '');
         formData.append('recebeResiduoComunidade', tempDados.recebeResiduoComunidade ? 'true' : 'false');
+        if (tempDados.recebeResiduoComunidade && tempDados.tiposMateriais) {
+          formData.append('tiposMateriais', JSON.stringify(tempDados.tiposMateriais));
+        }
       } else if (tipoUsuario === "pessoa") {
         formData.append('nome', tempDados.nome || '');
       } else if (tipoUsuario === "centro") {
         formData.append('nomeFantasia', tempDados.nomeFantasia || '');
         formData.append('veiculo', tempDados.veiculo || '');
         formData.append('capacidadeColeta', tempDados.capacidadeColeta || '');
+        if (tempDados.recebeResiduoComunidade && tempDados.tiposMateriais) {
+          formData.append('tiposMateriais', JSON.stringify(tempDados.tiposMateriais));
+        }
       }
 
       if (imageFile) {
@@ -202,7 +212,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
           : tipoUsuario === "centro"
           ? novosDados.nomeFantasia || prev.nomeExibido
           : novosDados.nome || prev.nomeExibido,
-        imagemPerfil: updatedImageUrl
+        imagemPerfil: updatedImageUrl,
+        tiposMateriais: novosDados.tiposMateriais || prev.tiposMateriais || []
       }));
 
       setImagePreview(updatedImageUrl);
@@ -221,10 +232,28 @@ const PainelGenerico = ({ tipoUsuario }) => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setTempDados(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox' && name === 'recebeResiduoComunidade') {
+      setTempDados(prev => ({ 
+        ...prev, 
+        [name]: checked,
+        // Limpa tipos de materiais se desmarcar recebimento de resíduos
+        ...(checked === false && { tiposMateriais: [] })
+      }));
+    } else if (type === 'checkbox' && name.startsWith('tipoMaterial-')) {
+      const materialValue = name.replace('tipoMaterial-', '');
+      setTempDados(prev => {
+        const updatedTiposMateriais = checked
+          ? [...(prev.tiposMateriais || []), materialValue]
+          : (prev.tiposMateriais || []).filter(item => item !== materialValue);
+        
+        return { ...prev, tiposMateriais: updatedTiposMateriais };
+      });
+    } else {
+      setTempDados(prev => ({ ...prev, [name]: value }));
+    }
   };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -452,6 +481,8 @@ const PainelGenerico = ({ tipoUsuario }) => {
             tempDados={tempDados}
             editing={editing}
             setTempDados={setTempDados}
+            handleInputChange={handleInputChange}
+            
           />
         </div>
 

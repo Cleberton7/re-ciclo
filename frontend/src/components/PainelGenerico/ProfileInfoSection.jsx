@@ -2,13 +2,29 @@ import React from 'react';
 import { IMaskInput } from 'react-imask';
 import './Styles/ProfileInfoSection.css';
 
+
+const TIPOS_MATERIAIS_OPTIONS = [
+  'Telefonia e Acessórios',
+  'Informática',
+  'Eletrodoméstico',
+  'Pilhas e Baterias',
+  'Outros Eletroeletrônicos'
+];
+
 const ProfileInfoSection = ({ 
   tipoUsuario, 
   dados, 
   tempDados, 
   editing, 
-  setTempDados 
+  setTempDados,
+  handleInputChange,
 }) => {
+  
+  // Função para verificar se deve mostrar tipos de materiais
+  const mostrarTiposMateriais = 
+    (tipoUsuario === 'empresa' && tempDados.recebeResiduoComunidade) || 
+    tipoUsuario === 'centro';
+
   return (
     <div className="dados-section">
       <h3>Informações {tipoUsuario === 'empresa' ? 'da Empresa' : tipoUsuario === 'centro' ? 'do Centro de Reciclagem' : 'Pessoais'}</h3>
@@ -28,11 +44,9 @@ const ProfileInfoSection = ({
         {editing ? (
           <input
             type="text"
+            name={tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"}
             value={tempDados[tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"] || ''}
-            onChange={(e) => setTempDados(prev => ({
-              ...prev,
-              [tipoUsuario === "empresa" ? "razaoSocial" : tipoUsuario === "centro" ? "nomeFantasia" : "nome"]: e.target.value
-            }))}
+            onChange={handleInputChange}
           />
         ) : (
           <strong>{dados.nomeExibido}</strong>
@@ -58,22 +72,95 @@ const ProfileInfoSection = ({
 
       {tipoUsuario === "empresa" && (
         <div className="info-row">
-          <span> Esta empresa aceita resíduos da comunidade?</span>
+          <span>Esta empresa aceita resíduos da comunidade?</span>
           {editing ? (
             <input
               type="checkbox"
-              id="recebeResiduoComunidade"
               name="recebeResiduoComunidade"
               checked={tempDados.recebeResiduoComunidade || false}
-              onChange={(e) =>
-                setTempDados({ ...tempDados, recebeResiduoComunidade: e.target.checked })
-              }
+              onChange={handleInputChange}
             />
           ) : (
             <strong>{dados.recebeResiduoComunidade ? 'Sim' : 'Não'}</strong>
           )}
         </div>
       )}
+
+      {mostrarTiposMateriais && (
+        <div className="info-row tipos-materiais-row">
+          <span>Tipos de materiais que recebe:</span>
+          {editing ? (
+            <div className="materiais-checkbox-group">
+              {TIPOS_MATERIAIS_OPTIONS.map((material) => ( // ✅ Usando a constante local
+                <label key={material} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name={`tipoMaterial-${material}`}
+                    checked={tempDados.tiposMateriais?.includes(material) || false}
+                    onChange={handleInputChange}
+                  />
+                  {material}
+                </label>
+              ))}
+            </div>
+          ) : (
+            <div className="materiais-list">
+              {dados.tiposMateriais && dados.tiposMateriais.length > 0 ? (
+                dados.tiposMateriais.join(', ')
+              ) : (
+                'Nenhum material selecionado'
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Campos específicos para centro */}
+      {tipoUsuario === "centro" && (
+        <>
+          <div className="info-row">
+            <span>Veículo:</span>
+            {editing ? (
+              <input
+                type="text"
+                name="veiculo"
+                value={tempDados.veiculo || ''}
+                onChange={handleInputChange}
+              />
+            ) : (
+              <strong>{dados.veiculo || 'Não informado'}</strong>
+            )}
+          </div>
+
+          <div className="info-row">
+            <span>Capacidade de Coleta:</span>
+            {editing ? (
+              <input
+                type="text"
+                name="capacidadeColeta"
+                value={tempDados.capacidadeColeta || ''}
+                onChange={handleInputChange}
+              />
+            ) : (
+              <strong>{dados.capacidadeColeta || 'Não informado'}</strong>
+            )}
+          </div>
+        </>
+      )}
+
+      <div className="info-row">
+        <span>Endereço:</span>
+        {editing ? (
+          <input
+            type="text"
+            name="endereco"
+            value={tempDados.endereco || ''}
+            onChange={handleInputChange}
+          />
+        ) : (
+          <strong>{dados.endereco || 'Não informado'}</strong>
+        )}
+      </div>
     </div>
   );
 };

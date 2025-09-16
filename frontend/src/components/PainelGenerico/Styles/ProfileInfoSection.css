@@ -1,3 +1,4 @@
+/* Styles/ProfileInfoSection.css */
 .dados-section {
   background-color: white;
   padding: 25px;
@@ -50,19 +51,64 @@
 
 .info-row input[type="checkbox"] {
   width: auto;
+  margin-right: 8px;
 }
 
 .info-row input:focus {
   border-color: #3498db;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
   outline: none;
+
+}
+
+/* Estilos específicos para tipos de materiais */
+.tipos-materiais-row {
+  align-items: flex-start;
+}
+
+.materiais-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: rgba(125, 141, 133, 0.774);
+  max-width: 300px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+    color: black;
+}
+
+.checkbox-label:hover {
+  background-color: #f0f0f0;
+}
+
+.materiais-list {
+  text-align: right;
+  max-width: 300px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #2c3e50;
+  text-align: right;
 }
 
 @media (max-width: 768px) {
   .info-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 8px;
+  }
+  
+  .info-row span {
+    min-width: auto;
   }
   
   .info-row input {
@@ -72,5 +118,18 @@
   .info-row strong {
     text-align: left;
     width: 100%;
+  }
+  
+  .materiais-checkbox-group {
+    max-width: 100%;
+  }
+  
+  .materiais-list {
+    text-align: left;
+    max-width: 100%;
+  }
+  
+  .tipos-materiais-row {
+    gap: 12px;
   }
 }

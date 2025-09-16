@@ -12,7 +12,7 @@ import {
 
 export const register = async (req, res) => {
   try {
-    const { email, senha, telefone, endereco, tipoUsuario, ...rest } = req.body;
+    const { email, senha, telefone, endereco, tipoUsuario, tiposMateriais, ...rest } = req.body;
 
     // Validação dos campos obrigatórios
     const requiredFields = { email, senha, telefone, endereco, tipoUsuario };
@@ -41,7 +41,8 @@ export const register = async (req, res) => {
       senha,
       telefone: telefone.replace(/\D/g, ''),
       endereco,
-      tipoUsuario
+      tipoUsuario,
+      tiposMateriais: tiposMateriais || [] // Inclui os tipos de materiais
     };
 
     // Validações específicas por tipo de usuário
@@ -55,11 +56,26 @@ export const register = async (req, res) => {
         if (!rest.razaoSocial || !rest.cnpj) throw new Error('Razão Social e CNPJ são obrigatórios');
         userData.razaoSocial = rest.razaoSocial;
         userData.cnpj = rest.cnpj.replace(/\D/g, '');
+        userData.recebeResiduoComunidade = rest.recebeResiduoComunidade || false;
+        
+        // Validação específica para tipos de materiais em empresas que recebem resíduos
+        if (rest.recebeResiduoComunidade) {
+          if (!tiposMateriais || tiposMateriais.length === 0) {
+            throw new Error('Empresas que recebem resíduos da comunidade devem selecionar pelo menos um tipo de material');
+          }
+          userData.tiposMateriais = tiposMateriais;
+        }
       },
       centro: () => {
         if (!rest.nomeFantasia || !rest.cnpj) throw new Error('Nome Fantasia e CNPJ são obrigatórios');
         userData.nomeFantasia = rest.nomeFantasia;
         userData.cnpj = rest.cnpj.replace(/\D/g, '');
+        
+        // Validação específica para tipos de materiais em centros
+        if (!tiposMateriais || tiposMateriais.length === 0) {
+          throw new Error('Centros devem selecionar pelo menos um tipo de material');
+        }
+        userData.tiposMateriais = tiposMateriais;
       },
       adminGeral: () => {
         if (!rest.nome) throw new Error('Nome é obrigatório para adminGeral');
@@ -106,7 +122,9 @@ export const register = async (req, res) => {
         nome: displayName,
         email: newUser.email,
         tipoUsuario: newUser.tipoUsuario,
-        emailVerificado: newUser.emailVerificado
+        emailVerificado: newUser.emailVerificado,
+        recebeResiduoComunidade: newUser.recebeResiduoComunidade,
+        tiposMateriais: newUser.tiposMateriais // Inclui os tipos de materiais na resposta
       }
     });
 
@@ -117,7 +135,14 @@ export const register = async (req, res) => {
         erros: Object.values(err.errors).map(e => e.message)
       });
     }
-    res.status(err.message.includes('obrigatório') ? 400 : 500).json({ 
+    
+    if (err.code === 11000) {
+      return res.status(400).json({
+        mensagem: 'E-mail, CPF ou CNPJ já cadastrado no sistema'
+      });
+    }
+    
+    res.status(err.message.includes('obrigatório') || err.message.includes('selecionar') ? 400 : 500).json({ 
       mensagem: err.message || 'Erro no servidor', 
       erro: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });

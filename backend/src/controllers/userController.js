@@ -46,7 +46,9 @@ export const userController = {
         capacidadeColeta, 
         nomeFantasia,
         razaoSocial,
-        removeImage 
+        removeImage,
+        recebeResiduoComunidade,
+        tiposMateriais // Novo campo: array de tipos de materiais
       } = req.body;
 
       const updateFields = {};
@@ -75,14 +77,35 @@ export const userController = {
         }
       }
 
-
       // Campos específicos por tipo de usuário
       switch(user.tipoUsuario) {
         case "empresa":
           if (razaoSocial) updateFields.razaoSocial = razaoSocial;
           if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
+          
+          // Atualizar recebeResiduoComunidade
           if (req.body && Object.prototype.hasOwnProperty.call(req.body, 'recebeResiduoComunidade')) {
             updateFields.recebeResiduoComunidade = req.body.recebeResiduoComunidade === 'true';
+            
+            // Se a empresa parar de receber resíduos, limpar os tipos de materiais
+            if (req.body.recebeResiduoComunidade === 'false') {
+              updateFields.tiposMateriais = [];
+            }
+          }
+          
+          // Atualizar tipos de materiais (apenas se recebe resíduos)
+          if (tiposMateriais !== undefined) {
+            if (user.recebeResiduoComunidade || updateFields.recebeResiduoComunidade) {
+              // Converter string JSON para array se necessário
+              const materiaisArray = typeof tiposMateriais === 'string' 
+                ? JSON.parse(tiposMateriais) 
+                : tiposMateriais;
+              
+              updateFields.tiposMateriais = materiaisArray;
+            } else {
+              // Se não recebe resíduos, não pode ter tipos de materiais
+              updateFields.tiposMateriais = [];
+            }
           }
           break;
         
@@ -90,10 +113,31 @@ export const userController = {
           if (nomeFantasia) updateFields.nomeFantasia = nomeFantasia;
           if (veiculo) updateFields.veiculo = veiculo;
           if (capacidadeColeta) updateFields.capacidadeColeta = capacidadeColeta;
+          
+          // Atualizar tipos de materiais (obrigatório para centros)
+          if (tiposMateriais !== undefined) {
+            // Converter string JSON para array se necessário
+            const materiaisArray = typeof tiposMateriais === 'string' 
+              ? JSON.parse(tiposMateriais) 
+              : tiposMateriais;
+            
+            updateFields.tiposMateriais = materiaisArray;
+          }
           break;
         
         case "pessoa":
           // Campos específicos para pessoa física
+          // Pessoas não têm tipos de materiais
+          if (tiposMateriais !== undefined) {
+            updateFields.tiposMateriais = [];
+          }
+          break;
+
+        case "adminGeral":
+          // Admins não têm tipos de materiais
+          if (tiposMateriais !== undefined) {
+            updateFields.tiposMateriais = [];
+          }
           break;
       }
 
@@ -129,6 +173,13 @@ export const userController = {
         });
       }
 
+      if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+        return res.status(400).json({
+          success: false,
+          message: "Formato inválido para tipos de materiais. Deve ser um array JSON válido."
+        });
+      }
+
       return res.status(500).json({ 
         success: false,
         message: "Erro ao atualizar dados",
@@ -136,7 +187,6 @@ export const userController = {
       });
     }
   },
-
   async getPersonalData(req, res) {
     try {
       const user = await User.findById(req.user.id);

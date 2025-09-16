@@ -1,8 +1,10 @@
-.pin-container {
+.pin-container { 
   position: relative;
   display: inline-block;
   cursor: pointer;
   transform: translate(-50%, -100%);
+  z-index: 1;
+  transition: z-index 0.3s ease;
 }
 
 .pin-icon {
@@ -19,36 +21,53 @@
   position: relative;
   z-index: 2;
   transition: all 0.3s ease;
+  animation: pulse 2s infinite;
 }
 
-/* verde padrão .pin-icon.empresa {
-  background: linear-gradient(135deg, #4285F4, #34A853);
-}
-
-.pin-icon.centro {
-  background: linear-gradient(135deg, #0F9D58, #FBBC05);
-}
-*/
-.pin-icon.centro{
-  background-color: #4285F4;
-}
 .pin-icon svg {
   transform: rotate(45deg);
 }
 
+/* Pin ativo acima dos outros */
+.pin-container.active {
+  z-index: 1000;
+  position: relative;
+}
+
+.pin-container.active .pin-icon {
+  z-index: 1001;
+  transform: rotate(-45deg) scale(1.2);
+}
+
+/* Cor padrão para empresa */
+.pin-icon.empresa {
+  background-color: #009951;
+  color: white;
+}
+
+/* Cor para empresas que recebem resíduos */
+.pin-icon.empresa.recebe {
+  background-color: #f39c12;
+  color: white;
+}
+
+/* Cor para centro de reciclagem */
+.pin-icon.centro {
+  background-color: #4285F4;
+  color: white;
+}
+
+/* Tooltip renderizado via portal */
 .pin-tooltip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 250px;
-  max-width: 90vw;
+  position: fixed; /* fixed para portal */
   background: white;
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  z-index: 2000; /* acima de todos os pins */
   animation: fadeIn 0.3s ease;
+  width: 280px;
+  max-width: 90vw;
 }
 
 .tooltip-header {
@@ -74,7 +93,12 @@
 }
 
 .tipo-badge.empresa {
-  background-color: #4285F4;
+  background-color: #009951;
+  color: white;
+}
+
+.tipo-badge.empresa.recebe {
+  background-color: #f39c12;
   color: white;
 }
 
@@ -85,6 +109,8 @@
 
 .tooltip-content {
   font-size: 0.85rem;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .info-item {
@@ -100,46 +126,10 @@
   margin-top: 2px;
 }
 
-.tooltip-arrow {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 10px solid white;
-}
-/* Cor padrão para empresa */
-.pin-icon.empresa {
-  background-color: #009951; /* verde padrão */
-  color: white;
-}
-
-/* Cor para empresas que recebem resíduos */
-.pin-icon.empresa.recebe {
-  background-color: #f39c12; /* laranja destaque */
-  color: white;
-}
-
-/* Badge padrão */
-.tipo-badge.empresa {
-  background-color: #009951;
-  color: white;
-}
-
-/* Badge laranja para recebe resíduos */
-.tipo-badge.empresa.recebe {
-  background-color: #f39c12;
-  color: white;
-}
-
-/* Estilo texto extra no tooltip */
 .info-item.recebe-residuo {
   margin-top: 8px;
   font-weight: bold;
-  color: #f39c12; /* laranja */
+  color: #f39c12;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -148,6 +138,7 @@
 .info-item.recebe-residuo .info-icon {
   color: #f39c12;
 }
+
 .rota-button {
   margin-left: 8px;
   padding: 2px 6px;
@@ -164,25 +155,134 @@
   background-color: #007a3d;
 }
 
+/* Seção de materiais no tooltip */
+.pin-materiais-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
 
+.pin-materiais-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pin-materiais-icon {
+  color: #009951;
+  font-size: 12px;
+}
+
+.pin-materiais-title {
+  font-weight: 600;
+  font-size: 12px;
+  color: #2c3e50;
+}
+
+.pin-materiais-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pin-material-tag {
+  background: rgba(0, 153, 81, 0.1);
+  color: #009951;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  border: 1px solid rgba(0, 153, 81, 0.2);
+  white-space: nowrap;
+}
+
+.pin-material-more {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-style: italic;
+  border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+/* Scroll personalizado */
+.tooltip-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tooltip-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb {
+  background: #009951;
+  border-radius: 2px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb:hover {
+  background: #007a3d;
+}
+.pin-tooltip {
+  position: fixed; /* para ficar acima de todos os pins */
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  z-index: 2000; /* acima de todos os pins */
+  animation: fadeInFixed 0.2s ease forwards;
+}
+/* Animações */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(10px);
+   
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    
   }
 }
 
-/* Efeito de pulso para os marcadores */
 @keyframes pulse {
-  0% { transform: rotate(-45deg) scale(1); }
-  50% { transform: rotate(-45deg) scale(1.1); }
-  100% { transform: rotate(-45deg) scale(1); }
+  0% { 
+    transform: rotate(-45deg) scale(1);
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
+  }
+  50% { 
+    transform: rotate(-45deg) scale(1.1);
+    box-shadow: 0 6px 15px rgba(243, 156, 18, 0.6);
+  }
+  100% { 
+    transform: rotate(-45deg) scale(1);
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
+  }
 }
-
-.pin-icon {
-  animation: pulse 2s infinite;
+.tooltip-arrow {
+  position: absolute;
+  bottom: -10px; /* coloca abaixo do tooltip */
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: -1;
+}
+/* Responsividade */
+@media (max-width: 480px) {
+  .pin-tooltip {
+    width: 250px;
+  }
+  
+  .pin-materiais-list {
+    gap: 3px;
+  }
+  
+  .pin-material-tag {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
 }

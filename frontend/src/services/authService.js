@@ -54,7 +54,6 @@ export const loginUser = async ({ email, cnpj, senha }) => {
   }
 };
 
-
 export const registerUser = async (userData) => {
   const response = await api.post('/auth/register', userData);
   return response.data;
@@ -64,7 +63,6 @@ export const adminRegisterUser = async (userData) => {
   const response = await api.post('/auth/admin-register', userData);
   return response.data;
 };
-
 
 export const getUserData = async () => {
   const response = await api.get('/usuarios/pessoal');

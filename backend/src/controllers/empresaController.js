@@ -67,13 +67,15 @@ export const getLocalizacoes = async (req, res) => {
 export const getEmpresasPublicas = async (req, res) => {
   try {
     const empresas = await User.find({ tipoUsuario: 'empresa' })
-      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade')
+      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade tiposMateriais')
       .lean();
+    
     res.json({
       success: true,
       data: empresas.map(e => ({
         ...e,
-        nomeFantasia: e.razaoSocial || e.nome
+        nomeFantasia: e.razaoSocial || e.nome,
+        tiposMateriais: e.tiposMateriais || [] // Garante que sempre retorne um array
       }))
     });
   } catch (error) {
@@ -120,7 +122,7 @@ export const getEmpresaPublicaPorId = async (req, res) => {
     const empresa = await User.findOne({
       _id: id,
       tipoUsuario: 'empresa'
-    }).select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade');
+    }).select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade tiposMateriais');
 
     if (!empresa) {
       return res.status(404).json({ success: false, message: 'Empresa não encontrada' });
@@ -130,7 +132,8 @@ export const getEmpresaPublicaPorId = async (req, res) => {
       success: true,
       data: {
         ...empresa._doc,
-        nomeFantasia: empresa.razaoSocial || empresa.nome
+        nomeFantasia: empresa.razaoSocial || empresa.nome,
+        tiposMateriais: empresa.tiposMateriais || [] // Garante que sempre retorne um array
       }
     });
   } catch (error) {

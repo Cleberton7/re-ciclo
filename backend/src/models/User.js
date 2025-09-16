@@ -129,12 +129,45 @@ const UserSchema = new mongoose.Schema({
     enum: ['pessoa', 'empresa', 'centro', 'adminGeral'],
     default: 'pessoa'
   },
-    recebeResiduoComunidade: {
+  recebeResiduoComunidade: {
     type: Boolean,
     default: false,
     required: function() {
       return this.tipoUsuario === 'empresa';
     },
+  },
+  tiposMateriais: {
+    type: [{
+      type: String,
+      enum: [
+        'Telefonia e Acessórios',
+        'Informática',
+        'Eletrodoméstico',
+        'Pilhas e Baterias',
+        'Outros Eletroeletrônicos'
+      ]
+    }],
+    default: [],
+    required: function() {
+      // Obrigatório apenas para empresas que recebem resíduos da comunidade e centros
+      return (this.tipoUsuario === 'empresa' && this.recebeResiduoComunidade) || 
+             this.tipoUsuario === 'centro';
+    },
+    validate: {
+      validator: function(v) {
+        // Para empresas que recebem resíduos, deve ter pelo menos um material selecionado
+        if (this.tipoUsuario === 'empresa' && this.recebeResiduoComunidade) {
+          return v && v.length > 0;
+        }
+        // Para centros, deve ter pelo menos um material selecionado
+        if (this.tipoUsuario === 'centro') {
+          return v && v.length > 0;
+        }
+        // Para outros casos, não é obrigatório
+        return true;
+      },
+      message: 'Selecione pelo menos um tipo de material'
+    }
   },
   cpf: {
     type: String,

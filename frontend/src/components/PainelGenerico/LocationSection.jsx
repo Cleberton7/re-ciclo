@@ -26,7 +26,8 @@ const LocationSection = ({
     telefone: dados.telefone || "Não informado",
     email: dados.email || "Não informado",
     cnpj: tipoUsuario === "empresa" || tipoUsuario === "centro" ? dados.documento : null,
-    recebeResiduoComunidade: dados.recebeResiduoComunidade || false
+    recebeResiduoComunidade: dados.recebeResiduoComunidade || false,
+    tiposMateriais: dados.tiposMateriais || [] 
   };
 
   return (
@@ -56,7 +57,7 @@ const LocationSection = ({
               <Pin {...markerData} />
             </AdvancedMarker>
           )}
-        </Map>
+        </Map>x
       </div>
       <div className="coordinates-input">
         <div className="info-row">
