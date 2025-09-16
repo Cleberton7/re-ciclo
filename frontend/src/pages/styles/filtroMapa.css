@@ -199,13 +199,16 @@
   margin-left: auto;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .filtro-mapa-container {
+    width: 100%;       /* ocupa toda a largura do container */
+    max-width: 100%;   /* remove o fit-content */
     padding: 6px 10px;
     gap: 8px;
-    border-radius: 20px;
-    flex-wrap: nowrap;
+    border-radius: 12px;
+    flex-wrap: wrap;   /* permite quebrar em múltiplas linhas se necessário */
+    position: relative; /* mantém dentro do fluxo do layout */
+    z-index: 1;        /* menor z-index para não sobrepor o menu */
   }
 
   .dropdown-toggle,
@@ -215,10 +218,24 @@
   }
 
   .dropdown-content {
-    right: -50px;
+    right: 0;          /* posicionamento dentro do fluxo */
     min-width: 160px;
   }
 }
+
+@media (max-width: 480px) {
+  .filtro-mapa-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 5px 8px;
+  }
+
+  .dropdown-content {
+    right: 0;
+    min-width: 140px;
+  }
+}
+
 
 @media (max-width: 480px) {
   .filtro-mapa-container {
@@ -226,7 +243,9 @@
     max-width: 100%;
     padding: 5px 8px;
 
+
   }
+  
 
   .filtro-group {
     flex-shrink: 0;

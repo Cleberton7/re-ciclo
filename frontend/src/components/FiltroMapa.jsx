@@ -81,7 +81,7 @@ const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOpt
   const filtrosAtivos = tipoAtual !== 'todos' || materiaisAtuais.length > 0;
 
   return (
-    <div className="filtro-mapa-container">
+    <div className="x">
       <div className="filtro-group">
         <label>
           <FaFilter size={12} />
