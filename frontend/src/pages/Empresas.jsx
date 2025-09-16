@@ -3,11 +3,20 @@ import { Link } from 'react-router-dom';
 import { getEmpresasPublicas, getCentrosReciclagemPublicos } from '../services/publicDataServices.js';
 import { FaBuilding, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaSearch, FaTrash } from 'react-icons/fa';
 import { BASE_URL } from '../config/config.js';
+import FiltroMapa from '../components/FiltroMapa';
 import Modal from '../components/Modal';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import "./styles/containerPrincipal.css";
 import "./styles/dashboardEmpresa.css";
+
+const TIPOS_MATERIAIS_OPTIONS = [
+  'Telefonia e Acessórios',
+  'Informática',
+  'Eletrodoméstico',
+  'Pilhas e Baterias',
+  'Outros Eletroeletrônicos'
+];
 
 const Empresas = () => {
   const [empresas, setEmpresas] = useState([]);
@@ -15,6 +24,10 @@ const Empresas = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtros, setFiltros] = useState({
+    tipo: 'todos',
+    materiais: []
+  });
   const [activeModal, setActiveModal] = useState(null);
 
   // Funções para controlar os modais
@@ -31,7 +44,6 @@ const Empresas = () => {
 
   const handleLoginSuccess = () => {
     closeModal();
-    // Recarregar a página ou redirecionar se necessário
     window.location.reload();
   };
 
@@ -56,7 +68,7 @@ const Empresas = () => {
               ? `${BASE_URL}/uploads/${empresa.imagemPerfil}`
               : null,
             recebeResiduoComunidade: empresa.recebeResiduoComunidade || false,
-            tiposMateriais: empresa.tiposMateriais || [] // ✅ Novo campo
+            tiposMateriais: empresa.tiposMateriais || []
           }))
           .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
@@ -72,7 +84,7 @@ const Empresas = () => {
             imagemUrl: centro.imagemPerfil 
               ? `${BASE_URL}/uploads/${centro.imagemPerfil}`
               : null,
-            tiposMateriais: centro.tiposMateriais || [] // ✅ Novo campo
+            tiposMateriais: centro.tiposMateriais || []
           }))
           .sort((a, b) => a.nomeExibido.localeCompare(b.nomeExibido));
 
@@ -91,29 +103,37 @@ const Empresas = () => {
 
   // Função para filtrar os dados com base no termo de busca
   const filteredData = useMemo(() => {
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    
+    const lowerSearch = searchTerm.toLowerCase();
+
+    const filtraMateriais = (item) => {
+      if (filtros.materiais.length === 0) return true;
+      return filtros.materiais.some(m => item.tiposMateriais.includes(m));
+    };
+
+    const filtraTipo = (item, tipoItem) => {
+      if (filtros.tipo === 'todos') return true;
+      return filtros.tipo === tipoItem;
+    };
+
     return {
-      empresas: empresas.filter(empresa => 
-        empresa.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
-        empresa.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-        empresa.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
-        empresa.cnpj.toLowerCase().includes(lowerCaseSearchTerm) ||
-        (empresa.tiposMateriais && empresa.tiposMateriais.some(material => 
-          material.toLowerCase().includes(lowerCaseSearchTerm)
-        ))
+      empresas: empresas.filter(e => 
+        (e.nomeExibido.toLowerCase().includes(lowerSearch) ||
+        e.email.toLowerCase().includes(lowerSearch) ||
+        e.endereco.toLowerCase().includes(lowerSearch) ||
+        e.cnpj.toLowerCase().includes(lowerSearch) ||
+        e.tiposMateriais.some(m => m.toLowerCase().includes(lowerSearch)))
+        && filtraMateriais(e) && filtraTipo(e, 'empresa')
       ),
-      centrosReciclagem: centrosReciclagem.filter(centro => 
-        centro.nomeExibido.toLowerCase().includes(lowerCaseSearchTerm) ||
-        centro.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-        centro.endereco.toLowerCase().includes(lowerCaseSearchTerm) ||
-        centro.cnpj.toLowerCase().includes(lowerCaseSearchTerm) ||
-        (centro.tiposMateriais && centro.tiposMateriais.some(material => 
-          material.toLowerCase().includes(lowerCaseSearchTerm)
-        ))
+      centrosReciclagem: centrosReciclagem.filter(c => 
+        (c.nomeExibido.toLowerCase().includes(lowerSearch) ||
+        c.email.toLowerCase().includes(lowerSearch) ||
+        c.endereco.toLowerCase().includes(lowerSearch) ||
+        c.cnpj.toLowerCase().includes(lowerSearch) ||
+        c.tiposMateriais.some(m => m.toLowerCase().includes(lowerSearch)))
+        && filtraMateriais(c) && filtraTipo(c, 'centro')
       )
     };
-  }, [empresas, centrosReciclagem, searchTerm]);
+  }, [empresas, centrosReciclagem, searchTerm, filtros]);
 
   // Função para formatar CNPJ
   const formatarCNPJ = (cnpj) => {
@@ -173,8 +193,8 @@ const Empresas = () => {
       </section>
 
       <div className="empresas-content-wrapper">
-        {/* Barra de busca */}
-        <div className="empresas-search-container">
+        {/* Barra de busca e filtro - AGORA EM LINHA */}
+        <div className="empresas-search-filter-container">
           <div className="empresas-search-input-wrapper modern-search">
             <FaSearch className="empresas-search-icon" />
             <input
@@ -184,14 +204,22 @@ const Empresas = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="empresas-search-input modern-search-input"
             />
-            <div className="search-underline"></div>
+            <div className="search-underline"></div> 
+          </div>
+          
+          <div className="filtro-mapa-container">
+            <FiltroMapa
+              filtros={filtros}
+              onFiltroChange={setFiltros}
+              tiposMateriaisOptions={TIPOS_MATERIAIS_OPTIONS}
+            />
           </div>
         </div>
 
         <div className="empresas-section">
           <h2><FaBuilding className="empresas-section-icon" />Empresas Parceiras</h2>
           {filteredData.empresas.length === 0 ? (
-            <p className="empresas-no-results">Nenhuma empresa encontrada com o termo "{searchTerm}"</p>
+            <p className="empresas-no-results">Nenhuma empresa encontrada com os filtros aplicados</p>
           ) : (
             <div className="empresas-cards-container">
               {filteredData.empresas.map(empresa => (
@@ -208,7 +236,6 @@ const Empresas = () => {
                     <div className="empresas-card-content">
                       <h3>{empresa.nomeExibido}</h3>
                       
-                      {/* ✅ Exibir tipos de materiais para empresas que recebem resíduos */}
                       {empresa.recebeResiduoComunidade && empresa.tiposMateriais && empresa.tiposMateriais.length > 0 && (
                         <div className="empresas-materiais-section">
                           <div className="empresas-materiais-label">
@@ -257,7 +284,7 @@ const Empresas = () => {
         <div className="empresas-section">
           <h2><FaRecycle className="empresas-section-icon" /> Centros de Coleta</h2>
           {filteredData.centrosReciclagem.length === 0 ? (
-            <p className="empresas-no-results">Nenhum centro de reciclagem encontrado com o termo "{searchTerm}"</p>
+            <p className="empresas-no-results">Nenhum centro de reciclagem encontrado com os filtros aplicados</p>
           ) : (
             <div className="empresas-cards-container">
               {filteredData.centrosReciclagem.map(centro => (
@@ -269,14 +296,12 @@ const Empresas = () => {
                         ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url(${centro.imagemUrl})`
                         : 'none',
                       backgroundColor: !centro.imagemUrl ? '#009951' : 'transparent',
-      
                     }}
                   >
                     <div className="empresas-card-overlay"></div>
                     <div className="empresas-card-content">
                       <h3>{centro.nomeExibido}</h3>
 
-                      {/* ✅ Exibir tipos de materiais para centros */}
                       {centro.tiposMateriais && centro.tiposMateriais.length > 0 && (
                         <div className="empresas-materiais-section">
                           <div className="empresas-materiais-label">
