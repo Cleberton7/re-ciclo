@@ -319,6 +319,9 @@ display: flex;
 }
 
 @media (max-width: 768px) {
+  .empresas-search-icon {
+    z-index: 1;
+  }
   .empresas-container {
     padding: 15px;
   }
