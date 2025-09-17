@@ -4,6 +4,7 @@ import {
   getSolicitacoesColeta, 
   aceitarColeta, 
   concluirColeta,
+  cancelarColeta,
   buscarColetaPorCodigo
 } from "../services/coletaService";
 import Comprovante from "../components/ComprovanteColeta";
@@ -16,7 +17,7 @@ import "./styles/painelReciclador.css";
 const PainelReciclador = () => {
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [concluindoId, setConcluindoId] = useState(null);
-  const [filtros, setFiltros] = useState({ tipoResiduo: "", status: "pendente" });
+  const [filtros, setFiltros] = useState({ tipoResiduo: "", status: "todos" });
   const [loading, setLoading] = useState({ listagem: false, aceitando: null, buscandoCodigo: false, concluindo: false });
   const [notificacao, setNotificacao] = useState({ show: false, mensagem: "", tipo: "" });
   const [showModalConcluir, setShowModalConcluir] = useState(false);
@@ -66,7 +67,11 @@ const PainelReciclador = () => {
     const carregarSolicitacoes = async () => {
       try {
         setLoading(prev => ({ ...prev, listagem: true }));
-        const dados = await getSolicitacoesColeta(filtros);
+        const dados = await getSolicitacoesColeta({
+          tipoMaterial: filtros.tipoResiduo || undefined,
+          status: filtros.status !== "todos" ? filtros.status : undefined
+        });
+
         setSolicitacoes(dados);
       } catch (error) {
         console.error("Erro ao carregar solicitações:", error);
@@ -96,7 +101,21 @@ const PainelReciclador = () => {
       setLoading(prev => ({ ...prev, aceitando: null }));
     }
   };
+  const handleCancelarColeta = async (idSolicitacao) => {
+    if (!window.confirm("Tem certeza que deseja cancelar esta coleta?")) return;
 
+    try {
+      setLoading(prev => ({ ...prev, aceitando: idSolicitacao })); // reutilizando o loading
+      await cancelarColeta(idSolicitacao);
+      setSolicitacoes(prev => prev.filter(s => s._id !== idSolicitacao));
+      mostrarNotificacao("Coleta cancelada com sucesso!", "sucesso");
+    } catch (error) {
+      console.error("Erro ao cancelar coleta:", error);
+      mostrarNotificacao(error.message || "Erro ao cancelar coleta", "erro");
+    } finally {
+      setLoading(prev => ({ ...prev, aceitando: null }));
+    }
+  };
   const buscarColeta = async () => {
     const codigoLimpo = codigoRastreamento.replace("-", "").toUpperCase();
     if (!codigoLimpo || codigoLimpo.length !== 10) {
@@ -252,26 +271,7 @@ const PainelReciclador = () => {
           <h2>RESUMO OPERACIONAL</h2>
           <p>- Coletas disponíveis: <strong>{loading.listagem ? "Carregando..." : solicitacoes.length}</strong></p>
 
-          <div className="busca-codigo-rastreamento">
-            <h3>Concluir Coleta por Código</h3>
-            <div className="input-group">
-              <input 
-                type="text"
-                value={codigoRastreamento}
-                onChange={handleCodigoChange}
-                placeholder="Digite o código de rastreamento (ex: 20230910-3)"
-                maxLength={11}
-                className="codigo-input"
-              />
-              <button 
-                className="btn-buscar-codigo"
-                onClick={buscarColeta}
-                disabled={loading.buscandoCodigo || !codigoRastreamento}
-              >
-                {loading.buscandoCodigo ? "Buscando..." : "Buscar Coleta"}
-              </button>
-            </div>
-          </div>
+
         </section>
 
         <section className="solicitacoes">
@@ -286,67 +286,119 @@ const PainelReciclador = () => {
               <option value="outros">Outros Eletroeletrônicos</option>
             </select>
             <select value={filtros.status} onChange={e => setFiltros(prev => ({ ...prev, status: e.target.value }))}>
+              <option value="todos">Todos os status</option>
               <option value="pendente">Pendentes</option>
               <option value="aceita">Aceitas</option>
               <option value="concluída">Concluídas</option>
               <option value="cancelada">Canceladas</option>
             </select>
-          </div>
-
-          <div className="cards">
-            {loading.listagem ? (
-              <p style={{ marginTop: "20px" }}>Carregando solicitações...</p>
-            ) : solicitacoes.length === 0 ? (
-              <p style={{ marginTop: "20px" }}>Nenhuma solicitação encontrada.</p>
-            ) : (
-              solicitacoes.map(solicitacao => (
-                <div key={solicitacao._id} className="card">
-                  <h3>{formatarTipoMaterial(solicitacao.tipoMaterial, solicitacao.outros)}</h3>
-                  <p><strong>Código:</strong> {formatarCodigoRastreamento(solicitacao.codigoRastreamento)}</p>
-                  <p><strong>Quantidade:</strong> {solicitacao.quantidade} kg</p>
-                  <p><strong>Status:</strong> {solicitacao.status}</p>
-
-                  {solicitacao.status === "pendente" && (
-                    <button
-                      onClick={() => handleAceitarColeta(solicitacao._id)}
-                      disabled={loading.aceitando === solicitacao._id}
-                    >
-                      {loading.aceitando === solicitacao._id ? "Aceitando..." : "Aceitar Coleta"}
-                    </button>
-                  )}
-
-                  {solicitacao.status === "aceita" && (
-                    <>
-                      <button
-                        onClick={() => abrirModalConclusao(solicitacao._id)}
-                        disabled={concluindoId === solicitacao._id}
-                        className="btn-concluir"
-                      >
-                        {concluindoId === solicitacao._id ? "Concluindo..." : "Confirmar Retirada"}
-                      </button>
-
-                      <button
-                        onClick={() => abrirComprovante(solicitacao)}
-                        className="btn-comprovante"
-                      >
-                        Comprovante
-                      </button>
-                    </>
-                  )}
-
-                  {solicitacao.status === "concluída" && (
-                    <button
-                      onClick={() => abrirComprovante(solicitacao)}
-                      className="btn-comprovante"
-                    >
-                      Comprovante
-                    </button>
-                  )}
+            <div className="busca-codigo-rastreamento">
+              <h3>Buscar coleta por Código</h3>
+                <div className="input-group">
+                  <input 
+                    type="text"
+                    value={codigoRastreamento}
+                    onChange={handleCodigoChange}
+                    placeholder="Digite o código de rastreamento (ex: 20230910-3)"
+                    maxLength={11}
+                    className="codigo-input"
+                  />
+                  <button 
+                    className="btn-buscar-codigo"
+                    onClick={buscarColeta}
+                    disabled={loading.buscandoCodigo || !codigoRastreamento}
+                  >
+                    {loading.buscandoCodigo ? "Buscando..." : "Buscar Coleta"}
+                  </button>
                 </div>
-              ))
-            )}
+            </div>
+
           </div>
+          
+
+          {loading.listagem ? (
+            <p style={{ marginTop: "20px" }}>Carregando solicitações...</p>
+          ) : solicitacoes.length === 0 ? (
+            <p style={{ marginTop: "20px" }}>Nenhuma solicitação encontrada.</p>
+          ) : (
+            <div className="tabela-container">
+              <table className="tabela-solicitacoes">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Quantidade (kg)</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {solicitacoes.map(solicitacao => (
+                    <tr key={solicitacao._id}>
+                      <td>{formatarCodigoRastreamento(solicitacao.codigoRastreamento)}</td>
+                      <td>{formatarTipoMaterial(solicitacao.tipoMaterial, solicitacao.outros)}</td>
+                      <td>{solicitacao.quantidade}</td>
+                      <td>{solicitacao.status}</td>
+                    <td className="acoes">
+                      {solicitacao.status === "pendente" && (
+                        <>
+                          <button
+                            onClick={() => handleAceitarColeta(solicitacao._id)}
+                            disabled={loading.aceitando === solicitacao._id}
+                          >
+                            {loading.aceitando === solicitacao._id ? "Aceitando..." : "Aceitar"}
+                          </button>
+                          <button
+                            className="btn-cancelar"
+                            onClick={() => handleCancelarColeta(solicitacao._id)}
+                            disabled={loading.aceitando === solicitacao._id}
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      )}
+                      {solicitacao.status === "aceita" && (
+                        <>
+                          <button
+                            className="btn-acao btn-concluir"
+                            onClick={() => abrirModalConclusao(solicitacao._id)}
+                            disabled={concluindoId === solicitacao._id}
+                          >
+                            {concluindoId === solicitacao._id ? "Concluindo..." : "Confirmar Retirada"}
+                          </button>
+                          {solicitacao.status === "pendente" || solicitacao.status === "aceita" ? (
+                            <button
+                              className="btn-acao btn-cancelar"
+                              onClick={async () => {
+                                if (!window.confirm("Deseja realmente cancelar esta coleta?")) return;
+                                try {
+                                  await cancelarColeta(solicitacao._id);
+                                  setSolicitacoes(prev => prev.filter(s => s._id !== solicitacao._id));
+                                  mostrarNotificacao("Coleta cancelada com sucesso!", "sucesso");
+                                } catch (error) {
+                                  mostrarNotificacao(error.message, "erro");
+                                }
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                          ) : null}
+
+                          <button onClick={() => abrirComprovante(solicitacao)}>Comprovante</button>
+                        </>
+                      )}
+                      {solicitacao.status === "concluída" && (
+                        <button onClick={() => abrirComprovante(solicitacao)}>Comprovante</button>
+                      )}
+                    </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
+
 
         <Modal
           isOpen={showModalConcluir}

@@ -8,6 +8,8 @@ import {
   criarSolicitacao, 
   getSolicitacoes,
   aceitarColeta,
+  cancelarColeta,
+  confirmarRetirada,
   atualizarColeta,
   deletarColeta,
   concluirColeta,
@@ -30,6 +32,8 @@ const requireEmpresaOuPessoa = requireRole(['empresa', 'pessoa']); // novo
 router.get('/', verifyToken, requireAuth, getSolicitacoes);
 router.post('/', verifyToken, requireEmpresaOuPessoa, rateLimiter(10, 60), coletaUpload, uploadErrorHandler, criarSolicitacao);
 router.put('/:id/aceitar', verifyToken, requireCentro, aceitarColeta);
+router.patch('/:id/cancelar', verifyToken, requireCentro, cancelarColeta);
+router.patch("/:id/retirada",verifyToken, requireCentro, confirmarRetirada);
 router.put('/:id/concluir', verifyToken, requireCentro, express.json(), validarConclusaoColeta, concluirColeta);
 router.put('/:id', verifyToken, requireAuth, coletaUpload, uploadErrorHandler, atualizarColeta);
 router.delete('/:id', verifyToken, requireAuth, deletarColeta);

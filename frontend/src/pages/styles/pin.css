@@ -1,3 +1,4 @@
+/* Estilos para o container do pin */
 .pin-container { 
   position: relative;
   display: inline-block;
@@ -31,7 +32,6 @@
 /* Pin ativo acima dos outros */
 .pin-container.active {
   z-index: 1000;
-  position: relative;
 }
 
 .pin-container.active .pin-icon {
@@ -59,15 +59,16 @@
 
 /* Tooltip renderizado via portal */
 .pin-tooltip {
-  position: fixed; /* fixed para portal */
+  position: fixed;
   background: white;
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  z-index: 2000; /* acima de todos os pins */
+  z-index: 1000;
   animation: fadeIn 0.3s ease;
   width: 280px;
   max-width: 90vw;
+  /* Removido overflow e max-height para eliminar scroll */
 }
 
 .tooltip-header {
@@ -109,8 +110,7 @@
 
 .tooltip-content {
   font-size: 0.85rem;
-  max-height: 300px;
-  overflow-y: auto;
+  /* Removido overflow para eliminar scroll */
 }
 
 .info-item {
@@ -207,42 +207,15 @@
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-/* Scroll personalizado */
-.tooltip-content::-webkit-scrollbar {
-  width: 4px;
-}
-
-.tooltip-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
-}
-
-.tooltip-content::-webkit-scrollbar-thumb {
-  background: #009951;
-  border-radius: 2px;
-}
-
-.tooltip-content::-webkit-scrollbar-thumb:hover {
-  background: #007a3d;
-}
-.pin-tooltip {
-  position: fixed; /* para ficar acima de todos os pins */
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  z-index: 2000; /* acima de todos os pins */
-  animation: fadeInFixed 0.2s ease forwards;
-}
 /* Animações */
 @keyframes fadeIn {
   from {
     opacity: 0;
-   
+    transform: translate(-50%, -20px);
   }
   to {
     opacity: 1;
-    
+    transform: translate(-50%, -100%);
   }
 }
 
@@ -260,21 +233,25 @@
     box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
   }
 }
+
 .tooltip-arrow {
   position: absolute;
-  bottom: -10px; /* coloca abaixo do tooltip */
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   z-index: -1;
 }
+
 /* Responsividade */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .pin-tooltip {
-    width: 250px;
+    z-index: 1000;
+    width: 85vw;
+    max-width: 300px;
   }
   
   .pin-materiais-list {
@@ -284,5 +261,30 @@
   .pin-material-tag {
     font-size: 9px;
     padding: 2px 5px;
+  }
+  
+  .info-item {
+    padding: 8px 0;
+  }
+  
+  .rota-button {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pin-tooltip {
+    width: 250px;
+  }
+  
+  .tooltip-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .tipo-badge {
+    align-self: flex-start;
   }
 }

@@ -11,11 +11,13 @@ const Pin = ({
   email,
   cnpj,
   recebeResiduoComunidade,
-  tiposMateriais
+  tiposMateriais,
+  mapContainerRef
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const [tooltipStyle, setTooltipStyle] = useState({});
   const pinRef = useRef();
+  const tooltipRef = useRef();
 
   const pinClass = `pin-icon ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
   const badgeClass = `tipo-badge ${tipo} ${recebeResiduoComunidade ? 'recebe' : ''}`;
@@ -30,15 +32,52 @@ const Pin = ({
     }
   };
 
-  // Calcula posição do tooltip ao abrir
+  // Fechar tooltip ao clicar fora
   useEffect(() => {
-    if (showTooltip && pinRef.current) {
-      const rect = pinRef.current.getBoundingClientRect();
-      setTooltipPos({
-        top: rect.top - 10, // 10px acima do pin
-        left: rect.left + rect.width / 2
-      });
+    const handleClickOutside = (event) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(event.target) && 
+          pinRef.current && !pinRef.current.contains(event.target)) {
+        setShowTooltip(false);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showTooltip]);
+
+  // Atualizar posição do tooltip
+  useEffect(() => {
+    if (!showTooltip || !pinRef.current) return;
+
+    const updateTooltipPosition = () => {
+      const rect = pinRef.current.getBoundingClientRect();
+      
+      // Posicionar sempre acima do pin
+      const top = rect.top - 10;
+      const left = rect.left + rect.width / 2;
+      
+      setTooltipStyle({
+        top: `${top}px`,
+        left: `${left}px`,
+        transform: 'translate(-50%, -100%)'
+      });
+    };
+
+    updateTooltipPosition();
+    
+    // Atualizar quando a janela for redimensionada
+    window.addEventListener('resize', updateTooltipPosition);
+    
+    return () => {
+      window.removeEventListener('resize', updateTooltipPosition);
+    };
   }, [showTooltip]);
 
   return (
@@ -46,7 +85,10 @@ const Pin = ({
       className={`pin-container ${showTooltip ? 'active' : ''}`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      onClick={() => setShowTooltip(!showTooltip)}
+      onClick={(e) => {
+        e.stopPropagation();
+        setShowTooltip(!showTooltip);
+      }}
       ref={pinRef}
     >
       <div className={pinClass}>
@@ -57,11 +99,8 @@ const Pin = ({
         createPortal(
           <div
             className="pin-tooltip"
-            style={{
-              top: tooltipPos.top,
-              left: tooltipPos.left,
-              transform: 'translate(-50%, -100%)'
-            }}
+            style={tooltipStyle}
+            ref={tooltipRef}
           >
             <div className="tooltip-header">
               <h3>{nome}</h3>

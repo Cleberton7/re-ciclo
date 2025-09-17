@@ -16,8 +16,8 @@ const PainelEmpresa = () => {
   const [residuos, setResiduos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imagem, setImagem] = useState(null);
   const [globalLoading, setGlobalLoading] = useState(false);
+  const [imagem, setImagem] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
@@ -25,22 +25,18 @@ const PainelEmpresa = () => {
   const [residuoSelecionado, setResiduoSelecionado] = useState(null);
 
   const [novoResiduo, setNovoResiduo] = useState({
-    tipoMaterial: "telefonia", 
-    outros: "", 
+    tipoMaterial: "telefonia",
+    outros: "",
     quantidade: "",
     endereco: "",
     observacoes: "",
   });
 
-  // Função para formatar o tipoMaterial exibido
+  // Função para formatar o tipoMaterial
   const formatarTipoMaterial = (tipo, outros) => {
     if (!tipo) return "Desconhecido";
-
     const tipoLimpo = tipo.split("//")[0].trim().toLowerCase();
-
-    if (tipoLimpo === "outros" && outros) {
-      return `Outros (${outros})`;
-    }
+    if (tipoLimpo === "outros" && outros) return `Outros (${outros})`;
 
     switch (tipoLimpo) {
       case "telefonia":
@@ -57,22 +53,19 @@ const PainelEmpresa = () => {
         return tipoLimpo.charAt(0).toUpperCase() + tipoLimpo.slice(1);
     }
   };
-  
-  // Função para formatar o código de rastreamento para exibição
+
+  // Formata código de rastreamento
   const formatarCodigoRastreamento = (codigo) => {
     if (!codigo) return "-";
-    // Formato: 20240115-0001 → 2024.01.15-0001
     return `${codigo.slice(0, 4)}.${codigo.slice(4, 6)}.${codigo.slice(6, 8)}-${codigo.slice(9)}`;
   };
 
+  // Carregar resíduos
   const carregarResiduos = async () => {
     setGlobalLoading(true);
     try {
       const dados = await getSolicitacoesColeta();
-      const sorted = dados.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setResiduos(sorted);
+      setResiduos(dados.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } catch (error) {
       console.error("Erro ao carregar resíduos:", error.message);
     } finally {
@@ -84,6 +77,7 @@ const PainelEmpresa = () => {
     carregarResiduos();
   }, []);
 
+  // Adicionar resíduo
   const adicionarResiduo = async () => {
     setLoading(true);
     try {
@@ -95,9 +89,7 @@ const PainelEmpresa = () => {
       formData.append("quantidade", novoResiduo.quantidade);
       formData.append("endereco", novoResiduo.endereco);
       formData.append("observacoes", novoResiduo.observacoes || "");
-      if (imagem) {
-        formData.append("imagem", imagem);
-      }
+      if (imagem) formData.append("imagem", imagem);
       formData.append("privacidade", "publica");
 
       const response = await criarSolicitacaoColeta(formData);
@@ -105,11 +97,11 @@ const PainelEmpresa = () => {
         resetForm();
         setShowModal(false);
         await carregarResiduos();
-        if (response.data && response.data.codigoRastreamento) {
-          alert(`Solicitação criada com sucesso! Código de Rastreamento: ${formatarCodigoRastreamento(response.data.codigoRastreamento)}`);
-        } else {
-          alert("Solicitação criada com sucesso!");
-        } 
+        alert(
+          response.data?.codigoRastreamento
+            ? `Solicitação criada! Código: ${formatarCodigoRastreamento(response.data.codigoRastreamento)}`
+            : "Solicitação criada com sucesso!"
+        );
       } else {
         throw new Error(response.message || "Erro ao criar solicitação");
       }
@@ -121,7 +113,9 @@ const PainelEmpresa = () => {
     }
   };
 
+  // Editar resíduo
   const editarResiduo = (residuo) => {
+    if (residuo.status !== "pendente") return;
     setEditingId(residuo._id);
     setEditMode(true);
     setNovoResiduo({
@@ -129,12 +123,13 @@ const PainelEmpresa = () => {
       quantidade: residuo.quantidade,
       endereco: residuo.endereco,
       observacoes: residuo.observacoes || "",
-      outros: residuo.outros || ""
+      outros: residuo.outros || "",
     });
     setImagem(residuo.imagem || null);
     setShowModal(true);
   };
 
+  // Atualizar resíduo
   const atualizarResiduo = async () => {
     setLoading(true);
     try {
@@ -161,12 +156,9 @@ const PainelEmpresa = () => {
     }
   };
 
+  // Deletar/cancelar resíduo
   const handleDeletarResiduo = async (id) => {
-    const confirmacao = window.confirm(
-      "Tem certeza que deseja cancelar esta solicitação?"
-    );
-    if (!confirmacao) return;
-
+    if (!window.confirm("Tem certeza que deseja cancelar esta solicitação?")) return;
     setDeletingId(id);
     try {
       await deletarSolicitacaoColeta(id);
@@ -179,13 +171,7 @@ const PainelEmpresa = () => {
   };
 
   const resetForm = () => {
-    setNovoResiduo({
-      tipoMaterial: "telefonia",
-      outros: "",
-      quantidade: "",
-      endereco: "",
-      observacoes: "",
-    });
+    setNovoResiduo({ tipoMaterial: "telefonia", outros: "", quantidade: "", endereco: "", observacoes: "" });
     setImagem(null);
   };
 
@@ -201,23 +187,13 @@ const PainelEmpresa = () => {
     setComprovanteVisivel(true);
   };
 
-  const formularioInvalido =
-    !novoResiduo.tipoMaterial ||
-    !novoResiduo.quantidade ||
-    !novoResiduo.endereco;
-
+  const formularioInvalido = !novoResiduo.tipoMaterial || !novoResiduo.quantidade || !novoResiduo.endereco;
   return (
     <div id="containerPrincipal">
       <PainelGenerico tipoUsuario="empresa" />
       <div className="container-container">
         <h2>Resíduos Disponíveis para Coleta</h2>
-        <button
-          onClick={() => {
-            setEditMode(false);
-            setShowModal(true);
-          }}
-          className="btn-adicionar"
-        >
+        <button onClick={() => { setEditMode(false); setShowModal(true); }} className="btn-adicionar">
           Adicionar Resíduo
         </button>
 
@@ -242,74 +218,40 @@ const PainelEmpresa = () => {
             </thead>
             <tbody>
               {residuos.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="nenhum-residuo">
-                    Nenhum resíduo disponível
-                  </td>
-                </tr>
+                <tr><td colSpan="8" className="nenhum-residuo">Nenhum resíduo disponível</td></tr>
               ) : (
                 residuos.map((res) => (
                   <tr key={res._id}>
-                    <td className="codigo-rastreamento">
-                      {formatarCodigoRastreamento(res.codigoRastreamento)}
-                    </td>
+                    <td className="codigo-rastreamento">{formatarCodigoRastreamento(res.codigoRastreamento)}</td>
                     <td>{formatarTipoMaterial(res.tipoMaterial, res.outros)}</td>
                     <td>{res.quantidade} kg</td>
                     <td>{res.endereco}</td>
                     <td>
                       <span className={`status-badge ${res.status}`}>
-                        {res.status}
+                        {res.status.charAt(0).toUpperCase() + res.status.slice(1)}
                       </span>
                     </td>
                     <td>{new Date(res.createdAt).toLocaleDateString("pt-BR")}</td>
                     <td>
                       <div className="imagem-container">
-                        {res.imagem ? (
-                          <img
-                            src={res.imagem}
-                            alt={`Resíduo de ${res.tipoMaterial}`}
-                            className="imagem-residuo"
-                          />
-                        ) : (
-                          <span className="sem-imagem">-</span>
-                        )}
+                        {res.imagem ? <img src={res.imagem} alt={`Resíduo ${res.tipoMaterial}`} className="imagem-residuo"/> : <span className="sem-imagem">-</span>}
                       </div>
                     </td>
                     <td>
                       <div className="acoes-container">
-                        {/* Botão de Comprovante - sempre visível */}
-                        <button
-                          onClick={() => visualizarComprovante(res)}
-                          className="btn-comprovante"
-                          title="Ver comprovante"
-                        >
-                          Comprovante
-                        </button>
-                        
-                        {/* Botões de Editar e Cancelar - apenas para status pendente */}
+                        <button onClick={() => visualizarComprovante(res)} className="btn-comprovante" title="Ver comprovante">Comprovante</button>
+
                         {res.status === "pendente" && (
                           <>
-                            <button
-                              onClick={() => editarResiduo(res)}
-                              className="btn-editar"
-                              title="Editar solicitação"
-                              disabled={!!deletingId}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleDeletarResiduo(res._id)}
-                              className="btn-deletar"
-                              title="Excluir solicitação"
-                              disabled={!!deletingId}
-                            >
-                              {deletingId === res._id ? (
-                                <ClipLoader color="#fff" size={14} />
-                              ) : (
-                                "Cancelar"
-                              )}
+                            <button onClick={() => editarResiduo(res)} className="btn-editar" disabled={!!deletingId}>Editar</button>
+                            <button onClick={() => handleDeletarResiduo(res._id)} className="btn-deletar" disabled={!!deletingId}>
+                              {deletingId === res._id ? <ClipLoader color="#fff" size={14}/> : "Cancelar"}
                             </button>
                           </>
+                        )}
+
+                        {["aceita","retirada","concluída","cancelada"].includes(res.status) && (
+                          <span className="info-status">Nenhuma ação disponível</span>
                         )}
                       </div>
                     </td>
@@ -319,24 +261,14 @@ const PainelEmpresa = () => {
             </tbody>
           </table>
         )}
-        
-        {/* Modal para adicionar/editar resíduo */}
-        <Modal
-          isOpen={showModal}
-          onClose={() => !loading && cancelarEdicao()}
-          size="form-coleta"
-        >
+
+        {/* Modal adicionar/editar */}
+        <Modal isOpen={showModal} onClose={() => !loading && cancelarEdicao()} size="form-coleta">
           <div className="form-modal-content">
             <h3>{editMode ? "Editar Resíduo" : "Adicionar Resíduo"}</h3>
 
             <label>Tipo de Material:</label>
-            <select
-              value={novoResiduo.tipoMaterial}
-              onChange={(e) =>
-                setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })
-              }
-              disabled={loading}
-            >
+            <select value={novoResiduo.tipoMaterial} onChange={(e) => setNovoResiduo({ ...novoResiduo, tipoMaterial: e.target.value })} disabled={loading}>
               <option value="telefonia">Telefonia e Acessórios</option>
               <option value="informatica">Informática</option>
               <option value="eletrodomesticos">Eletrodomésticos</option>
@@ -344,101 +276,44 @@ const PainelEmpresa = () => {
               <option value="outros">Outros Eletroeletrônicos</option>
             </select>
 
-            {/* Campo "Especificar" (aparece apenas se "Outros" for selecionado) */}
             {novoResiduo.tipoMaterial === "outros" && (
               <div className="outros-container">
                 <label>Especificar (opcional):</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Câmeras, Brinquedos eletrônicos etc..."
-                  value={novoResiduo.outros}
-                  onChange={(e) =>
-                    setNovoResiduo({ ...novoResiduo, outros: e.target.value })
-                  }
-                  disabled={loading}
-                />
+                <input type="text" placeholder="Ex: Câmeras, Brinquedos eletrônicos" value={novoResiduo.outros} onChange={(e) => setNovoResiduo({ ...novoResiduo, outros: e.target.value })} disabled={loading}/>
               </div>
             )}
 
             <label>Quantidade (kg):</label>
-            <input
-              type="number"
-              placeholder="Quantidade em kg"
-              value={novoResiduo.quantidade}
-              onChange={(e) =>
-                setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })
-              }
-              disabled={loading}
-              min="1"
-            />
+            <input type="number" placeholder="Quantidade em kg" value={novoResiduo.quantidade} onChange={(e) => setNovoResiduo({ ...novoResiduo, quantidade: e.target.value })} disabled={loading} min="1"/>
 
             <label>Endereço:</label>
-            <input
-              type="text"
-              placeholder="Endereço completo"
-              value={novoResiduo.endereco}
-              onChange={(e) =>
-                setNovoResiduo({ ...novoResiduo, endereco: e.target.value })
-              }
-              disabled={loading}
-            />
+            <input type="text" placeholder="Endereço completo" value={novoResiduo.endereco} onChange={(e) => setNovoResiduo({ ...novoResiduo, endereco: e.target.value })} disabled={loading}/>
 
             <label>Observações:</label>
-            <textarea
-              placeholder="Detalhes adicionais (opcional)"
-              value={novoResiduo.observacoes}
-              onChange={(e) =>
-                setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })
-              }
-              rows={3}
-              disabled={loading}
-            />
+            <textarea placeholder="Detalhes adicionais (opcional)" value={novoResiduo.observacoes} onChange={(e) => setNovoResiduo({ ...novoResiduo, observacoes: e.target.value })} rows={3} disabled={loading}/>
 
             <label>Imagem (opcional):</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file && file.size > 5 * 1024 * 1024) {
-                  alert("A imagem deve ser menor que 5MB");
-                  return;
-                }
-                setImagem(file);
-              }}
-              name="imagem"
-              disabled={loading}
-            />
+            <input type="file" accept="image/*" onChange={(e) => {
+              const file = e.target.files[0];
+              if (file && file.size > 5 * 1024 * 1024) { alert("A imagem deve ser menor que 5MB"); return; }
+              setImagem(file);
+            }} disabled={loading}/>
 
             {imagem && (
               <div className="image-preview">
-                <img
-                  src={imagem instanceof File ? URL.createObjectURL(imagem) : imagem}
-                  alt="Preview"
-                  className="preview-image"
-                />
-                <button type="button" onClick={() => setImagem(null)} disabled={loading}>
-                  Remover
-                </button>
+                <img src={imagem instanceof File ? URL.createObjectURL(imagem) : imagem} alt="Preview" className="preview-image"/>
+                <button type="button" onClick={() => setImagem(null)} disabled={loading}>Remover</button>
               </div>
             )}
 
-            <button
-              onClick={editMode ? atualizarResiduo : adicionarResiduo}
-              disabled={formularioInvalido || loading}
-              className="btn-enviar"
-            >
+            <button onClick={editMode ? atualizarResiduo : adicionarResiduo} disabled={formularioInvalido || loading} className="btn-enviar">
               {loading ? "Enviando..." : editMode ? "Atualizar Solicitação" : "Solicitar Coleta"}
             </button>
           </div>
         </Modal>
 
-        {/* Modal para comprovante */}
-        <Modal
-          isOpen={comprovanteVisivel}
-          onClose={() => setComprovanteVisivel(false)}
-          size="comprovante"
-        >
+        {/* Modal comprovante */}
+        <Modal isOpen={comprovanteVisivel} onClose={() => setComprovanteVisivel(false)} size="comprovante">
           {residuoSelecionado && (
             <ComprovanteColeta 
               residuo={residuoSelecionado} 

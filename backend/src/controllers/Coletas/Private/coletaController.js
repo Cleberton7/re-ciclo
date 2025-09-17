@@ -126,7 +126,67 @@ export const aceitarColeta = async (req, res) => {
     });
   }
 };
+export const cancelarColeta = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userType = req.user.tipoUsuario;
 
+    // Busca coleta pertencente ao usuário (solicitante ou centro)
+    const coleta = await Coleta.findOne({
+      _id: id,
+      $or: [
+        { solicitante: userId },
+        { centro: userId }
+      ]
+    });
+
+    if (!coleta) {
+      return res.status(404).json({
+        success: false,
+        message: 'Coleta não encontrada ou você não tem permissão'
+      });
+    }
+
+    // Só permite cancelar coletas pendentes ou aceitas
+    if (!['pendente', 'aceita'].includes(coleta.status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Só é possível cancelar coletas pendentes ou aceitas'
+      });
+    }
+
+    coleta.status = 'cancelada';
+    await coleta.save();
+
+    res.json({
+      success: true,
+      data: {
+        ...coleta.toObject(),
+        imagem: getFullImageUrl(req, coleta.imagem)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao cancelar coleta:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erro ao cancelar coleta'
+    });
+  }
+};
+
+export const confirmarRetirada = async (req, res) => {
+  try {
+    const coleta = await Coleta.findByIdAndUpdate(
+      req.params.id,
+      { status: "retirada", dataColeta: new Date() },
+      { new: true }
+    );
+    res.json(coleta);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao confirmar retirada" });
+  }
+};
 export const atualizarColeta = async (req, res) => {
   try {
     const { id } = req.params;

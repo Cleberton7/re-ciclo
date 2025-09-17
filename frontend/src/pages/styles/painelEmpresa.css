@@ -12,9 +12,9 @@
   color: #009951;
   margin-bottom: 20px;
 }
+
 /* Modal Interno */
 .form-modal-content {
-
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -41,8 +41,8 @@
   border: 1px solid #ccc;
   outline: none;
   font-size: 15px;
-  color: white;
-
+  background-color: #202224;
+  color: #fff;
 }
 
 .form-modal-content textarea {
@@ -53,6 +53,7 @@
 .form-modal-content button {
   cursor: pointer;
 }
+
 /* Botões */
 .btn-adicionar {
   background-color: #009951;
@@ -92,13 +93,12 @@
   background-color: #007a40;
 }
 
-
 /* Tabela */
 .tabela-residuos {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  background-color: rgb(128, 121, 121);
+  background-color: #f0f0f0;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -115,6 +115,7 @@
   padding: 12px 15px;
   border-bottom: 1px solid #e0e0e0;
   vertical-align: middle;
+  color: black;
 }
 
 .tabela-residuos tr:last-child td {
@@ -122,7 +123,7 @@
 }
 
 .tabela-residuos tr:hover {
-  background-color: #2b2a2a;
+  background-color: #e9f5ef;
 }
 
 /* Status */
@@ -132,6 +133,9 @@
   font-size: 0.8rem;
   font-weight: bold;
   text-transform: capitalize;
+  display: inline-block;
+  min-width: 75px;
+  text-align: center;
 }
 
 .status-badge.pendente {
@@ -144,15 +148,26 @@
   color: #0c5460;
 }
 
+.status-badge.retirada {
+  background-color: #ffe5b4;
+  color: #8a5d1b;
+}
+
 .status-badge.concluída {
   background-color: #d4edda;
   color: #155724;
 }
-/* Adicione ao arquivo CSS */
-.codigo-rastreamento {
+
+.status-badge.cancelada {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Código rastreamento */
+.codigo-rastreamento td{
   font-family: 'Courier New', monospace;
   font-weight: bold;
-  color: #2c5282;
+  color: #2f5c92;
   padding: 4px 8px;
   font-size: 0.85rem;
 }
@@ -178,13 +193,14 @@
   border: 1px solid #ddd;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 1;
 }
 
 .imagem-residuo:hover {
   transform: scale(2.5);
-  z-index: 100;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   position: relative;
+  z-index: 999;
 }
 
 .sem-imagem {
@@ -231,9 +247,6 @@
   cursor: pointer;
   font-size: 0.75rem;
   transition: background-color 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex: 1;
   min-width: 70px;
   max-width: 100px;
@@ -246,26 +259,22 @@
 .btn-deletar:disabled {
   opacity: 0.7;
 }
-/* Adicione no arquivo CSS */
-.btn-cancelar {
-  background-color: #dc3545;
+
+/* Botão Comprovante */
+.btn-comprovante {
+  background-color: #17a2b8;
   color: white;
-  padding: 6px 12px;
   border: none;
+  padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.75rem;
-  transition: background-color 0.3s;
+  font-size: 12px;
 }
 
-.btn-cancelar:hover {
-  background-color: #c82333;
+.btn-comprovante:hover {
+  background-color: #138496;
 }
 
-.btn-cancelar:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
 /* Loading */
 .loading-table {
   display: flex;
@@ -274,11 +283,6 @@
   justify-content: center;
   padding: 40px;
   gap: 15px;
-}
-
-.loading-table p {
-  margin: 0;
-  color: #555;
 }
 
 .overlay-loading {
@@ -295,99 +299,13 @@
   z-index: 1000;
 }
 
-.overlay-loading p {
-  margin-top: 10px;
-  color: #dc3545;
-  font-weight: bold;
-}
-
+/* Nenhum resíduo */
 .nenhum-residuo {
   text-align: center;
   padding: 20px;
   color: #666;
 }
-/* Modal interno */
-.form-modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
 
-.form-modal-content h3 {
-  color: #fff;
-  text-align: center;
-}
-
-.form-modal-content label {
-  font-weight: bold;
-  color: #fff;
-}
-
-.form-modal-content select,
-.form-modal-content input,
-.form-modal-content textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  outline: none;
-  font-size: 15px;
-  background-color: #202224;
-}
-
-.form-modal-content textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-.outros-container {
-  margin-top: 0.5rem;
-}
-
-.outros-container input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-/* Preview de imagem */
-.image-preview {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.preview-image {
-  max-width: 80px;
-  max-height: 80px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.btn-comprovante {
-  background-color: #17a2b8;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.btn-comprovante:hover {
-  background-color: #138496;
-}
-
-/* Ajuste para os botões de ação */
-.acoes-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
 /* Responsividade */
 @media (max-width: 768px) {
   .tabela-residuos {
@@ -409,11 +327,13 @@
   .acoes-container {
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 5px;
   }
 
   .btn-editar,
-  .btn-deletar {
-    max-width: none;
+  .btn-deletar,
+  .btn-comprovante {
     width: 100%;
+    max-width: none;
   }
 }

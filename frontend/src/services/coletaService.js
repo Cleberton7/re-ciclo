@@ -143,6 +143,20 @@ export const aceitarColeta = async (idSolicitacao) => {
   }
 };
 
+export const confirmarRetirada = async (idSolicitacao) => {
+  try {
+    const { data } = await axios.patch(
+      `${API_BASE}/coletas/${idSolicitacao}/retirada`,
+      {},
+      { headers: getAuthHeader() }
+    );
+
+    if (!data.success) throw new Error(data.message || 'Erro ao confirmar retirada');
+    return data;
+  } catch (error) {
+    throw handleApiError(error, 'Erro ao confirmar retirada');
+  }
+};
 export const concluirColeta = async (idSolicitacao, dados = {}) => {
   try {
     // Garante que as datas estão no payload
@@ -168,6 +182,28 @@ export const concluirColeta = async (idSolicitacao, dados = {}) => {
     throw new Error(
       error.response?.data?.error || 
       "Erro ao concluir coleta. Verifique sua conexão e tente novamente."
+    );
+  }
+};
+export const cancelarColeta = async (idSolicitacao) => {
+  try {
+    const { data } = await axios.patch(
+      `${API_BASE}/coletas/${idSolicitacao}/cancelar`,
+      {},
+      { headers: getAuthHeader() }
+    );
+
+    if (!data.success) {
+      throw new Error(data.message || 'Não foi possível cancelar a coleta');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erro ao cancelar coleta:', error);
+    throw new Error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      'Erro ao cancelar coleta. Tente novamente.'
     );
   }
 };

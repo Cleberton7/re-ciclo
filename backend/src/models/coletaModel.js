@@ -39,9 +39,10 @@ const coletaSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pendente', 'agendada', 'em_andamento', 'concluída', 'cancelada'],
+    enum: ['pendente', 'aceita', 'retirada', 'concluída', 'cancelada'],
     default: 'pendente'
   },
+
   privacidade: {
     type: String,
     enum: ['publica', 'privada'],
