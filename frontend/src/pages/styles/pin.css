@@ -206,7 +206,40 @@
   font-style: italic;
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
+/* Estilos para o badge de distância no pin */
+.pin-distancia-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #4285f4;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
 
+/* Estilo para a informação de distância no tooltip */
+.distancia-info {
+  background-color: #f0f7ff;
+  border-left: 3px solid #4285f4;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.distancia-info .info-icon {
+  color: #4285f4;
+}
+
+/* Ajustes para os pins com distância */
+.pin-icon {
+  position: relative;
+}
 /* Animações */
 @keyframes fadeIn {
   from {

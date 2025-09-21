@@ -1,6 +1,7 @@
+// components/Pin.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaBuilding } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaRecycle, FaBuilding, FaRoad } from 'react-icons/fa';
 import '../pages/styles/pin.css';
 
 const Pin = ({
@@ -12,6 +13,7 @@ const Pin = ({
   cnpj,
   recebeResiduoComunidade,
   tiposMateriais,
+  distancia, // Nova prop: distância em metros
   mapContainerRef
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -24,6 +26,17 @@ const Pin = ({
   const mostrarTiposMateriais =
     (tipo === 'empresa' && recebeResiduoComunidade) ||
     tipo === 'centro';
+
+  // Formatar distância para exibição
+  const formatarDistancia = (metros) => {
+    if (!metros && metros !== 0) return '';
+    
+    if (metros < 1000) {
+      return `${metros}m`;
+    } else {
+      return `${(metros / 1000).toFixed(1)}km`;
+    }
+  };
 
   const abrirRota = () => {
     if (endereco) {
@@ -93,6 +106,13 @@ const Pin = ({
     >
       <div className={pinClass}>
         {tipo === 'empresa' ? <FaBuilding size={16} /> : <FaRecycle size={16} />}
+        
+        {/* Badge de distância (sempre visível) */}
+        {distancia !== undefined && (
+          <div className="pin-distancia-badge">
+            {formatarDistancia(distancia)}
+          </div>
+        )}
       </div>
 
       {showTooltip &&
@@ -110,6 +130,14 @@ const Pin = ({
             </div>
 
             <div className="tooltip-content">
+              {/* Informação de distância no tooltip */}
+              {distancia !== undefined && (
+                <div className="info-item distancia-info">
+                  <FaRoad className="info-icon" />
+                  <span>{formatarDistancia(distancia)} de distância</span>
+                </div>
+              )}
+
               {email && (
                 <div className="info-item">
                   <FaEnvelope className="info-icon" />

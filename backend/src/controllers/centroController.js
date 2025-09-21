@@ -52,56 +52,33 @@ export const getCentrosDisponiveis = async (req, res) => {
   }
 };
 
-// 🔹 Atualizar localização
+// 🔹 Atualizar localização da empresa/centro (VERSÃO GEOJSON)
 export const atualizarLocalizacao = async (req, res) => {
   try {
     const { lat, lng } = req.body.localizacao;
-
+    
     if (typeof lat !== 'number' || typeof lng !== 'number') {
-      return res.status(400).json({ message: "Latitude e longitude são obrigatórios e devem ser números" });
+      return res.status(400).json({ 
+        message: "Latitude e longitude são obrigatórios e devem ser números" 
+      });
     }
 
-    await User.findByIdAndUpdate(req.user.id, { localizacao: { lat, lng } });
+    // ✅ FORMATO GEOJSON CORRETO: [longitude, latitude]
+    const localizacaoGeoJSON = {
+      type: "Point",
+      coordinates: [lng, lat] // ← ORDEM CORRETA: [longitude, latitude]
+    };
+
+    await User.findByIdAndUpdate(req.user.id, { 
+      localizacao: localizacaoGeoJSON,
+      lat: lat, // ← Mantém compatibilidade com campos antigos
+      lng: lng   // ← Mantém compatibilidade com campos antigos
+    });
+
     res.json({ message: "Localização atualizada com sucesso" });
   } catch (error) {
+    console.error("Erro ao atualizar localização:", error);
     res.status(500).json({ message: "Erro ao atualizar localização" });
-  }
-};
-
-// 🔹 Buscar centros públicos
-export const getCentrosPublicos = async (req, res) => {
-  try {
-    const centros = await User.find({
-      tipoUsuario: 'centro',
-    })
-      .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil localizacao tiposMateriais')
-      .lean();
-
-    res.json({
-      success: true,
-      data: centros.map(centro => ({
-        ...centro,
-        tiposMateriais: centro.tiposMateriais || [] // Garante que sempre retorne um array
-      }))
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      code: 'SERVER_ERROR',
-      message: 'Erro ao buscar centros de reciclagem'
-    });
-  }
-};
-
-// 🔹 Buscar localizações dos centros
-export const getLocalizacoes = async (req, res) => {
-  try {
-    const centros = await User.find({ tipoUsuario: 'centro', localizacao: { $ne: null } })
-      .select('nome localizacao');
-
-    res.json(centros);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar localizações dos centros de reciclagem" });
   }
 };
 
@@ -140,32 +117,4 @@ export const atualizarDados = async (req, res) => {
     });
   }
 };
-// 🔹 Buscar empresa pública por ID
-export const getCentroPublicoPorId = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const centro = await User.findOne({
-      _id: id,
-      tipoUsuario: 'centro'
-    }).select('nome email endereco cnpj nomeFantasia telefone imagemPerfil localizacao tiposMateriais');
 
-    if (!centro) {
-      return res.status(404).json({ success: false, message: 'Centro não encontrado' });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        ...centro._doc,
-        nomeFantasia: centro.nomeFantasia || centro.nome,
-        tiposMateriais: centro.tiposMateriais || [] // Garante que sempre retorne um array
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar centro',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};

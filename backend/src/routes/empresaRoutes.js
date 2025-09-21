@@ -6,10 +6,8 @@ import {
   getDadosEmpresa,
   getColetoresDisponiveis,
   atualizarLocalizacao,
-  getLocalizacoes,
-  getEmpresasPublicas,
   atualizarDados,
-  getEmpresaPublicaPorId
+
 } from '../controllers/empresaController.js';
 
 const router = express.Router();
@@ -29,9 +27,8 @@ router.put('/atualizar-localizacao', verifyToken, requireRole(['empresa']), atua
 router.put('/atualizar',verifyToken,requireRole(['empresa']),uploadEmpresa,uploadErrorHandler,atualizarDados);
 
 // 🔹 Endpoints públicos
-router.get('/localizacoes', getLocalizacoes);
-router.get('/publicas', getEmpresasPublicas);
-router.get('/publicas/:id', getEmpresaPublicaPorId);
+/*router.get('/localizacoes', getLocalizacoes);
+router.get('/publicas/:id', getEmpresaPublicaPorId);*/
 
 
 export default router;

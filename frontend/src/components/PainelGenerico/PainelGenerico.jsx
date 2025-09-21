@@ -89,14 +89,27 @@ const PainelGenerico = ({ tipoUsuario }) => {
         setDados(dadosFormatados);
         setTempDados(dadosFormatados);
 
-        if (dadosRecebidos.localizacao) {
-          const { lat, lng } = dadosRecebidos.localizacao;
-          if (lat && lng) {
-            setLat(lat);
-            setLng(lng);
-            setMapCenter({ lat, lng });
-          }
+      if (dadosRecebidos.localizacao) {
+        // ✅ FORMATO GEOJSON: coordinates: [longitude, latitude]
+        if (dadosRecebidos.localizacao.coordinates && 
+            Array.isArray(dadosRecebidos.localizacao.coordinates) &&
+            dadosRecebidos.localizacao.coordinates.length === 2) {
+          
+          const [lng, lat] = dadosRecebidos.localizacao.coordinates;
+          setLat(lat);
+          setLng(lng);
+          setMapCenter({ lat, lng });
         }
+        // ✅ Mantém compatibilidade com formato antigo
+        else if (dadosRecebidos.localizacao.lat && dadosRecebidos.localizacao.lng) {
+          setLat(dadosRecebidos.localizacao.lat);
+          setLng(dadosRecebidos.localizacao.lng);
+          setMapCenter({ 
+            lat: dadosRecebidos.localizacao.lat, 
+            lng: dadosRecebidos.localizacao.lng 
+          });
+        }
+      }
 
         if (dadosRecebidos.imagemPerfil) {
           setImagePreview(`${BASE_URL}/uploads/${dadosRecebidos.imagemPerfil}`);
@@ -323,9 +336,11 @@ const PainelGenerico = ({ tipoUsuario }) => {
         setSaving(false);
         return;
       }
-
       await axios.put(`${API_URL}/${endpoint}`, {
-        localizacao: { lat: parseFloat(lat), lng: parseFloat(lng) }
+        localizacao: {
+          type: "Point",
+          coordinates: [parseFloat(lng), parseFloat(lat)] // [longitude, latitude]
+        }
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });

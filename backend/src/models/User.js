@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
-// Funções de validação
+// Funções de validação (mantidas iguais)
 function validarCPF(cpf) {
   if (typeof cpf !== "string") return false;
   cpf = cpf.replace(/[^\d]+/g,'');
@@ -91,7 +91,7 @@ const UserSchema = new mongoose.Schema({
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'E-mail inválido'],
     lowercase: true,
   },
-    emailVerificado: {
+  emailVerificado: {
     type: Boolean,
     default: false
   },
@@ -192,26 +192,59 @@ const UserSchema = new mongoose.Schema({
     default: Date.now 
   },
   localizacao: {
-    lat: { type: Number, min: -90, max: 90 },
-    lng: { type: Number, min: -180, max: 180 }
-  }
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      index: '2dsphere',
+      required: function() {
+        return this.tipoUsuario === 'empresa' || this.tipoUsuario === 'centro';
+      },
+      validate: {
+        validator: function(coords) {
+          return coords.length === 2 && 
+                 coords[0] >= -180 && coords[0] <= 180 && // longitude
+                 coords[1] >= -90 && coords[1] <= 90;    // latitude
+        },
+        message: 'Coordenadas inválidas. Formato: [longitude, latitude]'
+      }
+    }
+  },
+  
+  // Mantenha os campos antigos temporariamente para migração
+  lat: { type: Number }, // Campo antigo
+  lng: { type: Number }  // Campo antigo
+
 }, {
+  // CORREÇÃO: Apenas UM objeto de opções com toJSON e toObject
   toJSON: { 
     virtuals: true,
     transform: function(doc, ret) {
       delete ret.senha;
       delete ret.__v;
-      return ret;
-    }
-  },
-  toObject: { 
-    virtuals: true,
-    transform: function(doc, ret) {
-      delete ret.senha;
-      delete ret.__v;
+      // Adicionar campos lat/lng para compatibilidade com frontend existente
+      if (ret.localizacao && ret.localizacao.coordinates) {
+        ret.lat = ret.localizacao.coordinates[1];
+        ret.lng = ret.localizacao.coordinates[0];
+      }
       return ret;
     }
   }
+});
+
+// Criar índice geoespacial
+UserSchema.index({ localizacao: '2dsphere' });
+
+// Virtual para compatibilidade com código existente
+UserSchema.virtual('localizacao.lat').get(function() {
+  return this.localizacao?.coordinates?.[1];
+});
+
+UserSchema.virtual('localizacao.lng').get(function() {
+  return this.localizacao?.coordinates?.[0];
 });
 
 // Middleware para hash da senha antes de salvar
@@ -220,6 +253,23 @@ UserSchema.pre('save', async function(next) {
   
   const salt = await bcrypt.genSalt(10);
   this.senha = await bcrypt.hash(this.senha, salt);
+  next();
+});
+
+// Middleware para back-compat e sincronização de dados
+UserSchema.pre('save', function(next) {
+  // Se tiver lat/lng mas não tiver localizacao GeoJSON, criar
+  if (this.lat && this.lng && (!this.localizacao || !this.localizacao.coordinates)) {
+    this.localizacao = {
+      type: 'Point',
+      coordinates: [this.lng, this.lat]
+    };
+  }
+  // Se tiver localizacao GeoJSON, manter lat/lng sincronizados
+  if (this.localizacao && this.localizacao.coordinates) {
+    this.lat = this.localizacao.coordinates[1];
+    this.lng = this.localizacao.coordinates[0];
+  }
   next();
 });
 

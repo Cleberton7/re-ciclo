@@ -37,54 +37,36 @@ export const getColetoresDisponiveis = async (req, res) => {
   }
 };
 
-// 🔹 Atualizar localização da empresa
+// 🔹 Atualizar localização da empresa/centro (VERSÃO GEOJSON)
 export const atualizarLocalizacao = async (req, res) => {
   try {
     const { lat, lng } = req.body.localizacao;
+    
     if (typeof lat !== 'number' || typeof lng !== 'number') {
-      return res.status(400).json({ message: "Latitude e longitude são obrigatórios e devem ser números" });
+      return res.status(400).json({ 
+        message: "Latitude e longitude são obrigatórios e devem ser números" 
+      });
     }
 
-    await User.findByIdAndUpdate(req.user.id, { localizacao: { lat, lng } });
+    // ✅ FORMATO GEOJSON CORRETO: [longitude, latitude]
+    const localizacaoGeoJSON = {
+      type: "Point",
+      coordinates: [lng, lat] // ← ORDEM CORRETA: [longitude, latitude]
+    };
+
+    await User.findByIdAndUpdate(req.user.id, { 
+      localizacao: localizacaoGeoJSON,
+      lat: lat, // ← Mantém compatibilidade com campos antigos
+      lng: lng   // ← Mantém compatibilidade com campos antigos
+    });
+
     res.json({ message: "Localização atualizada com sucesso" });
   } catch (error) {
+    console.error("Erro ao atualizar localização:", error);
     res.status(500).json({ message: "Erro ao atualizar localização" });
   }
 };
 
-// 🔹 Buscar localizações públicas das empresas
-export const getLocalizacoes = async (req, res) => {
-  try {
-    const empresas = await User.find({ tipoUsuario: 'empresa', localizacao: { $ne: null } })
-      .select('nome localizacao');
-    res.json(empresas);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar localizações das empresas" });
-  }
-};
-
-// 🔹 Buscar dados públicos das empresas
-export const getEmpresasPublicas = async (req, res) => {
-  try {
-    const empresas = await User.find({ tipoUsuario: 'empresa' })
-      .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade tiposMateriais')
-      .lean();
-    
-    res.json({
-      success: true,
-      data: empresas.map(e => ({
-        ...e,
-        nomeFantasia: e.razaoSocial || e.nome,
-        tiposMateriais: e.tiposMateriais || [] // Garante que sempre retorne um array
-      }))
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar empresas'
-    });
-  }
-};
 
 // 🔹 Atualizar dados da empresa (com ou sem imagem)
 export const atualizarDados = async (req, res) => {
@@ -115,32 +97,3 @@ export const atualizarDados = async (req, res) => {
   }
 };
 
-// 🔹 Buscar empresa pública por ID
-export const getEmpresaPublicaPorId = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const empresa = await User.findOne({
-      _id: id,
-      tipoUsuario: 'empresa'
-    }).select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade tiposMateriais');
-
-    if (!empresa) {
-      return res.status(404).json({ success: false, message: 'Empresa não encontrada' });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        ...empresa._doc,
-        nomeFantasia: empresa.razaoSocial || empresa.nome,
-        tiposMateriais: empresa.tiposMateriais || [] // Garante que sempre retorne um array
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar empresa',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};

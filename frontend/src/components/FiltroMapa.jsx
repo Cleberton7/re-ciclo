@@ -1,10 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaFilter, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { 
+  FaFilter, 
+  FaTimes, 
+  FaChevronDown, 
+  FaChevronUp, 
+  FaMapMarkerAlt // ✅ Ícone adicionado
+} from 'react-icons/fa';
 import '../pages/styles/filtroMapa.css';
 
-const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOptions = [] }) => {
+const FiltroMapa = ({ 
+  filtros = {}, 
+  onFiltroChange = () => {}, 
+  tiposMateriaisOptions = [],
+  raioDistancia = 10,
+  onRaioChange = () => {}
+}) => {
   const [mostrarMateriais, setMostrarMateriais] = useState(false);
+  const [mostrarRaio, setMostrarRaio] = useState(false);
   const dropdownRef = useRef(null);
+  const raioDropdownRef = useRef(null);
 
   // Normaliza o campo "tipo" (suporta tanto string quanto array vindo do parent)
   const normalizeTipo = (f) => {
@@ -27,18 +41,20 @@ const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOpt
   const empresaChecked = tipoAtual === 'todos' || tipoAtual === 'empresa';
   const centroChecked = tipoAtual === 'todos' || tipoAtual === 'centro';
 
-  // Fechar dropdown ao clicar fora
+  // Fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setMostrarMateriais(false);
+      }
+      if (raioDropdownRef.current && !raioDropdownRef.current.contains(event.target)) {
+        setMostrarRaio(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Toggle de tipos: atualiza tipo como string (compatível com o parent)
   const toggleTipo = (which) => {
     const nextEmpresa = which === 'empresa' ? !empresaChecked : empresaChecked;
     const nextCentro = which === 'centro' ? !centroChecked : centroChecked;
@@ -76,6 +92,15 @@ const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOpt
   };
 
   const toggleMateriais = () => setMostrarMateriais(!mostrarMateriais);
+  const toggleRaio = () => setMostrarRaio(!mostrarRaio);
+
+  const handleRaioChange = (novoRaio) => {
+    onRaioChange(novoRaio);
+    setMostrarRaio(false);
+  };
+
+  // Opções de raio pré-definidas (em quilômetros)
+  const opcoesRaio = [1, 5, 10, 20, 50];
 
   // mostrar botão limpar apenas se diferente do padrão
   const filtrosAtivos = tipoAtual !== 'todos' || materiaisAtuais.length > 0;
@@ -105,6 +130,34 @@ const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOpt
             />
             Centros
           </label>
+        </div>
+      </div>
+
+      <div className="filtro-group" ref={raioDropdownRef}>
+        <div className="raio-dropdown">
+          <button
+            className={`dropdown-toggle ${raioDistancia > 10 ? 'active' : ''}`}
+            onClick={toggleRaio}
+            type="button"
+          >
+            <FaMapMarkerAlt size={12} style={{marginRight: '5px'}} />
+            {raioDistancia} km
+            {mostrarRaio ? <FaChevronUp size={10} /> : <FaChevronDown size={10} />}
+          </button>
+
+          {mostrarRaio && (
+            <div className="dropdown-content raio-options">
+              {opcoesRaio.map(raio => (
+                <button
+                  key={raio}
+                  className={`raio-option ${raio === raioDistancia ? 'selected' : ''}`}
+                  onClick={() => handleRaioChange(raio)}
+                >
+                  {raio} km
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -147,7 +200,6 @@ const FiltroMapa = ({ filtros = {}, onFiltroChange = () => {}, tiposMateriaisOpt
           Limpar
         </button>
       )}
-
     </div>
   );
 };

@@ -20,6 +20,7 @@ import coletasRoutes from './src/routes/Coletas/Private/coletasRoutes.js';
 import noticiaRoutes from './src/routes/noticiasRoutes.js';
 import publicRoutes from './src/routes/Coletas/Public/publicRoutes.js';
 import contatoRoutes from './src/routes/contatoRoutes.js';
+import publicDataroutes from './src/routes/publicDataRoutes.js';
 import { errorHandler } from './src/middlewares/errorMiddleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,6 +89,7 @@ async function main() {
     app.use("/api/coletas", coletasRoutes);
     app.use("/api/noticias", noticiaRoutes);
     app.use("/api/public", publicRoutes);
+    app.use("/api/public-routes", publicDataroutes);
     app.use('/api', contatoRoutes);
 
     // 🔥 Health Check
