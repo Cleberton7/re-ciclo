@@ -144,13 +144,7 @@ export const getEmpresasPorProximidade = async (req, res) => {
   try {
     const { lat, lng, raio } = req.query;
     
-    console.log('🔍 [DEBUG] Buscando empresas por proximidade:', { 
-      lat, 
-      lng, 
-      raio,
-      coordenadasQuery: [parseFloat(lng), parseFloat(lat)]
-    });
-    
+ 
     if (!lat || !lng) {
       return res.status(400).json({
         success: false,
@@ -160,7 +154,6 @@ export const getEmpresasPorProximidade = async (req, res) => {
 
     const raioMetros = raio ? parseInt(raio) : 10000;
 
-    // ✅ LOG: Verificar query completa
     const query = {
       tipoUsuario: 'empresa',
       localizacao: {
@@ -174,35 +167,9 @@ export const getEmpresasPorProximidade = async (req, res) => {
       }
     };
 
-    console.log('🔍 [DEBUG] Query MongoDB:', JSON.stringify(query, null, 2));
-
     const empresas = await User.find(query)
     .select('nome email endereco cnpj razaoSocial telefone imagemPerfil localizacao recebeResiduoComunidade tiposMateriais')
     .lean();
-
-    console.log('🔍 [DEBUG] Empresas encontradas:', empresas.length);
-    
-    if (empresas.length > 0) {
-      console.log('🔍 [DEBUG] Detalhes das empresas:');
-      empresas.forEach(empresa => {
-        console.log('  -', empresa.nomeFantasia || empresa.razaoSocial, 
-                   'Coords:', empresa.localizacao?.coordinates,
-                   'Tipo localizacao:', typeof empresa.localizacao);
-      });
-    } else {
-      console.log('🔍 [DEBUG] Nenhuma empresa encontrada dentro do raio de', raioMetros, 'metros');
-      
-      // ✅ LOG adicional: Verificar todas as empresas no BD para debug
-      const todasEmpresas = await User.find({ tipoUsuario: 'empresa' })
-        .select('nomeFantasia razaoSocial localizacao')
-        .lean();
-      
-      console.log('🔍 [DEBUG] Todas empresas no BD:', todasEmpresas.length);
-      todasEmpresas.forEach(emp => {
-        console.log('  -', emp.nomeFantasia || emp.razaoSocial, 
-                   'Localizacao:', emp.localizacao);
-      });
-    }
 
     // Calcular distância para cada empresa
     const empresasComDistancia = empresas.map(empresa => {
@@ -246,8 +213,6 @@ export const getCentrosPorProximidade = async (req, res) => {
   try {
     const { lat, lng, raio } = req.query;
     
-    console.log('🔍 [DEBUG] Buscando centros por proximidade:', { lat, lng, raio });
-    
     if (!lat || !lng) {
       return res.status(400).json({
         success: false,
@@ -272,7 +237,6 @@ export const getCentrosPorProximidade = async (req, res) => {
     .select('nome email endereco cnpj telefone nomeFantasia imagemPerfil localizacao tiposMateriais')
     .lean();
 
-    console.log('🔍 [DEBUG] Centros encontrados:', centros.length);
 
     // Calcular distância para cada centro
     const centrosComDistancia = centros.map(centro => {
