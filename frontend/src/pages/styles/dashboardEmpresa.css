@@ -325,6 +325,9 @@ display: flex;
   .empresas-container {
     padding: 15px;
   }
+  .empresas-card {
+    height: 450px;
+  }
   
   .partners-section {
     padding: 40px 15px;
